@@ -1,0 +1,7 @@
+{
+  "name": "greenbox",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
