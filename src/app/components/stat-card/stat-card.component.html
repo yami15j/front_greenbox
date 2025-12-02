@@ -1,0 +1,12 @@
+<ion-card class="stat-card">
+  <div class="left">
+    <div class="icon" *ngIf="icon">
+      <ion-icon [name]="icon"></ion-icon>
+    </div>
+  </div>
+  <div class="center">
+    <div class="title">{{ title }}</div>
+    <div class="value">{{ value }} <span class="unit">{{ unit }}</span></div>
+    <div class="status" *ngIf="statusText">{{ statusText }}</div>
+  </div>
+</ion-card>

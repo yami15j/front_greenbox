@@ -1,0 +1,64 @@
+.stat-card {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  .left {
+    margin-right: 12px;
+
+    .icon {
+      background: #eaf3e2;
+      padding: 8px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      ion-icon {
+        font-size: 28px;
+        color: #4caf50; // verde tipo "óptimo"
+      }
+    }
+  }
+
+  .center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .title {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 4px;
+      text-transform: capitalize;
+    }
+
+    .value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #333;
+
+      .unit {
+        font-size: 0.9rem;
+        color: #777;
+        margin-left: 2px;
+      }
+    }
+
+    .status {
+      font-size: 0.85rem;
+      margin-top: 2px;
+      color: #4caf50; // puedes cambiar según el estado
+    }
+  }
+}

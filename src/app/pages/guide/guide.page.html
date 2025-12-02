@@ -1,0 +1,413 @@
+<ion-content class="guide-content" [scrollEvents]="true" [fullscreen]="true">
+  
+  <!-- Header Verde -->
+  <div class="guide-header">
+    <ion-button fill="clear" class="back-button" (click)="goBack()">
+      <ion-icon name="arrow-back" slot="icon-only"></ion-icon>
+    </ion-button>
+    <div class="header-content">
+      <h1 class="header-title">Guía de Uso</h1>
+      <p class="header-subtitle">
+        <ion-icon name="book-outline"></ion-icon>
+        Manual de la Incubadora
+      </p>
+    </div>
+  </div>
+
+  <!-- Pull to Refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Tarjeta de Bienvenida -->
+  <div class="welcome-card">
+    <div class="welcome-icon">
+      <img src="assets/logo 1.png" alt="GreenBox">
+    </div>
+    <h2>¡Bienvenido a tu Incubadora GREENBOX!</h2>
+    <p>Aprende a usar y optimizar tu sistema de cultivo inteligente</p>
+  </div>
+
+  <!-- Navegación Rápida -->
+  <div class="quick-nav">
+    <div class="nav-item" (click)="scrollToSection('parametros')">
+      <ion-icon name="analytics-outline"></ion-icon>
+      <span>Parámetros</span>
+    </div>
+    <div class="nav-item" (click)="scrollToSection('sensores')">
+      <ion-icon name="hardware-chip-outline"></ion-icon>
+      <span>Sensores</span>
+    </div>
+    <div class="nav-item" (click)="scrollToSection('alertas')">
+      <ion-icon name="notifications-outline"></ion-icon>
+      <span>Alertas</span>
+    </div>
+    <div class="nav-item" (click)="scrollToSection('consejos')">
+      <ion-icon name="bulb-outline"></ion-icon>
+      <span>Consejos</span>
+    </div>
+  </div>
+
+  <!-- Sección: Parámetros Óptimos -->
+  <div class="section-card" id="parametros">
+    <div class="section-header">
+      <ion-icon name="analytics-outline" class="section-icon"></ion-icon>
+      <h3>Parámetros Óptimos</h3>
+    </div>
+    <div class="section-content">
+      <p class="section-intro">Mantén estos valores para un crecimiento saludable de tus plantas:</p>
+      
+      <!-- Temperatura -->
+      <div class="param-guide">
+        <div class="param-icon-wrap temp-color">
+          <img src="assets/icon/temperatura.png" alt="Temperatura">
+        </div>
+        <div class="param-info">
+          <h4>Temperatura</h4>
+          <div class="param-range">
+            <span class="range-value">20°C - 26°C</span>
+            <ion-badge color="success">Rango Óptimo</ion-badge>
+          </div>
+          <p class="param-desc">
+            La temperatura ideal para la mayoría de plantas de hoja verde. Temperaturas muy altas pueden causar marchitez, mientras que muy bajas ralentizan el crecimiento.
+          </p>
+          <div class="param-tips">
+            <div class="tip-item">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
+              <span>Mantén ventilación adecuada</span>
+            </div>
+            <div class="tip-item">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
+              <span>Evita cambios bruscos de temperatura</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Humedad -->
+      <div class="param-guide">
+        <div class="param-icon-wrap hum-color">
+          <img src="assets/icon/humedad.png" alt="Humedad">
+        </div>
+        <div class="param-info">
+          <h4>Humedad</h4>
+          <div class="param-range">
+            <span class="range-value">60% - 75%</span>
+            <ion-badge color="success">Rango Óptimo</ion-badge>
+          </div>
+          <p class="param-desc">
+            La humedad relativa adecuada previene la deshidratación de las plantas y favorece la absorción de nutrientes. Demasiada humedad puede causar hongos.
+          </p>
+          <div class="param-tips">
+            <div class="tip-item">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
+              <span>Monitorea diariamente</span>
+            </div>
+            <div class="tip-item">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
+              <span>Aumenta ventilación si es muy alta</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Luz -->
+      <div class="param-guide">
+        <div class="param-icon-wrap light-color">
+          <img src="assets/icon/luz.png" alt="Luz">
+        </div>
+        <div class="param-info">
+          <h4>Intensidad de Luz</h4>
+          <div class="param-range">
+            <span class="range-value">60% - 85%</span>
+            <ion-badge color="success">Rango Óptimo</ion-badge>
+          </div>
+          <p class="param-desc">
+            La luz es esencial para la fotosíntesis. Las plantas necesitan entre 12-16 horas de luz diarias. La intensidad ideal depende del tipo de planta.
+          </p>
+          <div class="param-tips">
+            <div class="tip-item">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
+              <span>12-16 horas de luz al día</span>
+            </div>
+            <div class="tip-item">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
+              <span>Mantén ciclos regulares</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nivel de Agua -->
+      <div class="param-guide">
+        <div class="param-icon-wrap water-color">
+          <img src="assets/icon/agua.png" alt="Agua">
+        </div>
+        <div class="param-info">
+          <h4>Nivel de Agua</h4>
+          <div class="param-range">
+            <span class="range-value">Mínimo 50%</span>
+            <ion-badge color="primary">Mantener</ion-badge>
+          </div>
+          <p class="param-desc">
+            El sistema de riego automático mantiene la humedad del sustrato. Asegúrate de rellenar el tanque cuando el nivel baje del 50%.
+          </p>
+          <div class="param-tips">
+            <div class="tip-item">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
+              <span>Rellena cuando llegue a 30%</span>
+            </div>
+            <div class="tip-item">
+              <ion-icon name="checkmark-circle" color="success"></ion-icon>
+              <span>Usa agua limpia y fresca</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección: Sensores -->
+  <div class="section-card" id="sensores">
+    <div class="section-header">
+      <ion-icon name="hardware-chip-outline" class="section-icon"></ion-icon>
+      <h3>Sistema de Sensores</h3>
+    </div>
+    <div class="section-content">
+      <p class="section-intro">Tu incubadora cuenta con sensores de última generación:</p>
+
+      <div class="sensor-item">
+        <div class="sensor-number">1</div>
+        <div class="sensor-details">
+          <h4>Sensor de Temperatura DHT22</h4>
+          <p>Mide la temperatura ambiente con precisión de ±0.5°C. Actualización cada 2 segundos.</p>
+        </div>
+      </div>
+
+      <div class="sensor-item">
+        <div class="sensor-number">2</div>
+        <div class="sensor-details">
+          <h4>Sensor de Humedad DHT22</h4>
+          <p>Mide la humedad relativa del aire con precisión de ±2%. Integrado con el sensor de temperatura.</p>
+        </div>
+      </div>
+
+      <div class="sensor-item">
+        <div class="sensor-number">3</div>
+        <div class="sensor-details">
+          <h4>Sensor de Luz LDR</h4>
+          <p>Fotoresistencia que detecta la intensidad lumínica. Ideal para controlar ciclos de luz.</p>
+        </div>
+      </div>
+
+      <div class="sensor-item">
+        <div class="sensor-number">4</div>
+        <div class="sensor-details">
+          <h4>Sensor de Nivel de Agua</h4>
+          <p>Monitorea el nivel del tanque de agua para el sistema de riego automático.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección: Sistema de Alertas -->
+  <div class="section-card" id="alertas">
+    <div class="section-header">
+      <ion-icon name="notifications-outline" class="section-icon"></ion-icon>
+      <h3>Sistema de Alertas</h3>
+    </div>
+    <div class="section-content">
+      <p class="section-intro">GREENBOX te alertará cuando detecte estas condiciones:</p>
+
+      <div class="alert-guide">
+        <div class="alert-badge optimal">
+          <ion-icon name="checkmark-circle"></ion-icon>
+        </div>
+        <div class="alert-details">
+          <h4>Estado Óptimo</h4>
+          <p>Todos los parámetros dentro del rango ideal. Tu planta está en condiciones perfectas.</p>
+        </div>
+      </div>
+
+      <div class="alert-guide">
+        <div class="alert-badge warning">
+          <ion-icon name="warning"></ion-icon>
+        </div>
+        <div class="alert-details">
+          <h4>Advertencia</h4>
+          <p>Uno o más parámetros cerca del límite. Revisa y ajusta si es necesario.</p>
+        </div>
+      </div>
+
+      <div class="alert-guide">
+        <div class="alert-badge critical">
+          <ion-icon name="alert-circle"></ion-icon>
+        </div>
+        <div class="alert-details">
+          <h4>Crítico</h4>
+          <p>Parámetros fuera de rango. Acción inmediata requerida para proteger tu cultivo.</p>
+        </div>
+      </div>
+
+      <div class="alert-guide">
+        <div class="alert-badge water">
+          <ion-icon name="water"></ion-icon>
+        </div>
+        <div class="alert-details">
+          <h4>Nivel de Agua Bajo</h4>
+          <p>El tanque necesita ser rellenado. El sistema de riego puede verse afectado.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección: Consejos Prácticos -->
+  <div class="section-card" id="consejos">
+    <div class="section-header">
+      <ion-icon name="bulb-outline" class="section-icon"></ion-icon>
+      <h3>Consejos Prácticos</h3>
+    </div>
+    <div class="section-content">
+      
+      <div class="tip-card">
+        <div class="tip-number">💡</div>
+        <div class="tip-content">
+          <h4>Revisa Diariamente</h4>
+          <p>Dedica 2-3 minutos al día para revisar los parámetros en la app. La constancia es clave.</p>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-number">🌱</div>
+        <div class="tip-content">
+          <h4>Ajusta según la Planta</h4>
+          <p>Cada tipo de planta tiene necesidades específicas. Usa la sección de "Perfiles de Plantas" para optimizar.</p>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-number">💧</div>
+        <div class="tip-content">
+          <h4>Mantén el Agua Limpia</h4>
+          <p>Cambia el agua del tanque cada 7-10 días para evitar algas y bacterias.</p>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-number">🔆</div>
+        <div class="tip-content">
+          <h4>Ciclos de Luz Regulares</h4>
+          <p>Mantén un horario constante de luz (ej: 6am-10pm) para mejores resultados.</p>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-number">📊</div>
+        <div class="tip-content">
+          <h4>Analiza el Historial</h4>
+          <p>Usa la sección de historial para identificar patrones y optimizar las condiciones.</p>
+        </div>
+      </div>
+
+      <div class="tip-card">
+        <div class="tip-number">🔧</div>
+        <div class="tip-content">
+          <h4>Mantenimiento Regular</h4>
+          <p>Limpia los sensores mensualmente con un paño suave para mantener la precisión.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección: Solución de Problemas -->
+  <div class="section-card">
+    <div class="section-header">
+      <ion-icon name="construct-outline" class="section-icon"></ion-icon>
+      <h3>Solución de Problemas</h3>
+    </div>
+    <div class="section-content">
+      
+      <ion-accordion-group>
+        <ion-accordion value="temp-alta">
+          <ion-item slot="header">
+            <ion-label>
+              <h3>Temperatura muy alta</h3>
+            </ion-label>
+          </ion-item>
+          <div class="accordion-content" slot="content">
+            <p><strong>Causas:</strong> Luz muy intensa, poca ventilación, ubicación directa al sol.</p>
+            <p><strong>Soluciones:</strong></p>
+            <ul>
+              <li>Reduce la intensidad de las luces LED</li>
+              <li>Mejora la ventilación del área</li>
+              <li>Coloca la incubadora en un lugar más fresco</li>
+            </ul>
+          </div>
+        </ion-accordion>
+
+        <ion-accordion value="hum-baja">
+          <ion-item slot="header">
+            <ion-label>
+              <h3>Humedad muy baja</h3>
+            </ion-label>
+          </ion-item>
+          <div class="accordion-content" slot="content">
+            <p><strong>Causas:</strong> Ambiente seco, exceso de ventilación.</p>
+            <p><strong>Soluciones:</strong></p>
+            <ul>
+              <li>Coloca un recipiente con agua dentro</li>
+              <li>Reduce la ventilación</li>
+              <li>Usa un humidificador cerca</li>
+            </ul>
+          </div>
+        </ion-accordion>
+
+        <ion-accordion value="luz-baja">
+          <ion-item slot="header">
+            <ion-label>
+              <h3>Luz insuficiente</h3>
+            </ion-label>
+          </ion-item>
+          <div class="accordion-content" slot="content">
+            <p><strong>Causas:</strong> LEDs apagados, ubicación oscura, sensores sucios.</p>
+            <p><strong>Soluciones:</strong></p>
+            <ul>
+              <li>Verifica que las luces LED funcionen</li>
+              <li>Limpia el sensor de luz</li>
+              <li>Aumenta las horas de iluminación</li>
+            </ul>
+          </div>
+        </ion-accordion>
+
+        <ion-accordion value="agua-rapida">
+          <ion-item slot="header">
+            <ion-label>
+              <h3>Agua se consume muy rápido</h3>
+            </ion-label>
+          </ion-item>
+          <div class="accordion-content" slot="content">
+            <p><strong>Causas:</strong> Fuga en el sistema, temperatura alta, bomba defectuosa.</p>
+            <p><strong>Soluciones:</strong></p>
+            <ul>
+              <li>Revisa tuberías y conexiones</li>
+              <li>Verifica la bomba de riego</li>
+              <li>Reduce temperatura si es muy alta</li>
+            </ul>
+          </div>
+        </ion-accordion>
+      </ion-accordion-group>
+    </div>
+  </div>
+
+  <!-- Contacto/Soporte -->
+  <div class="support-card">
+    <ion-icon name="help-circle-outline"></ion-icon>
+    <h3>¿Necesitas más ayuda?</h3>
+    <p>Estamos aquí para ayudarte con tu cultivo inteligente</p>
+    <ion-button expand="block" fill="outline">
+      <ion-icon name="mail-outline" slot="start"></ion-icon>
+      Contactar Soporte
+    </ion-button>
+  </div>
+
+</ion-content>

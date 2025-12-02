@@ -1,0 +1,164 @@
+.login-page {
+  --background: #d8ebe4;
+  --overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: fixed;
+  width: 100%;
+
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+
+  .login-container {
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
+    top: 170px;
+    position: relative;
+
+    .card-content {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 20px 32px 5px;
+      width: 100%;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+      text-align: center;
+
+      h1 {
+        font-family: 'Montserrat';
+        font-weight: 700;
+        font-size: 24px;
+        letter-spacing: 1.5px;
+        margin: 0 0 24px 0;
+        color: #1a1a1a;
+      }
+
+      .logo-circle {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 20px;
+        border: 2px solid #d0d0d0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+
+        .logo {
+          width: 100px;
+          height: 100px;
+          object-fit: contain;
+        }
+      }
+
+      .subtitle {
+        color: #7a7a7a;
+        font-size: 13px;
+        margin: 0 0 32px 0;
+        font-weight: 400;
+      }
+
+      .form-section {
+        .input-label {
+          display: block;
+          text-align: left;
+          font-size: 14px;
+          font-weight: 600;
+          color: #1a1a1a;
+          margin-bottom: 10px;
+          padding-left: 0;
+          font-family: 'Montserrat';
+        }
+
+        .input-item {
+          --background: transparent;
+          --border-radius: 10px;
+          --padding-start: 16px;
+          --padding-end: 16px;
+          --inner-padding-end: 0;
+          --min-height: 20px;
+          margin-bottom: 20px;
+          border: 1.5px solid #e0e0e0;
+          border-radius: 10px;
+          background: #ffffff;
+
+          ion-input {
+            --color: #1a1a1a;
+            --placeholder-color: #b0b0b0;
+            --placeholder-opacity: 1;
+            font-size: 14px;
+            font-weight: 400;
+            font-family: 'Montserrat';
+          }
+        }
+
+        ion-button {
+          --background: #5db09a;
+          --background-hover: #52a087;
+          --background-activated: #52a087;
+          --border-radius: 10px;
+          --box-shadow: none;
+          --color: #ffffff;
+          height: 50px;
+          font-weight: 600;
+          font-size: 16px;
+          text-transform: none;
+          margin-top: 0;
+          margin-bottom: 20px;
+        }
+
+        .footer-text {
+          font-size: 12px;
+          color: #7a7a7a;
+          margin: 0;
+          line-height: 1.5;
+          font-weight: 400;
+        }
+      }
+
+      .mensaje {
+        margin-top: 16px;
+        font-size: 13px;
+        color: #666666;
+        padding: 10px;
+        border-radius: 8px;
+
+        &:contains('❌'), &:contains('⚠️') {
+          background: #ffe6e6;
+          color: #cc0000;
+        }
+
+        &:contains('✅') {
+          background: #e6f7f0;
+          color: #2d8a6e;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .login-page {
+    .login-container {
+      .card-content {
+        padding: 36px 24px 32px;
+
+        h1 {
+          font-size: 22px;
+        }
+
+        .logo-circle {
+          width: 90px;
+          height: 90px;
+
+          .logo {
+            width: 65px;
+            height: 65px;
+          }
+        }
+      }
+    }
+  }
+}

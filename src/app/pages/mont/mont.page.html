@@ -1,0 +1,185 @@
+<ion-content class="incubator-content" fullscreen="true">
+  <!-- Pull to Refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Header Verde -->
+  <div class="incubator-header">
+    <ion-button fill="clear" class="back-button" (click)="goBack()">
+      <ion-icon name="arrow-back" slot="icon-only"></ion-icon>
+    </ion-button>
+    <div class="header-content">
+      <h1 class="header-title">Historial </h1>
+      <p class="header-subtitle">Ciclo de crecimiento mensual</p>
+    </div>
+  </div>
+
+  <div class="content-wrapper">
+    <!-- Selector de Mes -->
+    <div class="month-selector">
+      <ion-button fill="clear" class="nav-button" (click)="previousMonth()">
+        <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+      <div class="month-display">
+        <h2 class="month-name">{{ currentMonth }}</h2>
+        <p class="year">{{ currentYear }}</p>
+      </div>
+      <ion-button fill="clear" class="nav-button" (click)="nextMonth()">
+        <ion-icon name="chevron-forward-outline" slot="icon-only"></ion-icon>
+      </ion-button>
+    </div>
+
+    <!-- Tarjeta de Resumen del Mes -->
+    <div class="summary-card">
+      <div class="summary-header">
+        <img src="assets/fresa.jpg" class="plant-icon" alt="Planta">
+        <div class="summary-info">
+          <h3 class="summary-title">Estado General</h3>
+          <p class="summary-status">{{ monthStatus }}</p>
+        </div>
+      </div>
+      <div class="summary-stats">
+        <div class="stat-item">
+          <div class="stat-value">{{ daysActive }}</div>
+          <div class="stat-label">Días Activos</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-value">{{ growthStage }}</div>
+          <div class="stat-label">Etapa</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-value">{{ healthScore }}%</div>
+          <div class="stat-label">Salud</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendario del Mes -->
+    <div class="calendar-card">
+      <div class="calendar-title">Calendario de Cuidados</div>
+      
+      <!-- Días de la semana -->
+      <div class="weekdays">
+        <div class="weekday" *ngFor="let day of weekDays">{{ day }}</div>
+      </div>
+      
+      <!-- Días del mes -->
+      <div class="calendar-grid">
+        <div 
+          class="calendar-day" 
+          *ngFor="let day of calendarDays"
+          [class.empty]="!day.date"
+          [class.today]="day.isToday"
+          [class.has-event]="day.hasEvent"
+          [class.past]="day.isPast"
+          (click)="selectDay(day)">
+          <span class="day-number">{{ day.date }}</span>
+          <span class="day-indicator" *ngIf="day.hasEvent"></span>
+        </div>
+      </div>
+
+      <!-- Leyenda -->
+      <div class="calendar-legend">
+        <div class="legend-item">
+          <span class="legend-dot today-dot"></span>
+          <span class="legend-text">Hoy</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot event-dot"></span>
+          <span class="legend-text">Riego/Cuidado</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actividades del Mes -->
+    <div class="activities-card">
+      <div class="activities-header">
+        <h3 class="activities-title">Actividades Registradas</h3>
+        <ion-button fill="clear" size="small" (click)="addActivity()">
+          <ion-icon name="add-circle" slot="start"></ion-icon>
+          Agregar
+        </ion-button>
+      </div>
+
+      <div class="activities-list">
+        <div class="activity-item" *ngFor="let activity of activities">
+          <div class="activity-icon" [ngClass]="activity.type">
+            <ion-icon [name]="activity.icon"></ion-icon>
+          </div>
+          <div class="activity-info">
+            <div class="activity-name">{{ activity.name }}</div>
+            <div class="activity-date">{{ activity.date }}</div>
+          </div>
+          <div class="activity-status" [ngClass]="activity.status">
+            {{ activity.statusText }}
+          </div>
+        </div>
+
+        <div class="empty-activities" *ngIf="activities.length === 0">
+          <ion-icon name="leaf-outline" class="empty-icon"></ion-icon>
+          <p>No hay actividades registradas este mes</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Condiciones Promedio del Mes -->
+    <div class="conditions-card">
+      <h3 class="conditions-title">Condiciones Promedio</h3>
+      
+      <div class="conditions-grid">
+        <div class="condition-item">
+          <img src="assets/icon/temperatura.png" class="condition-icon" alt="Temperatura">
+          <div class="condition-info">
+            <div class="condition-label">Temperatura</div>
+            <div class="condition-value">{{ avgTemp }}°C</div>
+          </div>
+        </div>
+
+        <div class="condition-item">
+          <img src="assets/icon/humedad.png" class="condition-icon" alt="Humedad">
+          <div class="condition-info">
+            <div class="condition-label">Humedad</div>
+            <div class="condition-value">{{ avgHumidity }}%</div>
+          </div>
+        </div>
+
+        <div class="condition-item">
+          <img src="assets/icon/luz.png" class="condition-icon" alt="Luz">
+          <div class="condition-info">
+            <div class="condition-label">Luz</div>
+            <div class="condition-value">{{ avgLight }}%</div>
+          </div>
+        </div>
+
+        <div class="condition-item">
+          <img src="assets/icon/agua.png" class="condition-icon" alt="Agua">
+          <div class="condition-info">
+            <div class="condition-label">Nivel de Agua</div>
+            <div class="condition-value">{{ avgWater }}%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notas del Mes -->
+    <div class="notes-card">
+      <div class="notes-header">
+        <h3 class="notes-title">Notas y Observaciones</h3>
+        <ion-button fill="clear" size="small" (click)="editNotes()">
+          <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+      <div class="notes-content">
+        <p *ngIf="monthNotes">{{ monthNotes }}</p>
+        <p class="empty-notes" *ngIf="!monthNotes">
+          No hay notas para este mes. Toca el ícono para agregar.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</ion-content>
+

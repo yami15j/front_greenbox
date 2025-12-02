@@ -1,20 +1,25 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
+    <ion-title>Incubadora de Plantas 🌱</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content>
+  <app-top-card></app-top-card>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
-  </div>
+  <app-stat-card
+    title="Temperatura"
+    value="28"
+    unit="°C"
+    icon="thermometer"
+    statusText="Normal">
+  </app-stat-card>
+
+  <app-stat-card
+    title="Humedad"
+    value="60"
+    unit="%"
+    icon="water"
+    statusText="Óptima">
+  </app-stat-card>
 </ion-content>

@@ -35,3 +35,154 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+/* ============================================
+   ESTILOS PERSONALIZADOS GREENBOX
+   ============================================ */
+
+// Importar fuente Montserrat
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+// Estilos personalizados para alerts de selección de plantas
+.custom-alert {
+  --background: #ffffff;
+  --max-width: 300px;
+  --border-radius: 20px;
+  
+  .alert-wrapper {
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .alert-head {
+    padding: 20px 20px 12px;
+    
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 19px;
+      font-weight: 700;
+      color: #2c3e50;
+      text-align: center;
+    }
+  }
+
+  .alert-message {
+    padding: 0 20px 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #5a6c7d;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .alert-button-group {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    
+    button {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: none;
+      border-radius: 12px;
+      height: 44px;
+      margin: 0;
+      
+      &.alert-button-role-cancel {
+        color: #7f8c8d;
+        background: #f8f9fa;
+        order: 2;
+        
+        &:hover {
+          background: #e9ecef;
+        }
+      }
+      
+      &:not(.alert-button-role-cancel) {
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        order: 1;
+        
+        &:hover {
+          box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+        }
+      }
+    }
+  }
+}
+
+// Alert de éxito (más pequeño y verde)
+.success-alert {
+  --background: #ffffff;
+  --max-width: 280px;
+  --border-radius: 18px;
+  
+  .alert-wrapper {
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.2);
+    border: 2px solid #e8f5e9;
+  }
+
+  .alert-head {
+    padding: 20px 16px 8px;
+    
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #4CAF50;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      
+      &::before {
+        content: '✓';
+        display: inline-block;
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        color: white;
+        border-radius: 50%;
+        font-size: 16px;
+        line-height: 28px;
+        text-align: center;
+      }
+    }
+  }
+
+  .alert-message {
+    padding: 0 16px 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #5a6c7d;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  .alert-button-group {
+    padding: 8px 12px 12px;
+    
+    button {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      color: white;
+      border-radius: 12px;
+      height: 42px;
+      box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+      text-transform: none;
+      
+      &:hover {
+        box-shadow: 0 5px 14px rgba(76, 175, 80, 0.4);
+      }
+    }
+  }
+}

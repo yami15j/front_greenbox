@@ -1,0 +1,567 @@
+// ========================================
+// GUIDE PAGE STYLES - GREENBOX
+// ========================================
+
+.guide-content {
+  --background: #f5f7fa;
+}
+
+// ========================================
+// HEADER VERDE (igual que otras páginas)
+// ========================================
+.guide-header {
+  
+  padding: 48px 20px 32px 20px;
+  color: rgb(0, 0, 0);
+  position: relative;
+  
+  border-radius: 0 0 24px 24px;
+
+  .back-button {
+    position: absolute;
+    top: 20px;
+    left: 8px;
+    --color: white;
+    --background: rgba(0, 0, 0, 0.2);
+    --border-radius: 12px;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    height: 40px;
+
+    ion-icon {
+      font-size: 24px;
+    }
+  }
+
+  .header-content {
+    text-align: center;
+
+    .header-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+      letter-spacing: 0.5px;
+      
+    }
+
+    .header-subtitle {
+      font-size: 14px;
+      opacity: 0.95;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+
+      ion-icon {
+        font-size: 18px;
+      }
+    }
+  }
+}
+
+// ========================================
+// TARJETA DE BIENVENIDA
+// ========================================
+.welcome-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 16px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+  .welcome-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 16px;
+  
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+
+    img {
+      width: 80px;
+      height: 80px;
+      filter: brightness(0) invert(1);
+    }
+  }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// ========================================
+// NAVEGACIÓN RÁPIDA
+// ========================================
+.quick-nav {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 0 16px 16px;
+
+  .nav-item {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 8px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    ion-icon {
+      font-size: 28px;
+      color: #4a9a84;
+      margin-bottom: 8px;
+    }
+
+    span {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+  }
+}
+
+// ========================================
+// SECCIONES
+// ========================================
+.section-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 0 16px 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+
+    .section-icon {
+      font-size: 28px;
+      color: #4a9a84;
+    }
+
+    h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0;
+    }
+  }
+
+  .section-content {
+    .section-intro {
+      font-size: 14px;
+      color: #7f8c8d;
+      margin: 0 0 20px 0;
+      line-height: 1.6;
+    }
+  }
+}
+
+// ========================================
+// GUÍAS DE PARÁMETROS
+// ========================================
+.param-guide {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .param-icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    img {
+      width: 32px;
+      height: 32px;
+    }
+
+    &.temp-color {
+      background: linear-gradient(135deg, #ff6b6b20 0%, #ff6b6b30 100%);
+    }
+
+    &.hum-color {
+      background: linear-gradient(135deg, #4fc3f720 0%, #4fc3f730 100%);
+    }
+
+    &.light-color {
+      background: linear-gradient(135deg, #ffd93d20 0%, #ffd93d30 100%);
+    }
+
+    &.water-color {
+      background: linear-gradient(135deg, #4fc3f720 0%, #4fc3f730 100%);
+    }
+  }
+
+  .param-info {
+    flex: 1;
+
+    h4 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0 0 8px 0;
+    }
+
+    .param-range {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+
+      .range-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: #4a9a84;
+      }
+
+      ion-badge {
+        font-size: 11px;
+        padding: 4px 10px;
+      }
+    }
+
+    .param-desc {
+      font-size: 13px;
+      color: #7f8c8d;
+      line-height: 1.6;
+      margin: 0 0 12px 0;
+    }
+
+    .param-tips {
+      .tip-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+        font-size: 13px;
+        color: #2c3e50;
+
+        ion-icon {
+          font-size: 18px;
+          flex-shrink: 0;
+        }
+      }
+    }
+  }
+}
+
+// ========================================
+// ITEMS DE SENSORES
+// ========================================
+.sensor-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .sensor-number {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #5db09a 0%, #4a9a84 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .sensor-details {
+    flex: 1;
+
+    h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0 0 6px 0;
+    }
+
+    p {
+      font-size: 13px;
+      color: #7f8c8d;
+      line-height: 1.5;
+      margin: 0;
+    }
+  }
+}
+
+// ========================================
+// GUÍAS DE ALERTAS
+// ========================================
+.alert-guide {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .alert-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    ion-icon {
+      font-size: 24px;
+      color: white;
+    }
+
+    &.optimal {
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    }
+
+    &.warning {
+      background: linear-gradient(135deg, #FFC107 0%, #FFB300 100%);
+    }
+
+    &.critical {
+      background: linear-gradient(135deg, #F44336 0%, #E53935 100%);
+    }
+
+    &.water {
+      background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    }
+  }
+
+  .alert-details {
+    flex: 1;
+
+    h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0 0 6px 0;
+    }
+
+    p {
+      font-size: 13px;
+      color: #7f8c8d;
+      line-height: 1.5;
+      margin: 0;
+    }
+  }
+}
+
+// ========================================
+// TARJETAS DE CONSEJOS
+// ========================================
+.tip-card {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: linear-gradient(135deg, #4CAF5010 0%, #4CAF5020 100%);
+  border-radius: 12px;
+  border-left: 4px solid #4a9a84;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .tip-number {
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  .tip-content {
+    flex: 1;
+
+    h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0 0 6px 0;
+    }
+
+    p {
+      font-size: 13px;
+      color: #7f8c8d;
+      line-height: 1.5;
+      margin: 0;
+    }
+  }
+}
+
+// ========================================
+// ACCORDIONS (Solución de Problemas)
+// ========================================
+ion-accordion-group {
+  ion-accordion {
+    margin-bottom: 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    ion-item {
+      --background: white;
+      --border-color: transparent;
+      --padding-start: 16px;
+      --padding-end: 16px;
+
+      ion-label h3 {
+        font-size: 14px;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+    }
+
+    .accordion-content {
+      padding: 16px;
+      background: #f8f9fa;
+
+      p {
+        font-size: 13px;
+        color: #2c3e50;
+        line-height: 1.6;
+        margin: 0 0 12px 0;
+
+        strong {
+          color: #4a9a84;
+          font-weight: 600;
+        }
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+
+        li {
+          font-size: 13px;
+          color: #7f8c8d;
+          line-height: 1.6;
+          margin-bottom: 6px;
+        }
+      }
+    }
+  }
+}
+
+// ========================================
+// TARJETA DE SOPORTE
+// ========================================
+.support-card {
+  background: linear-gradient(135deg, #5db09a 0%, #4a9a84 100%);
+  border-radius: 16px;
+  padding: 28px;
+  margin: 16px 16px 24px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.3);
+
+  ion-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.9;
+  }
+
+  h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    font-size: 14px;
+    opacity: 0.9;
+    margin: 0 0 20px 0;
+  }
+
+  ion-button {
+    --background: white;
+    background: linear-gradient(135deg, #5db09a 0%, #4a9a84 100%);
+    --border-radius: 12px;
+    font-weight: 600;
+    height: 44px;
+
+    &::part(native) {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+}
+
+// ========================================
+// RESPONSIVE
+// ========================================
+@media (max-width: 360px) {
+  .quick-nav {
+    .nav-item {
+      padding: 12px 6px;
+
+      ion-icon {
+        font-size: 24px;
+      }
+
+      span {
+        font-size: 10px;
+      }
+    }
+  }
+
+  .param-guide {
+    flex-direction: column;
+
+    .param-icon-wrap {
+      margin: 0 auto;
+    }
+  }
+}

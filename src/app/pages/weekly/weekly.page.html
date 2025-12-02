@@ -1,0 +1,110 @@
+<ion-content class="weekly-content" [scrollEvents]="true" [fullscreen]="true">
+  <!-- Header Verde -->
+  <div class="weekly-header">
+    <ion-button fill="clear" class="back-button" (click)="goBack()">
+      <ion-icon name="arrow-back" slot="icon-only"></ion-icon>
+    </ion-button>
+  </div>
+
+  <!-- Pull to Refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Selector de Sensores -->
+  <div class="sensor-selector">
+    <div class="sensor-button" 
+         [class.active]="selectedSensor === 'temperature'"
+         (click)="goToSensorDetail('temperature')">
+      <img src="assets/icon/temperatura.png" class="sensor-icon" alt="Temperatura">
+      <span class="sensor-label">Temperatura</span>
+    </div>
+
+    <div class="sensor-button" 
+         [class.active]="selectedSensor === 'humidity'"
+         (click)="goToSensorDetail('humidity')">
+      <img src="assets/icon/humedad.png" class="sensor-icon" alt="Humedad">
+      <span class="sensor-label">Humedad</span>
+    </div>
+
+    <div class="sensor-button" 
+         [class.active]="selectedSensor === 'light'"
+         (click)="goToSensorDetail('light')">
+      <img src="assets/icon/luz.png" class="sensor-icon" alt="Luz">
+      <span class="sensor-label">Luz</span>
+    </div>
+
+    <div class="sensor-button" 
+         [class.active]="selectedSensor === 'water'"
+         (click)="goToSensorDetail('water')">
+      <img src="assets/icon/agua.png" class="sensor-icon" alt="Agua">
+      <span class="sensor-label">Agua</span>
+    </div>
+  </div>
+
+  <!-- Resumen Semanal -->
+  <div class="summary-card">
+    <div class="summary-header">
+      <span class="summary-label">Promedio Semanal</span>
+      <span class="summary-change">Cambio</span>
+    </div>
+    <div class="summary-values">
+      <div class="main-value">
+        <span class="value-number">{{ currentAverage }}</span>
+        <span class="value-unit">{{ currentUnit }}</span>
+      </div>
+      <div class="change-value" [class.positive]="weeklyChange >= 0" [class.negative]="weeklyChange < 0">
+        <ion-icon [name]="weeklyChange >= 0 ? 'arrow-up' : 'arrow-down'"></ion-icon>
+        {{ weeklyChange > 0 ? '+' : '' }}{{ weeklyChange }}{{ currentUnit }}
+      </div>
+    </div>
+    <div class="summary-minmax">
+      <div class="minmax-item">
+        <span class="minmax-label">Máximo</span>
+        <span class="minmax-value">{{ maxValue }}{{ currentUnit }}</span>
+      </div>
+      <div class="minmax-item">
+        <span class="minmax-label">Mínimo</span>
+        <span class="minmax-value">{{ minValue }}{{ currentUnit }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráfico Semanal -->
+  <div class="weekly-chart-card">
+    <div class="chart-title">{{ sensorTitle }} - Semana</div>
+    <div class="weekly-bars">
+      <div class="day-bar" *ngFor="let day of weeklyData" (click)="showDayDetail(day)">
+        <div class="bar-container">
+          <div class="bar" [style.height.%]="day.percentage" [class]="'bar-' + selectedSensor"></div>
+        </div>
+        <div class="day-value">{{ day.value }}{{ currentUnit }}</div>
+        <div class="day-label">{{ day.day }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detalle Diario -->
+  <div class="daily-detail-card">
+    <div class="detail-header">Detalle Diario</div>
+    <div class="detail-list">
+      <div class="detail-item" *ngFor="let day of dailyDetails" (click)="showDayDetail(day)">
+        <div class="detail-left">
+          <img [src]="getSensorIcon()" class="detail-icon" [alt]="sensorTitle">
+          <div class="detail-info">
+            <span class="detail-day">{{ day.dayName }}</span>
+            <span class="detail-date">{{ day.date }}</span>
+          </div>
+        </div>
+        <div class="detail-right">
+          <span class="detail-value">{{ day.value }}{{ currentUnit }}</span>
+          <span class="detail-change" [class.positive]="day.change >= 0" [class.negative]="day.change < 0">
+            {{ day.change > 0 ? '+' : '' }}{{ day.change }}{{ currentUnit }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</ion-content>
+

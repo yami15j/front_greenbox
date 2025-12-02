@@ -1,0 +1,44 @@
+<ion-content class="login-page" [scrollY]="false" fullscreen="true">
+  <div class="login-container">
+    <div class="card-content">
+      <h1>GREENBOX</h1>
+
+      <div class="logo-circle">
+        <img src="/assets/logo 2.png" alt="Logo" class="logo" />
+      </div>
+
+      <p class="subtitle">Cultivo inteligente a tu alcance</p>
+
+      <div class="form-section">
+        <ion-label class="input-label">Código de Acceso</ion-label>
+
+        <ion-item class="input-item" lines="none">
+          <ion-input
+            placeholder="Ingresa tu código"
+            [(ngModel)]="code"
+            type="text"
+          ></ion-input>
+        </ion-item>
+
+        <!-- BOTÓN CON LOADING -->
+        <ion-button 
+          expand="block" 
+          (click)="onAccess()" 
+          [disabled]="loading"
+        >
+          <ng-container *ngIf="!loading">Acceder</ng-container>
+          <ng-container *ngIf="loading">
+            <ion-spinner name="dots"></ion-spinner>
+          </ng-container>
+        </ion-button>
+
+        <p class="footer-text">Monitoreo en tiempo real de tu cultivo</p>
+      </div>
+
+      <!-- MENSAJE DE ERROR / ÉXITO -->
+      <p *ngIf="mensaje" class="mensaje">
+        {{ mensaje }}
+      </p>
+    </div>
+  </div>
+</ion-content>
