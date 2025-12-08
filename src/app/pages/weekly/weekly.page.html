@@ -1,4 +1,9 @@
 <ion-content class="weekly-content" [scrollEvents]="true" [fullscreen]="true">
+  <!-- Pull to Refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   <!-- Header Verde -->
   <div class="weekly-header">
     <ion-button fill="clear" class="back-button" (click)="goBack()">
@@ -6,37 +11,32 @@
     </ion-button>
   </div>
 
-  <!-- Pull to Refresh -->
-  <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
-
   <!-- Selector de Sensores -->
   <div class="sensor-selector">
     <div class="sensor-button" 
-         [class.active]="selectedSensor === 'temperature'"
-         (click)="goToSensorDetail('temperature')">
+        [class.active]="selectedSensor === 'temperature'"
+        (click)="goToSensorDetail('temperature')">
       <img src="assets/icon/temperatura.png" class="sensor-icon" alt="Temperatura">
       <span class="sensor-label">Temperatura</span>
     </div>
 
     <div class="sensor-button" 
-         [class.active]="selectedSensor === 'humidity'"
-         (click)="goToSensorDetail('humidity')">
+        [class.active]="selectedSensor === 'humidity'"
+        (click)="goToSensorDetail('humidity')">
       <img src="assets/icon/humedad.png" class="sensor-icon" alt="Humedad">
       <span class="sensor-label">Humedad</span>
     </div>
 
     <div class="sensor-button" 
-         [class.active]="selectedSensor === 'light'"
-         (click)="goToSensorDetail('light')">
+        [class.active]="selectedSensor === 'light'"
+        (click)="goToSensorDetail('light')">
       <img src="assets/icon/luz.png" class="sensor-icon" alt="Luz">
       <span class="sensor-label">Luz</span>
     </div>
 
     <div class="sensor-button" 
-         [class.active]="selectedSensor === 'water'"
-         (click)="goToSensorDetail('water')">
+        [class.active]="selectedSensor === 'water'"
+        (click)="goToSensorDetail('water')">
       <img src="assets/icon/agua.png" class="sensor-icon" alt="Agua">
       <span class="sensor-label">Agua</span>
     </div>
@@ -51,21 +51,24 @@
     <div class="summary-values">
       <div class="main-value">
         <span class="value-number">{{ currentAverage }}</span>
-        <span class="value-unit">{{ currentUnit }}</span>
+        <span class="value-unit">
+          {{ selectedSensor === 'temperature' ? '°C' : '%' }}
+        </span>
       </div>
       <div class="change-value" [class.positive]="weeklyChange >= 0" [class.negative]="weeklyChange < 0">
         <ion-icon [name]="weeklyChange >= 0 ? 'arrow-up' : 'arrow-down'"></ion-icon>
-        {{ weeklyChange > 0 ? '+' : '' }}{{ weeklyChange }}{{ currentUnit }}
+        {{ weeklyChange > 0 ? '+' : '' }}{{ weeklyChange }}
+        {{ selectedSensor === 'temperature' ? '°C' : '%' }}
       </div>
     </div>
     <div class="summary-minmax">
       <div class="minmax-item">
         <span class="minmax-label">Máximo</span>
-        <span class="minmax-value">{{ maxValue }}{{ currentUnit }}</span>
+        <span class="minmax-value">{{ maxValue }}{{ selectedSensor === 'temperature' ? '°C' : '%' }}</span>
       </div>
       <div class="minmax-item">
         <span class="minmax-label">Mínimo</span>
-        <span class="minmax-value">{{ minValue }}{{ currentUnit }}</span>
+        <span class="minmax-value">{{ minValue }}{{ selectedSensor === 'temperature' ? '°C' : '%' }}</span>
       </div>
     </div>
   </div>
@@ -78,7 +81,9 @@
         <div class="bar-container">
           <div class="bar" [style.height.%]="day.percentage" [class]="'bar-' + selectedSensor"></div>
         </div>
-        <div class="day-value">{{ day.value }}{{ currentUnit }}</div>
+        <div class="day-value">{{ day.value }}
+          {{ selectedSensor === 'temperature' ? '°C' : '%' }}
+        </div>
         <div class="day-label">{{ day.day }}</div>
       </div>
     </div>
@@ -97,14 +102,32 @@
           </div>
         </div>
         <div class="detail-right">
-          <span class="detail-value">{{ day.value }}{{ currentUnit }}</span>
+          <span class="detail-value">{{ day.value }}{{ selectedSensor === 'temperature' ? '°C' : '%' }}</span>
           <span class="detail-change" [class.positive]="day.change >= 0" [class.negative]="day.change < 0">
-            {{ day.change > 0 ? '+' : '' }}{{ day.change }}{{ currentUnit }}
+            {{ day.change > 0 ? '+' : '' }}{{ day.change }}{{ selectedSensor === 'temperature' ? '°C' : '%' }}
           </span>
         </div>
       </div>
     </div>
   </div>
-
 </ion-content>
 
+<!-- Tabs Inferior FIJO -->
+<ion-footer class="ion-no-border">
+  <ion-toolbar class="tabs-toolbar">
+    <div class="custom-tabs">
+      <button class="tab-button" (click)="goHome()">
+        <img src="assets/icon/inicio.png" alt="Inicio" class="tab-icon">
+        <span class="tab-label">Inicio</span>
+      </button>
+      <button class="tab-button active">
+        <img src="assets/icon/historial.png" alt="Historial" class="tab-icon">
+        <span class="tab-label">Historial</span>
+      </button>
+      <button class="tab-button" (click)="goHistory()">
+        <img src="assets/icon/plant_s" alt="" class="tab-icon">
+        <span class="tab-label">Notificaciones</span>
+      </button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

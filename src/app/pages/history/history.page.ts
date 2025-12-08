@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, NavController } from '@ionic/angular';
+import { ApiService, SensorReading } from 'src/app/api.service';
 
 interface BarData {
   value: number;
@@ -16,75 +17,82 @@ interface BarData {
 })
 export class HistoryPage implements OnInit {
   isLoading = false;
-  
+  selectedRange: 'day' | 'week' | 'month' = 'week';
+
   temperatureData: BarData[] = [];
   humidityData: BarData[] = [];
   lightData: BarData[] = [];
   waterData: BarData[] = [];
 
+  activePlantId: string | null = null;
+
   constructor(
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private api: ApiService
   ) {}
 
   ngOnInit() {
+    // Cargar planta activa para filtrar historial
+    const plant = localStorage.getItem('activePlant');
+    if (plant) {
+      try {
+        this.activePlantId = JSON.parse(plant).id;
+      } catch { 
+        this.activePlantId = null; 
+      }
+    }
     this.loadData();
   }
 
-  loadData() {
-    // Temperatura - datos como en la imagen (24° - 27°)
-    this.temperatureData = [
-      { value: 24, percentage: 60 },
-      { value: 26, percentage: 80 },
-      { value: 25, percentage: 70 },
-      { value: 27, percentage: 100 },
-      { value: 26, percentage: 80 },
-      { value: 25, percentage: 70 }
-    ];
-
-    // Humedad - datos como en la imagen (58% - 65%)
-    this.humidityData = [
-      { value: 58, percentage: 60 },
-      { value: 62, percentage: 80 },
-      { value: 60, percentage: 70 },
-      { value: 65, percentage: 100 },
-      { value: 61, percentage: 75 },
-      { value: 60, percentage: 70 }
-    ];
-
-    // Luz - datos de ejemplo (70% - 85%)
-    this.lightData = [
-      { value: 75, percentage: 60 },
-      { value: 80, percentage: 80 },
-      { value: 78, percentage: 70 },
-      { value: 85, percentage: 100 },
-      { value: 82, percentage: 85 },
-      { value: 79, percentage: 75 }
-    ];
-
-    // Agua - datos de ejemplo (68% - 78%)
-    this.waterData = [
-      { value: 70, percentage: 60 },
-      { value: 75, percentage: 80 },
-      { value: 72, percentage: 70 },
-      { value: 78, percentage: 100 },
-      { value: 76, percentage: 85 },
-      { value: 74, percentage: 75 }
-    ];
+  onRangeChange(event: any) {
+    this.selectedRange = event.detail.value;
+    this.loadData();
   }
 
+  /** Carga historial según rango seleccionado */
+  async loadData() {
+    if (!this.activePlantId) return;
+    this.isLoading = true;
+
+    try {
+      let data: SensorReading[] = [];
+
+      switch (this.selectedRange) {
+        case 'day':
+          data = await this.api.getHistoryByPlant(this.activePlantId, '24h');
+          break;
+        case 'week':
+          data = await this.api.getHistoryByPlant(this.activePlantId, '7d');
+          break;
+        case 'month':
+          data = await this.api.getHistoryByPlant(this.activePlantId, '30d');
+          break;
+      }
+
+      // Mapear datos para mostrar en barras
+      this.temperatureData = data.map(d => ({ value: d.temperature, percentage: d.temperature }));
+      this.humidityData = data.map(d => ({ value: d.humidity, percentage: d.humidity }));
+      this.lightData = data.map(d => ({ value: d.light, percentage: d.light }));
+      this.waterData = data.map(d => ({ value: d.water, percentage: d.water }));
+
+    } catch (err) {
+      console.error('Error cargando datos históricos:', err);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  /** Pull to refresh */
   refreshData(event: any) {
-    // Simular actualización de datos
-    setTimeout(() => {
-      this.loadData();
+    setTimeout(async () => {
+      await this.loadData();
       event.target.complete();
     }, 1000);
   }
 
-  goBack() {
-    this.navCtrl.back();
-  }
-
-  goHome() {
-    this.navCtrl.navigateBack('/home');
-  }
+  // Navegación
+  goBack() { this.navCtrl.back(); }
+  goHome() { this.navCtrl.navigateBack('/home'); }
+  goPlants() { this.navCtrl.navigateForward('/plant'); }
+  goIncubator() { this.navCtrl.navigateForward('/weekly'); }
 }

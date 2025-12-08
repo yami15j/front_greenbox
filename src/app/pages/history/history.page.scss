@@ -1,7 +1,7 @@
 .history-content {
   --background: #e8f4f0;
   --padding-top: 0;
-  --padding-bottom: 100px;
+  --padding-bottom: 0;
   overflow-y: auto !important;
 }
 
@@ -20,6 +20,7 @@
     
     ion-icon {
       font-size: 24px;
+      color: #333;
     }
   }
 
@@ -45,28 +46,27 @@
 }
 
 // Selector de rango
-  .range-selector {
-    padding: 0 16px;
-    margin-bottom: 20px;
-    
-    ion-segment {
-      --background: white;
-      border-radius: 16px;
-      padding: 4px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-      margin: 0;
-    }
-    ion-segment-button {
-      --color: #666;
-      --color-checked: #5fb89a;
-      --indicator-color: #e8f4f0;
-      --indicator-border-radius: 12px;
-      min-height: 40px;
-      font-size: 14px;
-      font-weight: 500;
-    }
+.range-selector {
+  padding: 0 16px;
+  margin-bottom: 20px;
+  
+  ion-segment {
+    --background: white;
+    border-radius: 16px;
+    padding: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    margin: 0;
   }
-
+  ion-segment-button {
+    --color: #666;
+    --color-checked: #5fb89a;
+    --indicator-color: #e8f4f0;
+    --indicator-border-radius: 12px;
+    min-height: 40px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
 
 /* Loading State */
 .loading-container {
@@ -88,11 +88,12 @@
   }
 }
 
-/* Charts Container */
+/* Charts Container - Con padding inferior para tabs fijo */
 .charts-container {
-  padding: 0 16px 100px 16px;
-  height: auto;   /* 👈 CORRECCIÓN AQUÍ */
-  overflow-y: auto;
+  padding: 0 16px 20px 16px;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom)); // Espacio para tabs fijo
+  height: auto;
+  overflow-y: visible;
 }
 
 /* Chart Card */
@@ -182,53 +183,9 @@
   }
 }
 
-/* Tabs Inferior */
-.bottom-tabs {
-  ion-tab-bar {
-    --background: white;
-    --border: 0;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
-    height: 56px;
-    padding-bottom: 8px;
-    border-radius: 20px 20px 0 0;
-
-    ion-tab-button {
-      --color: #999;
-      --color-selected: #5db09a;
-      font-size: 12px;
-
-      .tab-icon {
-        width: 20px;
-        height: 20px;
-        margin-bottom: 4px;
-        object-fit: contain;
-        filter: brightness(0) saturate(100%) invert(60%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(60%) contrast(90%);
-        transition: filter 0.3s ease;
-      }
-
-      ion-label {
-        font-weight: 500;
-        color: #999;
-        transition: color 0.3s ease;
-      }
-
-      &.tab-selected {
-        .tab-icon {
-          filter: brightness(0) saturate(100%) invert(67%) sepia(13%) saturate(1089%) hue-rotate(97deg) brightness(92%) contrast(87%);
-        }
-
-        ion-label {
-          color: #5db09a;
-          font-weight: 600;
-        }
-      }
-    }
-  }
-}
-
 /* Animación */
 .chart-card {
-  animation: slideUp 0.4s ease-outA;
+  animation: slideUp 0.4s ease-out;
 }
 
 @keyframes slideUp {
@@ -239,5 +196,76 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+// Footer fijo con tabs personalizados
+ion-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  
+  .tabs-toolbar {
+    --background: white;
+    --border-width: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
+    --min-height: auto;
+    border-top: 1px solid #e0e0e0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+.custom-tabs {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 0;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  background: white;
+  height: 56px;
+  
+  .tab-button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: transparent;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #999;
+    
+    ion-icon {
+      font-size: 24px;
+      transition: color 0.3s ease;
+    }
+    
+    .tab-label {
+      font-size: 12px;
+      font-weight: 500;
+      margin: 0;
+      transition: color 0.3s ease;
+    }
+    
+    &.active {
+      color: #5db09a;
+      
+      ion-icon,
+      .tab-label {
+        color: #5db09a;
+        font-weight: 600;
+      }
+    }
+    
+    &:active {
+      transform: scale(0.95);
+    }
   }
 }

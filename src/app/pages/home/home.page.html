@@ -1,19 +1,20 @@
 <ion-content class="home-content" fullscreen="true">
+
   <!-- Pull to Refresh -->
   <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <!-- Header con título -->
+  <!-- Header -->
   <div class="page-header">
-    <h1 class="page-title">Historial Semanal</h1>
+    <h1 class="page-title">Home</h1>
+    <button class="change-plant-btn" *ngIf="activePlant" (click)="goPlants()">
+      Cambiar Planta
+    </button>
   </div>
 
-  <!-- Loading State -->
+  <!-- Loading -->
   <div *ngIf="isLoading" class="content-wrapper">
-    <div class="chart-card">
-      <div class="loading-shimmer" style="height: 250px;"></div>
-    </div>
     <div class="sensors-grid-compact">
       <div class="sensor-card-compact" *ngFor="let i of [1,2,3,4]">
         <div class="loading-shimmer" style="height: 80px;"></div>
@@ -21,24 +22,48 @@
     </div>
   </div>
 
-  <!-- Contenido principal -->
+  <!-- Contenido -->
   <div *ngIf="!isLoading" class="content-wrapper">
-    <!-- Tarjeta de gráfico grande -->
-    <div class="chart-card">
-      <div class="chart-placeholder">
-        <!-- Aquí irá tu gráfico -->
-        <p class="chart-text">Imagen de la planta</p>
+
+    <!-- Planta activa -->
+    <div class="plant-card" *ngIf="activePlant">
+      <div class="plant-card-header">
+        <div class="plant-info">
+          <h2 class="plant-name">{{ activePlant.name }}</h2>
+        </div>
+      </div>
+      <div class="plant-image-container">
+        <img [src]="activePlant.imageUrl" [alt]="activePlant.name" class="plant-image"
+             onerror="this.src='assets/plant/default-plant.jpg';">
       </div>
     </div>
 
+    <!-- Sin planta -->
+    <div class="no-plant-card" *ngIf="!activePlant" (click)="goPlants()">
+      <img src="assets/icons-tabs/plants.png" alt="No Planta" class="tab-icon no-plant-icon">
+      <h3>No hay planta seleccionada</h3>
+      <p>Toca aquí para elegir tu planta</p>
+    </div>
 
+    <!-- Estado general de la planta -->
+    <div class="plant-status-bar" *ngIf="activePlant">
+      <div class="status-label">Estado de la Planta</div>
+      <div class="status-indicator">
+        <div class="status-bar">
+          <div class="status-fill" [ngClass]="getPlantHealthStatus()"></div>
+        </div>
+        <div class="status-text" [ngClass]="getPlantHealthStatus()">
+          {{ getPlantHealthText() }}
+        </div>
+      </div>
+    </div>
 
-    <!-- Grid compacto de sensores (2x2) -->
+    <!-- Sensores -->
     <div class="sensors-grid-compact">
       <!-- Temperatura -->
       <div class="sensor-card-compact">
         <div class="sensor-header-compact">
-          <img src="assets/icon/temperatura.png" class="sensor-icon-compact" alt="Temperatura">
+          <img src="assets/icon/temperatura.png" class="sensor-icon-compact">
           <span class="sensor-title-compact">Temperatura</span>
         </div>
         <div class="sensor-value-compact">{{ data.temp | number:'1.1-1' }}°C</div>
@@ -50,7 +75,7 @@
       <!-- Humedad -->
       <div class="sensor-card-compact">
         <div class="sensor-header-compact">
-          <img src="assets/icon/humedad.png" class="sensor-icon-compact" alt="Humedad">
+          <img src="assets/icon/humedad.png" class="sensor-icon-compact">
           <span class="sensor-title-compact">Humedad</span>
         </div>
         <div class="sensor-value-compact">{{ data.hum | number:'1.0-0' }}%</div>
@@ -62,7 +87,7 @@
       <!-- Luz -->
       <div class="sensor-card-compact">
         <div class="sensor-header-compact">
-          <img src="assets/icon/luz.png" class="sensor-icon-compact" alt="Luz">
+          <img src="assets/icon/luz.png" class="sensor-icon-compact">
           <span class="sensor-title-compact">Luz</span>
         </div>
         <div class="sensor-value-compact">{{ data.light | number:'1.0-0' }}%</div>
@@ -71,10 +96,10 @@
         </div>
       </div>
 
-      <!-- Nivel de Agua -->
+      <!-- Agua -->
       <div class="sensor-card-compact">
         <div class="sensor-header-compact">
-          <img src="assets/icon/agua.png" class="sensor-icon-compact" alt="Agua">
+          <img src="assets/icon/agua.png" class="sensor-icon-compact">
           <span class="sensor-title-compact">Nivel de Agua</span>
         </div>
         <div class="sensor-value-compact">{{ data.water | number:'1.0-0' }}%</div>
@@ -84,21 +109,28 @@
       </div>
     </div>
 
-    <!-- Tarjeta de Sistema de Riego -->
-    <div class="irrigation-card-compact">
-      <div class="irrigation-content">
-        <div class="irrigation-text">
-          <div class="irrigation-label">Sistema de Riego</div>
-          <div class="irrigation-mode">Automático</div>
-        </div>
-        <img src="assets/icon/sistema.png" class="leaf-icon" alt="Sistema">
-      </div>
-    </div>
-
-    <!-- Botón Historial -->
-    <ion-button expand="block" class="history-button" (click)="goHistory()">
-      Ver Historial Completo
-    </ion-button>
   </div>
+
 </ion-content>
 
+<!-- Tabs inferiores -->
+<ion-footer class="ion-no-border">
+  <ion-toolbar class="tabs-toolbar">
+    <div class="custom-tabs">
+      <button class="tab-button" [class.active]="true" (click)="goHome()">
+        <img src="assets/icon/inicio.png" alt="Inicio" class="tab-icon">
+        <span class="tab-label">Inicio</span>
+      </button>
+
+      <button class="tab-button" (click)="goHistory()">
+        <img src="assets/icon/historial.png" alt="Historial" class="tab-icon">
+        <span class="tab-label">Historial</span>
+      </button>
+
+      <button class="tab-button" (click)="goPlants()">
+        <img src="assets/icon/plant_s" alt="Plantas" class="tab-icon">
+        <span class="tab-label">Plantas</span>
+      </button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

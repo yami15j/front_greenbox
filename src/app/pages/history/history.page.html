@@ -7,24 +7,26 @@
     </ion-button>
     <div class="header-content">
       <h1 class="header-title">Historial de Datos</h1>
-      <p class="header-subtitle">Últimas 24 horas</p>
+      <p class="header-subtitle" *ngIf="selectedRange === 'day'">Últimas 24 horas</p>
+      <p class="header-subtitle" *ngIf="selectedRange === 'week'">Última semana</p>
+      <p class="header-subtitle" *ngIf="selectedRange === 'month'">Último mes</p>
     </div>
   </div>
 
-  <!-- Selector de rango (opcional) -->
-    <div class="range-selector">
-      <ion-segment value="week" mode="ios">
-        <ion-segment-button value="day">
-          <ion-label>Día</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="week">
-          <ion-label>Semana</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="month">
-          <ion-label>Mes</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-    </div>
+  <!-- Selector de rango con evento -->
+  <div class="range-selector">
+    <ion-segment [value]="selectedRange" mode="ios" (ionChange)="onRangeChange($event)">
+      <ion-segment-button value="day">
+        <ion-label>Día</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="week">
+        <ion-label>Semana</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="month">
+        <ion-label>Mes</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
 
   <!-- Pull to Refresh -->
   <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
@@ -95,4 +97,22 @@
   </div>
 </ion-content>
 
-<!-- Tabs Inferior -->
+<!-- Tabs Inferior FIJO -->
+<ion-footer class="ion-no-border">
+  <ion-toolbar class="tabs-toolbar">
+    <div class="custom-tabs">
+      <button class="tab-button" (click)="goHome()">
+        <ion-icon name="home"></ion-icon>
+        <span class="tab-label">Inicio</span>
+      </button>
+      <button class="tab-button active">
+        <ion-icon name="bar-chart"></ion-icon>
+        <span class="tab-label">Historial</span>
+      </button>
+      <button class="tab-button" (click)="goIncubator()">
+        <ion-icon name="calendar"></ion-icon>
+        <span class="tab-label">Detalle</span>
+      </button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

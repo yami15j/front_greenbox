@@ -1,251 +1,424 @@
-.home-content {
-  --background: #e8f4f0;
-  
-  // Header con efecto redondeado
-  .page-header {
-    padding: 70px 20px 30px;
-    padding-top: calc(35px + env(safe-area-inset-top));
-    margin-bottom: 5px;
+  .home-content {
+    --background: #e7e1d6;
     
-    
-    .page-title {
-      color: rgb(0, 0, 0);
-      font-size: 24px;
-      font-weight: 600;
-      margin: 0;
-      margin-bottom: 5px;
-    }
-    
-  }
-
-  // Contenedor principal
-  .content-wrapper {
-    padding: 0 16px 100px;
-  }
-
-  // Imagen de la planta
-  .plant-image-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-    padding: 0 20px;
-    
-    .plant-image {
-      width: 180px;
-      height: 180px;
-      object-fit: cover;
-      border-radius: 16px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-      background: #000;
-    }
-  }
-
-  // Tarjeta grande para el gráfico
-  .chart-card {
-    background: white;
-    border-radius: 20px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-    
-    .chart-placeholder {
-      height: 220px;
-      background: linear-gradient(to bottom, #f0f9f6 0%, #ffffff 100%);
-      border-radius: 12px;
+    .page-header {
+      padding: 70px 20px 30px;
+      padding-top: calc(35px + env(safe-area-inset-top));
+      margin-bottom: 2px;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      border: 2px dashed #d0e8df;
+      background: #e7e1d6;
       
-      .chart-text {
-        color: #5fb89a;
-        font-size: 16px;
-        font-weight: 500;
+      .page-title {
+        color: rgb(0, 0, 0);
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .change-plant-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: linear-gradient(180deg, #2f3e34 0%,#4a5d50 50%) !important;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(95, 184, 154, 0.3);
+        transition: all 0.3s ease;
+
+        ion-icon {
+          font-size: 18px;
+        }
+
+        &:active {
+          transform: scale(0.95);
+        }
       }
     }
-  }
 
-  // Selector de rango
-  .range-selector {
-    margin-bottom: 20px;
-    
-    ion-segment {
-      --background: white;
+    .content-wrapper {
+      padding: 0 16px 20px;
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    .plant-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fffe 100%);
+      border-radius: 20px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+      .plant-card-header {
+        padding: 16px 20px;
+        background: #f5f0e7;
+
+        .plant-info {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          
+
+          .plant-emoji {
+            font-size: 48px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+          }
+
+          .plant-name {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: -px;
+            color: #2f4f4f;
+            width: 100%;
+            display: block;
+          }
+
+
+            .plant-type {
+              margin: 0;
+              color: rgba(255, 255, 255, 0.9);
+              font-size: 14px;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+
+      .plant-image-container {
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        background: #f5f0e7;
+
+        .plant-image {
+          width: 100%;
+          max-width: 200px;
+          height: 200px;
+          object-fit: cover;
+          border-radius: 16px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+          border: 3px solid #e8f4f0;
+        }
+      }
+    }
+
+    .no-plant-card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px 20px;
+      margin-bottom: 16px;
+      text-align: center;
+      border: 2px dashed #d0e8df;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:active {
+        transform: scale(0.98);
+        background: #f8fffe;
+      }
+
+      .no-plant-icon {
+        font-size: 64px;
+        color: #5fb89a;
+        margin-bottom: 16px;
+      }
+
+      h3 {
+        margin: 0 0 8px;
+        color: #2c3e50;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+      }
+    }
+
+    .plant-status-bar {
+      background: white;
+      border-radius: 16px;
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      
+      .status-label {
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 12px;
+        font-weight: 500;
+      }
+      
+      .status-indicator {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      
+      .status-bar {
+        flex: 1;
+        height: 8px;
+        background: #f0f0f0;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+        
+        .status-fill {
+          height: 100%;
+          border-radius: 10px;
+          transition: all 0.4s ease;
+          position: absolute;
+          left: 0;
+          top: 0;
+          
+          &.status-optimal {
+            width: 100%;
+            background: linear-gradient(90deg, #4caf50 0%, #66bb6a 100%);
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
+          }
+          
+          &.status-good {
+            width: 80%;
+            background: linear-gradient(90deg, #8bc34a 0%, #9ccc65 100%);
+            box-shadow: 0 0 8px rgba(139, 195, 74, 0.4);
+          }
+          
+          &.status-sufficient {
+            width: 60%;
+            background: linear-gradient(90deg, #2196f3 0%, #42a5f5 100%);
+            box-shadow: 0 0 8px rgba(33, 150, 243, 0.4);
+          }
+          
+          &.status-warning {
+            width: 40%;
+            background: linear-gradient(90deg, #ff9800 0%, #ffa726 100%);
+            box-shadow: 0 0 8px rgba(255, 152, 0, 0.4);
+          }
+          
+          &.status-critical {
+            width: 20%;
+            background: linear-gradient(90deg, #f44336 0%, #ef5350 100%);
+            box-shadow: 0 0 8px rgba(244, 67, 54, 0.4);
+            animation: pulse 2s infinite;
+          }
+        }
+      }
+      
+      .status-text {
+        font-size: 14px;
+        font-weight: 600;
+        min-width: 70px;
+        text-align: right;
+        
+        &.status-optimal {
+          color: #4caf50;
+        }
+        
+        &.status-good {
+          color: #8bc34a;
+        }
+        
+        &.status-sufficient {
+          color: #2196f3;
+        }
+        
+        &.status-warning {
+          color: #ff9800;
+        }
+        
+        &.status-critical {
+          color: #f44336;
+        }
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    .sensors-grid-compact {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .sensor-card-compact {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s ease;
+      
+      &:active {
+        transform: scale(0.98);
+      }
+    }
+
+    .sensor-header-compact {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .sensor-icon-compact {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    .sensor-title-compact {
+      font-size: 13px;
+      font-weight: 500;
+      color: #666;
+    }
+
+    .sensor-value-compact {
+      font-size: 26px;
+      font-weight: 700;
+      color: #2c2c2c;
+      margin-bottom: 8px;
+      line-height: 1;
+    }
+
+    .sensor-status-compact {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 0;
+      
+      &.status-optimal {
+        color: #4caf50;
+      }
+      
+      &.status-good {
+        color: #8bc34a;
+      }
+      
+      &.status-sufficient {
+        color: #2196f3;
+      }
+      
+      &.status-warning {
+        color: #ff9800;
+      }
+      
+      &.status-critical {
+        color: #f44336;
+      }
+    }
+
+    .history-button {
+      --background: linear-gradient(180deg, #2f3e34 0%,#4a5d50 50%) !important;
+      --border-radius: 14px;
+      height: 52px;
+      font-weight: 600;
+      font-size: 15px;
+      margin-top: 8px;
+      box-shadow: 0 4px 15px rgba(95, 184, 154, 0.3);
+    }
+
+    .loading-shimmer {
+      background: linear-gradient(
+        90deg,
+        #f0f0f0 25%,
+        #e0e0e0 50%,
+        #f0f0f0 75%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
       border-radius: 12px;
-      padding: 4px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+      100% {
+        background-position: 200% 0;
+      }
+    }
+  
+
+  ion-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  
+  .tabs-toolbar {
+    --background: white;
+    --border-width: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
+    --min-height: auto;
+    border-top: 1px solid #e0e0e0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+.custom-tabs {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 0;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  background: white;
+  height: 56px;
+  
+  .tab-button {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    background: transparent;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #999;
+    
+    ion-icon {
+      font-size: 24px;
+      transition: color 0.3s ease;
     }
     
-    ion-segment-button {
-      --color: #666;
-      --color-checked: #5fb89a;
-      --indicator-color: #e8f4f0;
-      min-height: 36px;
-      font-size: 14px;
+    .tab-label {
+      font-size: 12px;
+      font-weight: 500;
+      margin: 0;
+      transition: color 0.3s ease;
     }
-  }
-
-  // Grid compacto 2x2
-  .sensors-grid-compact {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-
-  // Tarjetas de sensores compactas
-  .sensor-card-compact {
-    background: white;
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s ease;
+    
+    &.active {
+      color: #5db09a;
+      
+      ion-icon,
+      .tab-label {
+        color: #5db09a;
+        font-weight: 600;
+      }
+    }
     
     &:active {
-      transform: scale(0.98);
+      transform: scale(0.95);
     }
-  }
-
-  .sensor-header-compact {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  .sensor-icon-compact {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-  }
-
-  .sensor-title-compact {
-    font-size: 13px;
-    font-weight: 500;
-    color: #666;
-  }
-
-  .sensor-value-compact {
-    font-size: 26px;
-    font-weight: 700;
-    color: #2c2c2c;
-    margin-bottom: 8px;
-    line-height: 1;
-  }
-
-  .sensor-status-compact {
-    font-size: 12px;
-    font-weight: 500;
-    padding: 4px 0;
-    
-    &.status-optimal {
-      color: #4caf50;
-    }
-    
-    &.status-good {
-      color: #8bc34a;
-    }
-    
-    &.status-sufficient {
-      color: #2196f3;
-    }
-    
-    &.status-warning {
-      color: #ff9800;
-    }
-    
-    &.status-critical {
-      color: #f44336;
-    }
-  }
-
-  // Tarjeta de riego compacta
-  .irrigation-card-compact {
-    background: white;
-    border-radius: 16px;
-    padding: 16px 20px;
-    margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  }
-
-  .irrigation-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .irrigation-text {
-    .irrigation-label {
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 4px;
-    }
-    
-    .irrigation-mode {
-      font-size: 18px;
-      font-weight: 600;
-      color: #2c2c2c;
-    }
-  }
-
-  .leaf-icon {
-    width: 50px;
-    height: 50px;
-    opacity: 0.3;
-  }
-
-  // Botón de historial
-  .history-button {
-    --background: linear-gradient(135deg, #5fb89a 0%, #4a9d82 100%);
-    --border-radius: 14px;
-    height: 52px;
-    font-weight: 600;
-    font-size: 15px;
-    margin-top: 8px;
-    box-shadow: 0 4px 15px rgba(95, 184, 154, 0.3);
-  }
-
-  // Estados de carga
-  .loading-shimmer {
-    background: linear-gradient(
-      90deg,
-      #f0f0f0 25%,
-      #e0e0e0 50%,
-      #f0f0f0 75%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 12px;
-  }
-
-  @keyframes shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-    100% {
-      background-position: 200% 0;
-    }
-  }
-}
-
-// Tabs inferiores
-ion-tab-bar {
-  --background: white;
-  border-top: 1px solid #e0e0e0;
-  padding-bottom: env(safe-area-inset-bottom);
-  height: calc(56px + env(safe-area-inset-bottom));
-}
-
-ion-tab-button {
-  --color: #999;
-  --color-selected: #5fb89a;
-  
-  ion-icon {
-    font-size: 24px;
-  }
-  
-  ion-label {
-    font-size: 12px;
-    margin-top: 4px;
   }
 }

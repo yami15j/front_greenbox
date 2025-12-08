@@ -55,7 +55,7 @@ export class LoginPage {
 
       if (isValid) {
         this.mensaje = '✅ Código correcto, bienvenido!';
-        setTimeout(() => this.router.navigateByUrl('/home'), 800);
+        setTimeout(() => this.router.navigateByUrl('/plant'), 800);
 
       } else {
         this.mensaje = '❌ Código inválido, intenta de nuevo';

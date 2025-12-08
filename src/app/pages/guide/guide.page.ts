@@ -1,7 +1,23 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, NavController } from '@ionic/angular';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+
+interface GuideStep {
+  id: number;
+  step: number;
+  title: string;
+  description: string;
+  image?: string;
+}
+
+interface PlantGuides {
+  id: number;
+  name: string;
+  guides: GuideStep[];
+  totalGuides: number;
+}
 
 @Component({
   selector: 'app-guide',
@@ -12,47 +28,68 @@ import { Router } from '@angular/router';
 })
 export class GuidePage implements OnInit {
 
+  isLoading = false;
+  plants: PlantGuides[] = [];
+  activePlantId: number | null = null;
+
+  private backendUrl = 'http://localhost:3000'; // Ajusta según tu backend
+
   constructor(
     private navCtrl: NavController,
-    private router: Router
+    private router: Router,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
-    console.log('Guía de uso cargada');
+    this.loadActivePlant();
   }
 
-  // Navegar hacia atrás
-  goBack() {
-    this.navCtrl.back();
-  }
-
-  // Ir al inicio
-  goHome() {
-    this.navCtrl.navigateBack('/home');
-  }
-
-  // Scroll suave a una sección específica
-  scrollToSection(sectionId: string) {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'start' 
-      });
+  async loadActivePlant() {
+    const plant = localStorage.getItem('activePlant');
+    if (plant) {
+      try {
+        this.activePlantId = JSON.parse(plant).id;
+      } catch {
+        this.activePlantId = null;
+      }
+    }
+    if (this.activePlantId) {
+      await this.loadGuides(this.activePlantId);
     }
   }
 
-  // Pull to refresh
+  async loadGuides(plantId: number) {
+    this.isLoading = true;
+    try {
+      const res: any = await this.http
+        .get(`${this.backendUrl}/guides/plant/${plantId}`)
+        .toPromise();
+      this.plants = res.plants; // Agrupado por planta desde backend
+    } catch (err) {
+      console.error('Error cargando guías:', err);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  goBack() { this.navCtrl.back(); }
+  goHome() { this.navCtrl.navigateBack('/home'); }
+
+  scrollToSection(sectionId: string) {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
   refreshData(event: any) {
     setTimeout(() => {
-      console.log('Datos de guía actualizados');
+      if (this.activePlantId) this.loadGuides(this.activePlantId);
       event.target.complete();
     }, 1000);
   }
 
-  // Abrir enlace de soporte (opcional)
   openSupport() {
-    // Aquí podrías abrir un email o un chat de soporte
     window.open('mailto:soporte@greenbox.com', '_system');
   }
 }
