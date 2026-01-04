@@ -29,7 +29,7 @@ export const routes: Routes = [
   
   {
     path: 'plant',
-    loadComponent: () => import('./plant/plant.page').then( m => m.PlantPage)
+    loadComponent: () => import('./pages/plant/plant.page').then( m => m.PlantPage)
   },
 
   {
@@ -39,5 +39,9 @@ export const routes: Routes = [
   {
     path: 'mont',
     loadComponent: () => import('./pages/mont/mont.page').then( m => m.MontPage)
+  },
+  {
+    path: 'notification',
+    loadComponent: () => import('./pages/notification/notification.page').then( m => m.NotificationPage)
   },
 ];

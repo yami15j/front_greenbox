@@ -1,5 +1,5 @@
 .history-content {
-  --background: #e8f4f0;
+  --background: #e7e1d6;
   --padding-top: 0;
   --padding-bottom: 0;
   overflow-y: auto !important;
@@ -51,7 +51,7 @@
   margin-bottom: 20px;
   
   ion-segment {
-    --background: white;
+    --background: #f5f0e7;
     border-radius: 16px;
     padding: 4px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -59,7 +59,7 @@
   }
   ion-segment-button {
     --color: #666;
-    --color-checked: #5fb89a;
+    --color-checked: #000000;
     --indicator-color: #e8f4f0;
     --indicator-border-radius: 12px;
     min-height: 40px;
@@ -98,7 +98,7 @@
 
 /* Chart Card */
 .chart-card {
-  background: white;
+  background: #f5f0e7;
   border-radius: 20px;
   padding: 20px;
   margin-bottom: 20px;

@@ -1,0 +1,160 @@
+<ion-content class="notification-content" [scrollEvents]="true" [fullscreen]="true">
+  
+  <!-- Pull to Refresh -->
+  <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Header -->
+  <div class="notification-header">
+    <ion-button fill="clear" class="back-button" (click)="goBack()">
+      <ion-icon name="arrow-back" slot="icon-only"></ion-icon>
+    </ion-button>
+    <div class="header-content">
+      <h1 class="header-title">Notificaciones</h1>
+      <p class="header-subtitle">{{ unreadCount }} sin leer</p>
+    </div>
+    <ion-button fill="clear" class="action-button" (click)="markAllAsRead()" *ngIf="unreadCount > 0">
+      <ion-icon name="checkmark-done" slot="icon-only"></ion-icon>
+    </ion-button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filter-section">
+    <ion-segment [value]="selectedFilter" mode="ios" (ionChange)="onFilterChange($event)">
+      <ion-segment-button value="all">
+        <ion-label>Todas</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="alerts">
+        <ion-label>Alertas</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="reminders">
+        <ion-label>Recordatorios</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="system">
+        <ion-label>Sistema</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Cargando notificaciones...</p>
+  </div>
+
+  <!-- Lista de Notificaciones -->
+  <div class="notifications-list" *ngIf="!isLoading">
+    
+    <!-- Notificaciones de Hoy -->
+    <div class="notification-section" *ngIf="todayNotifications.length > 0">
+      <h3 class="section-title">Hoy</h3>
+      <div class="notification-item" 
+           *ngFor="let notification of todayNotifications"
+           [class.unread]="!notification.read"
+           [class]="'priority-' + notification.priority"
+           (click)="openNotification(notification)">
+        
+        <div class="notification-icon" [ngClass]="getIconClass(notification.type)">
+          <ion-icon [name]="getIconName(notification.type)"></ion-icon>
+        </div>
+
+        <div class="notification-content">
+          <div class="notification-header-item">
+            <h4 class="notification-title">{{ notification.title }}</h4>
+            <span class="notification-time">{{ notification.time }}</span>
+          </div>
+          <p class="notification-message">{{ notification.message }}</p>
+          
+          <div class="notification-meta">
+            <span class="notification-plant" *ngIf="notification.plantName">
+              <ion-icon name="leaf-outline"></ion-icon>
+              {{ notification.plantName }}
+            </span>
+            <span class="notification-priority" [class]="'priority-badge-' + notification.priority">
+              {{ getPriorityText(notification.priority) }}
+            </span>
+          </div>
+        </div>
+
+        <ion-button fill="clear" class="notification-action" (click)="dismissNotification(notification, $event)">
+          <ion-icon name="close" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Notificaciones Anteriores -->
+    <div class="notification-section" *ngIf="olderNotifications.length > 0">
+      <h3 class="section-title">Anteriores</h3>
+      <div class="notification-item" 
+           *ngFor="let notification of olderNotifications"
+           [class.unread]="!notification.read"
+           [class]="'priority-' + notification.priority"
+           (click)="openNotification(notification)">
+        
+        <div class="notification-icon" [ngClass]="getIconClass(notification.type)">
+          <ion-icon [name]="getIconName(notification.type)"></ion-icon>
+        </div>
+
+        <div class="notification-content">
+          <div class="notification-header-item">
+            <h4 class="notification-title">{{ notification.title }}</h4>
+            <span class="notification-time">{{ notification.date }}</span>
+          </div>
+          <p class="notification-message">{{ notification.message }}</p>
+          
+          <div class="notification-meta">
+            <span class="notification-plant" *ngIf="notification.plantName">
+              <ion-icon name="leaf-outline"></ion-icon>
+              {{ notification.plantName }}
+            </span>
+            <span class="notification-priority" [class]="'priority-badge-' + notification.priority">
+              {{ getPriorityText(notification.priority) }}
+            </span>
+          </div>
+        </div>
+
+        <ion-button fill="clear" class="notification-action" (click)="dismissNotification(notification, $event)">
+          <ion-icon name="close" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Estado Vacío -->
+    <div class="empty-notifications" *ngIf="filteredNotifications.length === 0">
+      <ion-icon name="notifications-off-outline" class="empty-icon"></ion-icon>
+      <h3>No hay notificaciones</h3>
+      <p>Cuando haya alertas o recordatorios, aparecerán aquí</p>
+    </div>
+  </div>
+
+  <!-- Configuración rápida -->
+  <div class="quick-settings" *ngIf="!isLoading">
+    <ion-button expand="block" fill="outline" (click)="openSettings()">
+      <ion-icon name="settings-outline" slot="start"></ion-icon>
+      Configurar Notificaciones
+    </ion-button>
+  </div>
+
+</ion-content>
+
+<!-- Tabs Inferior -->
+<ion-footer class="ion-no-border">
+  <ion-toolbar class="tabs-toolbar">
+    <div class="custom-tabs">
+      <button class="tab-button" (click)="goHome()">
+        <img src="assets/icon/inicio.png" alt="Inicio" class="tab-icon">
+        <span class="tab-label">Inicio</span>
+      </button>
+      <button class="tab-button" (click)="goHistory()">
+        <img src="assets/icon/historial.png" alt="Historial" class="tab-icon">
+        <span class="tab-label">Historial</span>
+      </button>
+      <button class="tab-button active">
+        <ion-icon name="notifications"></ion-icon>
+        <span class="tab-label">Notificaciones</span>
+        <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

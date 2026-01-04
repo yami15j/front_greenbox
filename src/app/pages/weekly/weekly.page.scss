@@ -1,5 +1,5 @@
 .weekly-content {
-  --background: #e8f4f0;
+  --background: #e7e1d6;
   padding-bottom: calc(70px + env(safe-area-inset-bottom)); // Espacio para tabs fijos
 }
 
@@ -72,11 +72,11 @@ ion-content {
     }
 
     &.active {
-      background: #5db09a;
+      background: #f5f0e7;
       box-shadow: 0 4px 12px rgba(93, 176, 154, 0.3);
 
       .sensor-label {
-        color: white;
+        color: #666;
         font-weight: 600;
       }
 
