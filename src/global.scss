@@ -1,15 +1,12 @@
 /*
  * App Global CSS
  * ----------------------------------------------------------------------------
- * Put style rules here that you want to apply globally. These styles are for
- * the entire app and not just one component. Additionally, this file can be
- * used as an entry point to import other CSS/Sass files to be included in the
- * output CSS.
- * For more information on global stylesheets, visit the documentation:
- * https://ionicframework.com/docs/layout/global-stylesheets
+ * Styles applied globally to the entire Ionic app
  */
 
-/* Core CSS required for Ionic components to work properly */
+/* =====================================================
+   CORE IONIC CSS
+   ===================================================== */
 @import "@ionic/angular/css/core.css";
 
 /* Basic CSS for apps built with Ionic */
@@ -18,38 +15,58 @@
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
 
-/* Optional CSS utils that can be commented out */
+/* Optional CSS utils */
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/float-elements.css";
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
+/* =====================================================
+   🚫 DARK MODE DESACTIVADO
+   ===================================================== */
+/* NO importar ningún palette dark */
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+/* @import "@ionic/angular/css/palettes/dark.system.css"; */
 
-/* ============================================
-   ESTILOS PERSONALIZADOS GREENBOX
-   ============================================ */
+/* =====================================================
+   🔒 FORZAR MODO CLARO GLOBAL
+   ===================================================== */
+:root {
+  color-scheme: light;
+}
 
-// Importar fuente Montserrat
+/* Fondo global de la app */
+ion-app {
+  background: #e7e1d6;
+}
+
+/* Fondo de ion-content (evita pantalla negra) */
+ion-content {
+  --background: #e7e1d6;
+}
+
+/* =====================================================
+   FUENTE GLOBAL
+   ===================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
-// Estilos personalizados para alerts de selección de plantas
+body, ion-app, ion-content {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* =====================================================
+   ESTILOS PERSONALIZADOS GREENBOX
+   ===================================================== */
+
+/* Alerts personalizados */
 
 .custom-alert {
   --background: #ffffff;
   --max-width: 300px;
   --border-radius: 20px;
-  
+
   .alert-wrapper {
     border-radius: 20px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -57,9 +74,8 @@
 
   .alert-head {
     padding: 20px 20px 12px;
-    
+
     h2 {
-      font-family: 'Montserrat', sans-serif;
       font-size: 19px;
       font-weight: 700;
       color: #2c3e50;
@@ -69,7 +85,6 @@
 
   .alert-message {
     padding: 0 20px 20px;
-    font-family: 'Montserrat', sans-serif;
     font-size: 13px;
     font-weight: 500;
     color: #5a6c7d;
@@ -82,32 +97,31 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    
+
     button {
-      font-family: 'Montserrat', sans-serif;
       font-size: 15px;
       font-weight: 600;
       text-transform: none;
       border-radius: 12px;
       height: 44px;
       margin: 0;
-      
+
       &.alert-button-role-cancel {
         color: #7f8c8d;
         background: #f8f9fa;
         order: 2;
-        
+
         &:hover {
           background: #e9ecef;
         }
       }
-      
+
       &:not(.alert-button-role-cancel) {
         background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
         color: white;
         box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
         order: 1;
-        
+
         &:hover {
           box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
         }
@@ -116,12 +130,15 @@
   }
 }
 
-// Alert de éxito (más pequeño y verde)
+/* =====================================================
+   ALERT DE ÉXITO
+   ===================================================== */
+
 .success-alert {
   --background: #ffffff;
   --max-width: 280px;
   --border-radius: 18px;
-  
+
   .alert-wrapper {
     border-radius: 18px;
     box-shadow: 0 6px 20px rgba(76, 175, 80, 0.2);
@@ -130,9 +147,8 @@
 
   .alert-head {
     padding: 20px 16px 8px;
-    
+
     h2 {
-      font-family: 'Montserrat', sans-serif;
       font-size: 18px;
       font-weight: 700;
       color: #4CAF50;
@@ -141,7 +157,7 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      
+
       &::before {
         content: '✓';
         display: inline-block;
@@ -159,7 +175,6 @@
 
   .alert-message {
     padding: 0 16px 20px;
-    font-family: 'Montserrat', sans-serif;
     font-size: 13px;
     font-weight: 500;
     color: #5a6c7d;
@@ -169,9 +184,8 @@
 
   .alert-button-group {
     padding: 8px 12px 12px;
-    
+
     button {
-      font-family: 'Montserrat', sans-serif;
       font-size: 15px;
       font-weight: 600;
       background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
@@ -180,7 +194,7 @@
       height: 42px;
       box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
       text-transform: none;
-      
+
       &:hover {
         box-shadow: 0 5px 14px rgba(76, 175, 80, 0.4);
       }

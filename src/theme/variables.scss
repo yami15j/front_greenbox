@@ -1,13 +1,13 @@
 // For information on how to create your own theme, please see:
 // http://ionicframework.com/docs/theming/
 
+/* 🔒 FORZAR MODO CLARO */
 :root {
-  --ion-color-primary: #6aa88a;   /* verde principal */
-  --ion-color-primary-contrast: #fff;
-  --greenbox-bg-1: #e6f5ef;      /* fondo claro */
-  --greenbox-bg-2: #799a86;      /* fondo oscuro */
-  --card-bg: #ffffff;
-  --card-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  --rounded-radius: 18px;
-  --soft-radius: 12px;
+  color-scheme: light;
+
+  --ion-background-color: #e7e1d6;
+  --ion-text-color: #000000;
+
+  --ion-card-background: #ffffff;
+  --ion-item-background: #ffffff;
 }
