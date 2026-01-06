@@ -206,7 +206,7 @@ ion-footer {
   left: 0;
   right: 0;
   z-index: 10;
-  
+
   .tabs-toolbar {
     --background: white;
     --border-width: 0;
@@ -227,7 +227,15 @@ ion-footer {
   padding-bottom: calc(8px + env(safe-area-inset-bottom));
   background: white;
   height: 56px;
-  
+
+  /* 🔥 ESTO ES LO QUE FALTABA */
+  .tab-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    display: block;
+  }
+
   .tab-button {
     flex: 1;
     display: flex;
@@ -241,29 +249,23 @@ ion-footer {
     cursor: pointer;
     transition: all 0.3s ease;
     color: #999;
-    
-    ion-icon {
-      font-size: 24px;
-      transition: color 0.3s ease;
-    }
-    
+
     .tab-label {
       font-size: 12px;
       font-weight: 500;
       margin: 0;
       transition: color 0.3s ease;
     }
-    
+
     &.active {
       color: #5db09a;
-      
-      ion-icon,
+
       .tab-label {
         color: #5db09a;
         font-weight: 600;
       }
     }
-    
+
     &:active {
       transform: scale(0.95);
     }

@@ -1,25 +1,26 @@
 <ion-content class="plants-content" [scrollEvents]="true" [fullscreen]="true">
 
-  <!-- Header -->
+  <!-- HEADER -->
   <div class="plants-header">
     <ion-button fill="clear" class="back-button" (click)="goBack()">
       <ion-icon name="arrow-back" slot="icon-only"></ion-icon>
     </ion-button>
-
+   
     <div class="header-content">
       <h1 class="header-title">Perfiles de Plantas</h1>
       <p class="header-subtitle">Selecciona el tipo de cultivo</p>
     </div>
   </div>
 
-  <!-- Planta Activa -->
+  <!-- PLANTA ACTIVA -->
   <div class="active-plant-card" *ngIf="selectedPlant">
     <div class="active-badge">
       <ion-icon name="checkmark-circle"></ion-icon> Planta Activa
     </div>
 
     <div class="active-plant-content">
-      <div class="plant-image-large"
+      <div
+        class="plant-image-large"
         [style.background-image]="'url(' + selectedPlant.imageUrl + ')'">
       </div>
 
@@ -30,9 +31,10 @@
     </div>
   </div>
 
-  <!-- Filtros -->
+  <!-- FILTROS -->
   <div class="filter-section">
     <h3 class="section-title">Explorar por tipo</h3>
+
     <div class="filter-chips">
       <ion-chip [class.active]="filterType === 'all'" (click)="applyFilter('all')">
         <ion-label>Todos</ion-label>
@@ -52,19 +54,23 @@
     </div>
   </div>
 
-  <!-- Grid de Plantas -->
+  <!-- GRID -->
   <div class="plants-grid">
-    <div class="plant-card"
+    <div
+      class="plant-card"
       *ngFor="let plant of filteredPlants"
       [class.active]="plant.isActive"
       (click)="selectPlant(plant)">
-      
+
       <div class="plant-card-header">
-        <div class="plant-image"
+        <div
+          class="plant-image"
           [style.background-image]="'url(' + plant.imageUrl + ')'">
         </div>
 
-        <ion-badge [color]="getDifficultyColor(plant.difficulty)" class="difficulty-badge">
+        <ion-badge
+          [color]="getDifficultyColor(plant.difficulty)"
+          class="difficulty-badge">
           {{ plant.difficulty }}
         </ion-badge>
       </div>
@@ -74,28 +80,32 @@
         <p class="plant-type-label">{{ plant.type }}</p>
 
         <div class="benefits-section">
-          <div class="benefit-tag" *ngFor="let benefit of plant.benefits.slice(0, 2)">
+          <div
+            class="benefit-tag"
+            *ngFor="let benefit of plant.benefits.slice(0,2)">
             {{ benefit }}
           </div>
         </div>
       </div>
 
       <div class="plant-card-footer">
-        <ion-button expand="block"
+        <ion-button
+          expand="block"
+          size="small"
           [fill]="plant.isActive ? 'solid' : 'outline'"
-          [color]="plant.isActive ? 'success' : 'primary'"
-          size="small">
-          <ion-icon 
+          [color]="plant.isActive ? 'success' : 'primary'">
+          <ion-icon
             [name]="plant.isActive ? 'checkmark-circle' : 'add-circle-outline'"
             slot="start">
           </ion-icon>
           {{ plant.isActive ? 'Activa' : 'Seleccionar' }}
         </ion-button>
       </div>
+
     </div>
   </div>
 
-  <!-- Consejo -->
+  <!-- CONSEJO -->
   <div class="info-section">
     <h3 class="section-title">💡 Consejo</h3>
     <p class="info-text">

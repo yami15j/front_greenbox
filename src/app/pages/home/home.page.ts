@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, NavController } from '@ionic/angular';
+import { IonicModule, NavController, MenuController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ApiService, SensorData } from 'src/app/api.service';
 
@@ -26,7 +26,7 @@ interface ActivePlant {
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule]
+  imports: [CommonModule, IonicModule],
 })
 export class HomePage implements OnInit {
 
@@ -35,10 +35,15 @@ export class HomePage implements OnInit {
   isLoading = true;
   isOnline = true;
 
+  unreadCount: number = 0; // ✅ CORREGIDO
+
+  hamburgerActive = false;
+
   constructor(
     private router: Router,
     private navCtrl: NavController,
-    private api: ApiService
+    private api: ApiService,
+    private menu: MenuController
   ) {}
 
   ngOnInit() {
@@ -46,7 +51,15 @@ export class HomePage implements OnInit {
     this.loadSensorData();
   }
 
-  /** Cargar planta activa desde localStorage */
+  toggleHamburger() {
+    this.hamburgerActive = !this.hamburgerActive;
+    this.menu.toggle('main-menu');
+  }
+
+  closeMenu() {
+    this.menu.close('main-menu');
+  }
+
   loadActivePlant() {
     const plantData = localStorage.getItem('activePlant');
     if (plantData) {
@@ -58,7 +71,6 @@ export class HomePage implements OnInit {
     }
   }
 
-  /** Cargar datos de sensores desde localStorage */
   loadSensorData() {
     const sensorData = localStorage.getItem('activePlantData');
     if (sensorData) {
@@ -67,7 +79,6 @@ export class HomePage implements OnInit {
         this.isLoading = false;
         this.isOnline = true;
       } catch {
-        this.data = { temp: 0, hum: 0, light: 0, water: 0 };
         this.isOnline = false;
       }
     } else {
@@ -75,7 +86,6 @@ export class HomePage implements OnInit {
     }
   }
 
-  /** Pull-to-refresh o actualización manual */
   async refreshData(event?: any) {
     if (!this.activePlant) return;
     this.isLoading = true;
@@ -84,8 +94,7 @@ export class HomePage implements OnInit {
       this.data = latestData;
       localStorage.setItem('activePlantData', JSON.stringify(latestData));
       this.isOnline = true;
-    } catch (err) {
-      console.error('Error al actualizar sensores:', err);
+    } catch {
       this.isOnline = false;
     } finally {
       this.isLoading = false;
@@ -93,24 +102,21 @@ export class HomePage implements OnInit {
     }
   }
 
-  /** Estado general de la planta */
   getPlantHealthStatus(): string {
     if (!this.activePlant) return '';
     const c = this.activePlant.optimalConditions;
-    if (
+    return (
       this.data.temp < c.tempMin || this.data.temp > c.tempMax ||
       this.data.hum < c.humMin || this.data.hum > c.humMax ||
       this.data.light < c.lightMin || this.data.light > c.lightMax ||
       this.data.water < c.waterMin
-    ) return 'bad';
-    return 'good';
+    ) ? 'bad' : 'good';
   }
 
   getPlantHealthText(): string {
     return this.getPlantHealthStatus() === 'good' ? 'Saludable' : 'Precaución';
   }
 
-  /** Estado de cada sensor */
   getSensorStatus(sensor: 'temp' | 'hum' | 'light' | 'water'): string {
     if (!this.activePlant) return '';
     const c = this.activePlant.optimalConditions;
@@ -126,16 +132,24 @@ export class HomePage implements OnInit {
     return this.getSensorStatus(sensor) === 'good' ? 'Óptimo' : 'Fuera de rango';
   }
 
-  /** Obtener unidad según el sensor */
-  getSensorUnit(sensor: 'temp' | 'hum' | 'light' | 'water'): string {
-    // Solo la temperatura se muestra como porcentaje
-    if (sensor === 'temp') return '%';
-    // Los demás sensores se muestran en °C
-    return '°C';
+  // ✅ NAVEGACIÓN CORREGIDA
+  goPlants() {
+    this.router.navigate(['/plants']);
+    this.closeMenu();
   }
 
-  /** Navegación */
-  goPlants() { this.router.navigate(['/plant']); }
-  goHistory() { this.router.navigate(['/history']); }
-  goHome() { document.querySelector('ion-content')?.scrollToTop(300); }
+  goNotifications() {
+    this.router.navigate(['/notification']);
+    this.closeMenu();
+  }
+
+  goHistory() {
+    this.router.navigate(['/weekly']);
+    this.closeMenu();
+  }
+
+  goHome() {
+    document.querySelector('ion-content')?.scrollToTop(300);
+    this.closeMenu();
+  }
 }

@@ -1,4 +1,6 @@
-<ion-content class="weekly-content" [scrollEvents]="true" [fullscreen]="true">
+<ion-content class="weekly-content" [scrollY]="true">
+
+
   <!-- Pull to Refresh -->
   <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
     <ion-refresher-content></ion-refresher-content>
@@ -9,34 +11,30 @@
     <ion-button fill="clear" class="back-button" (click)="goBack()">
       <ion-icon name="arrow-back" slot="icon-only"></ion-icon>
     </ion-button>
+    <ion-button fill="clear" class="history-button" (click)="goHistory()">
+      <ion-icon name="time-outline" slot="icon-only"></ion-icon>
+    </ion-button>
   </div>
 
   <!-- Selector de Sensores -->
   <div class="sensor-selector">
-    <div class="sensor-button" 
-        [class.active]="selectedSensor === 'temperature'"
-        (click)="goToSensorDetail('temperature')">
+    <div class="sensor-button" [class.active]="selectedSensor === 'temperature'"
+      (click)="goToSensorDetail('temperature')">
       <img src="assets/icon/temperatura.png" class="sensor-icon" alt="Temperatura">
       <span class="sensor-label">Temperatura</span>
     </div>
 
-    <div class="sensor-button" 
-        [class.active]="selectedSensor === 'humidity'"
-        (click)="goToSensorDetail('humidity')">
+    <div class="sensor-button" [class.active]="selectedSensor === 'humidity'" (click)="goToSensorDetail('humidity')">
       <img src="assets/icon/humedad.png" class="sensor-icon" alt="Humedad">
       <span class="sensor-label">Humedad</span>
     </div>
 
-    <div class="sensor-button" 
-        [class.active]="selectedSensor === 'light'"
-        (click)="goToSensorDetail('light')">
+    <div class="sensor-button" [class.active]="selectedSensor === 'light'" (click)="goToSensorDetail('light')">
       <img src="assets/icon/luz.png" class="sensor-icon" alt="Luz">
       <span class="sensor-label">Luz</span>
     </div>
 
-    <div class="sensor-button" 
-        [class.active]="selectedSensor === 'water'"
-        (click)="goToSensorDetail('water')">
+    <div class="sensor-button" [class.active]="selectedSensor === 'water'" (click)="goToSensorDetail('water')">
       <img src="assets/icon/agua.png" class="sensor-icon" alt="Agua">
       <span class="sensor-label">Agua</span>
     </div>
@@ -71,6 +69,20 @@
         <span class="minmax-value">{{ minValue }}{{ selectedSensor === 'temperature' ? '°C' : '%' }}</span>
       </div>
     </div>
+  </div>
+
+  <!-- ⭐ BOTÓN NUEVO: Ver Historial Completo ⭐ -->
+  <div class="action-button-container">
+    <button class="weekly-history-button" (click)="goHistoryWeekly()">
+      <div class="button-content">
+        <ion-icon name="analytics-outline" class="button-icon"></ion-icon>
+        <div class="button-text">
+          <span class="button-title">Ver Historial Completo</span>
+          <span class="button-subtitle">Análisis de todos los sensores</span>
+        </div>
+        <ion-icon name="chevron-forward" class="button-arrow"></ion-icon>
+      </div>
+    </button>
   </div>
 
   <!-- Gráfico Semanal -->
@@ -116,17 +128,24 @@
 <ion-footer class="ion-no-border">
   <ion-toolbar class="tabs-toolbar">
     <div class="custom-tabs">
+
+      <!-- Inicio -->
       <button class="tab-button" (click)="goHome()">
         <img src="assets/icon/inicio.png" alt="Inicio" class="tab-icon">
         <span class="tab-label">Inicio</span>
       </button>
-      <button class="tab-button active">
+
+      <!-- Historial -->
+      <button class="tab-button" (click)="goHistory()">
         <img src="assets/icon/historial.png" alt="Historial" class="tab-icon">
         <span class="tab-label">Historial</span>
       </button>
-      <button class="tab-button" (click)="goHistory()">
-        <img src="assets/icon/plant_s" alt="" class="tab-icon">
+
+      <!-- Notificaciones -->
+      <button class="tab-button notifications-tab" (click)="goNotifications()">
+        <img src="assets/icon/ti.png" alt="Notificaciones" class="tab-icon">
         <span class="tab-label">Notificaciones</span>
+        <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
       </button>
     </div>
   </ion-toolbar>

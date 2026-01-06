@@ -4,7 +4,7 @@
 
 // Header
 .notification-header {
-  background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+  background: linear-gradient(135deg, #2d6a4f 0%, #85b6a6 100%);
   padding: 60px 20px 30px;
   display: flex;
   align-items: center;
@@ -319,54 +319,85 @@
 
 // Tabs
 ion-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+
   .tabs-toolbar {
     --background: white;
-    --border-width: 1px 0 0 0;
-    --border-color: #e0e0e0;
-    padding: 8px 0;
+    --border-width: 0;
+    --padding-top: 0;
+    --padding-bottom: 0;
+    --min-height: auto;
+    border-top: 1px solid #e0e0e0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+.custom-tabs {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 0;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  background: white;
+
+  /* ICONOS DEL TAB (TODOS IGUALES) */
+  .tab-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    display: block;
   }
 
-  .custom-tabs {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    padding: 0 10px;
+  /* Ajuste especial para icono de notificaciones si quieres más grande */
+  .notifications-tab .tab-icon {
+    width: 26px;
+    height: 26px;
   }
 
   .tab-button {
-    background: none;
-    border: none;
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 4px;
-    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    padding: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
+    color: #999;
     position: relative;
 
-    .tab-icon,
-    ion-icon {
-      width: 24px;
-      height: 24px;
-      opacity: 0.6;
-      transition: all 0.3s ease;
-    }
-
-    ion-icon {
-      font-size: 24px;
-      color: #666;
-    }
-
     .tab-label {
-      font-size: 11px;
-      color: #666;
-      transition: all 0.3s ease;
+      font-size: 12px;
+      font-weight: 500;
+      margin: 0;
+      transition: color 0.3s ease;
     }
 
+    &.active {
+      color: #5fb89a;
+
+      .tab-label {
+        color: #5fb89a;
+        font-weight: 600;
+      }
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    /* Badge de notificaciones */
     .notification-badge {
       position: absolute;
-      top: 3px;
+      top: 2px;
       right: 8px;
       background: #d32f2f;
       color: white;
@@ -377,39 +408,24 @@ ion-footer {
       min-width: 18px;
       text-align: center;
     }
-
-    &.active {
-      .tab-icon,
-      ion-icon {
-        opacity: 1;
-        color: #2d6a4f;
-      }
-
-      .tab-label {
-        color: #2d6a4f;
-        font-weight: 600;
-      }
-    }
   }
 }
 
-// Responsive
+/* Responsive */
 @media (max-width: 360px) {
-  .notification-item {
-    padding: 12px;
-  }
+  .custom-tabs {
+    .tab-icon {
+      width: 20px;
+      height: 20px;
+    }
 
-  .notification-icon {
-    width: 38px;
-    height: 38px;
-    font-size: 18px;
-  }
+    .tab-label {
+      font-size: 11px;
+    }
 
-  .notification-title {
-    font-size: 14px;
-  }
-
-  .notification-message {
-    font-size: 12px;
+    .notifications-tab .tab-icon {
+      width: 24px;
+      height: 24px;
+    }
   }
 }

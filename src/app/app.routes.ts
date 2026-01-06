@@ -36,10 +36,7 @@ export const routes: Routes = [
     path: 'guide',
     loadComponent: () => import('./pages/guide/guide.page').then( m => m.GuidePage)
   },
-  {
-    path: 'mont',
-    loadComponent: () => import('./pages/mont/mont.page').then( m => m.MontPage)
-  },
+
   {
     path: 'notification',
     loadComponent: () => import('./pages/notification/notification.page').then( m => m.NotificationPage)

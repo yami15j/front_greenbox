@@ -101,17 +101,19 @@
 <ion-footer class="ion-no-border">
   <ion-toolbar class="tabs-toolbar">
     <div class="custom-tabs">
-      <button class="tab-button" (click)="goHome()">
-        <ion-icon name="home"></ion-icon>
+      <button class="tab-button" [class.active]="true" (click)="goHome()">
+        <img src="assets/icon/inicio.png" alt="Inicio" class="tab-icon">
         <span class="tab-label">Inicio</span>
       </button>
-      <button class="tab-button active">
-        <ion-icon name="bar-chart"></ion-icon>
+
+      <button class="tab-button" (click)="gohistory()">
+        <img src="assets/icon/historial.png" alt="Historial" class="tab-icon">
         <span class="tab-label">Historial</span>
       </button>
-      <button class="tab-button" (click)="goIncubator()">
-        <ion-icon name="calendar"></ion-icon>
-        <span class="tab-label">Detalle</span>
+
+      <button class="tab-button" (click)="goGuide()">
+        <img src="assets/icon/plan.png" alt="Plantas" class="tab-icon">
+        <span class="tab-label">Plantas</span>
       </button>
     </div>
   </ion-toolbar>

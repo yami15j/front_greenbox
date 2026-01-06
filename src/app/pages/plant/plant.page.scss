@@ -1,173 +1,168 @@
 .plants-content {
-  --background: #e7e1d6;
+  --background: #edf2f4;
   padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  font-family: 'Helvetica Neue', sans-serif;
 }
 
 /* ===== HEADER ===== */
 .plants-header {
   padding: 40px 20px 30px;
-  background: #e7e1d6;
+  background: #edf2f4;
   position: relative;
   text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
 
   .back-button {
-    position: absolute;
-    top: 20px;
-    left: 10px;
-    --color: #2f3e34;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+
+  width: 45px;
+  height: 45px;
+
+  background: #ffffff;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+
+  --color: #2f3e34; // 👈 color de la flecha (IMPORTANTE)
+
+  ion-icon {
+    font-size: 24px;
+    color: #2f3e34; // 👈 asegura que la flecha se vea
   }
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+  
 
   .header-title {
     font-size: 28px;
-    font-weight: 700;
+    font-weight: 800;
     color: #2f3e34;
     margin-bottom: 4px;
   }
 
   .header-subtitle {
-    color: #6f786f;
+    color: #7a857b;
     font-size: 14px;
   }
 }
 
 /* ===== PLANTA ACTIVA ===== */
 .active-plant-card {
-  background: #f5f0e7;
-  margin: 10px 16px 24px;
+  background: linear-gradient(145deg, #ffffff, #d8ede7);
+  margin: 16px;
   border-radius: 26px;
   padding: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.04);
-}
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 
-.active-badge {
-  background: #2f3e34;
-  color: white;
-  padding: 6px 16px;
-  border-radius: 999px;
-  font-size: 12px;
-  display: inline-block;
-  margin-bottom: 12px;
-}
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 28px rgba(0, 0, 0, 0.12);
+  }
 
-.active-plant-content {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+  .active-plant-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
 
-.plant-image-large {
-  width: 80px;
-  height: 80px;
-  border-radius: 16px;
-  background-size: cover;
-  background-position: center;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
-}
+  .plant-image-large {
+    width: 90px;
+    height: 90px;
+    border-radius: 20px;
+    background-size: cover;
+    background-position: center;
+  }
 
-.active-plant-info h2 {
-  font-size: 22px;
-  color: #2f3e34;
-}
-
-.plant-type {
-  font-size: 13px;
-  color: #7a857b;
-}
-
-.conditions-summary {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.condition-item {
-  background: #ece7df;
-  padding: 6px 12px;
-  border-radius: 12px;
-  font-size: 11px;
+  .plant-type {
+    font-size: 13px;
+    color: #7a857b;
+  }
 }
 
 /* ===== FILTROS ===== */
 .filter-section {
   padding: 0 16px 20px;
-}
 
-.section-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #2f3e34;
-  margin-bottom: 12px;
-}
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2f3e34;
+    margin-bottom: 12px;
+  }
 
-.filter-chips {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-}
+  .filter-chips {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
 
-.filter-chips ion-chip {
-  --background: #f5f0e7;
-  --color: #2f3e34;
-  border-radius: 999px;
-  font-weight: 600;
-}
+    ion-chip {
+      --background: #e0f2f1;
+      --color: #2f3e34;
+      border-radius: 999px;
+      font-weight: 600;
 
-.filter-chips ion-chip.active {
-  --background: #2f3e34;
-  --color: white;
+      &.active {
+        --background: #2f3e34;
+        --color: #ffffff;
+      }
+    }
+  }
 }
 
 /* ===== GRID ===== */
 .plants-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 14px;
+  gap: 16px;
   padding: 0 16px;
 }
 
 /* ===== CARD ===== */
 .plant-card {
-  background: #f7f3eb;
+  background: #ffffff;
   border-radius: 22px;
   padding: 12px;
   position: relative;
+  box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.06);
+
+  .plant-image {
+    width: 100%;
+    height: 140px;
+    border-radius: 16px;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .difficulty-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 11px;
+  }
 }
 
-.plant-image {
-  width: 100%;
-  height: 130px;
-  border-radius: 16px;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  margin-bottom: 10px;
-}
-
-.difficulty-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 10px;
-  border-radius: 999px;
-}
-
-.plant-name {
-  font-size: 15px;
-  font-weight: 700;
-  color: #2f3e34;
-  margin-bottom: 2px;
-}
-
-.plant-type-label {
-  font-size: 12px;
-  color: #8a948a;
-}
-
-/* Consejo */
+/* ===== CONSEJO ===== */
 .info-section {
-  background: #f5f0e7;
+  background: linear-gradient(145deg, #e0f2f1, #d0ede5);
   border-radius: 20px;
   margin: 20px 16px 30px;
   padding: 16px;
-  color: #000000;
+  color: #2f3e34;
 }
