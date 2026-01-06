@@ -2,12 +2,30 @@
 // http://ionicframework.com/docs/theming/
 
 /* 🔒 FORZAR MODO CLARO */
+/* ===============================
+   GREENBOX – VARIABLES GLOBALES
+   =============================== */
+
 :root {
+  /* 🔒 FORZAR MODO CLARO */
   color-scheme: light;
 
-  --ion-background-color: #e7e1d6;
-  --ion-text-color: #000000;
+  /* 🎨 COLORES BASE */
+  --ion-color-primary: #6aa88a;
+  --ion-color-primary-contrast: #ffffff;
 
+  /* 🌿 FONDOS */
+  --ion-background-color: #e6f5ef;
+  --ion-background-color-rgb: 230, 245, 239;
+
+  /* 📝 TEXTO */
+  --ion-text-color: #2c3e50;
+  --ion-text-color-rgb: 44, 62, 80;
+
+  /* 🧱 CARDS */
   --ion-card-background: #ffffff;
+
+  /* GENERAL */
   --ion-item-background: #ffffff;
+  --ion-toolbar-background: #ffffff;
 }
