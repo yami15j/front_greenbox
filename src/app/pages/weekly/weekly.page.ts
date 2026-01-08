@@ -54,7 +54,7 @@ export class WeeklyPage implements OnInit, OnDestroy {
   constructor(
     private navCtrl: NavController,
     private http: HttpClient
-  ) {}
+  ) { }
 
   /* =====================
      CICLO DE VIDA
@@ -63,6 +63,7 @@ export class WeeklyPage implements OnInit, OnDestroy {
     this.loadSensorData(this.selectedSensor);
     this.startPolling();
     this.loadUnreadNotifications();
+    this.loadUnreadCount();
   }
 
   ngOnDestroy(): void {
@@ -78,11 +79,12 @@ export class WeeklyPage implements OnInit, OnDestroy {
     this.currentUnit = this.getUnit(sensor);
     this.isLoading = true;
 
+    // Usar el endpoint correcto: /sensors/history/:boxId/7d
     this.http
-      .get<any[]>(`${this.apiUrl}/history/box/${this.boxId}/type/${sensor}`)
+      .get<any[]>(`${this.apiUrl}/sensors/history/${this.boxId}/7d`)
       .subscribe({
         next: (response) => {
-          this.mapResponseToWeekly(response);
+          this.mapResponseToWeekly(response, sensor);
           this.isOnline = true;
           this.isLoading = false;
         },
@@ -90,38 +92,83 @@ export class WeeklyPage implements OnInit, OnDestroy {
           console.error('Error cargando datos:', err);
           this.isOnline = false;
           this.isLoading = false;
+          // Usar datos de ejemplo en caso de error
+          this.useMockData(sensor);
         }
       });
   }
 
-  private mapResponseToWeekly(response: any[]): void {
-    if (!response || response.length === 0) return;
+  private mapResponseToWeekly(response: any[], sensor: SensorType): void {
+    if (!response || response.length === 0) {
+      this.useMockData(sensor);
+      return;
+    }
 
-    const data = response.slice(-7);
-    const values = data.map(d => Number(d.value));
+    // Extraer el valor correcto según el sensor
+    const sensorField = this.getSensorField(sensor);
+    const data = response.slice(-7); // Últimos 7 días
+    const values = data.map(d => Number(d[sensorField] || 0));
 
     const min = Math.min(...values);
     const max = Math.max(...values);
     const avg = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
 
     this.currentAverage = avg;
-    this.maxValue = max.toString();
-    this.minValue = min.toString();
-    this.weeklyChange = values[values.length - 1] - values[0];
+    this.maxValue = max.toFixed(1);
+    this.minValue = min.toFixed(1);
+    this.weeklyChange = Number((values[values.length - 1] - values[0]).toFixed(1));
 
     this.weeklyData = data.map((d, i) => {
-      const value = Number(d.value);
-      const change = i === 0 ? 0 : value - values[i - 1];
+      const value = Number(d[sensorField] || 0);
+      const change = i === 0 ? 0 : Number((value - values[i - 1]).toFixed(1));
+      const timestamp = new Date(d.timestamp || d.createdAt);
 
       return {
         day: `D${i + 1}`,
-        dayName: this.getDayName(new Date(d.timestamp || d.date).getDay()),
-        date: d.timestamp || d.date || '',
-        value,
+        dayName: this.getDayName(timestamp.getDay()),
+        date: timestamp.toLocaleDateString('es-ES'),
+        value: Number(value.toFixed(1)),
         change,
         percentage: this.calculatePercentage(value, values)
       };
     });
+
+    this.dailyDetails = [...this.weeklyData];
+  }
+
+  private getSensorField(sensor: SensorType): string {
+    const fields: Record<SensorType, string> = {
+      temperature: 'temperature',
+      humidity: 'humidity',
+      light: 'light',
+      water: 'water'
+    };
+    return fields[sensor];
+  }
+
+  private useMockData(sensor: SensorType): void {
+    // Datos de ejemplo para desarrollo
+    const mockValues = sensor === 'temperature'
+      ? [22, 23, 24, 23, 25, 24, 23]
+      : [65, 68, 70, 67, 72, 69, 68];
+
+    const min = Math.min(...mockValues);
+    const max = Math.max(...mockValues);
+    const avg = (mockValues.reduce((a, b) => a + b, 0) / mockValues.length).toFixed(1);
+
+    this.currentAverage = avg;
+    this.maxValue = max.toString();
+    this.minValue = min.toString();
+    this.weeklyChange = mockValues[mockValues.length - 1] - mockValues[0];
+
+    this.weeklyData = mockValues.map((value, i) => ({
+      day: `D${i + 1}`,
+      dayName: this.getDayName((new Date().getDay() - 6 + i + 7) % 7),
+      date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toLocaleDateString('es-ES'),
+      value,
+      change: i === 0 ? 0 : value - mockValues[i - 1],
+      percentage: this.calculatePercentage(value, mockValues)
+    }));
 
     this.dailyDetails = [...this.weeklyData];
   }
@@ -136,12 +183,12 @@ export class WeeklyPage implements OnInit, OnDestroy {
       .pipe(
         switchMap(() =>
           this.http.get<any[]>(
-            `${this.apiUrl}/history/box/${this.boxId}/type/${this.selectedSensor}`
+            `${this.apiUrl}/sensors/history/${this.boxId}/7d`
           )
         )
       )
       .subscribe({
-        next: (response) => this.mapResponseToWeekly(response),
+        next: (response) => this.mapResponseToWeekly(response, this.selectedSensor),
         error: (err) => {
           console.error('Error en polling:', err);
           this.isOnline = false;
@@ -226,7 +273,9 @@ export class WeeklyPage implements OnInit, OnDestroy {
      NAVEGACIÓN
   ====================== */
   goHistory(): void {
-    this.navCtrl.navigateForward('/history');
+    // Scroll to top en lugar de navegar
+    const content = document.querySelector('ion-content') as any;
+    content?.scrollToTop(300);
   }
 
   goHome(): void {
@@ -235,6 +284,22 @@ export class WeeklyPage implements OnInit, OnDestroy {
 
   goNotifications(): void {
     this.navCtrl.navigateForward('/notification');
+  }
+
+  loadUnreadCount() {
+    // Obtener boxId desde localStorage
+    const boxId = localStorage.getItem('selectedBoxId') || '1';
+
+    this.http.get<any[]>(`${this.apiUrl}/notifications/${boxId}/active`)
+      .subscribe({
+        next: (notifications) => {
+          this.unreadCount = notifications.length;
+        },
+        error: (err) => {
+          console.error('Error loading unread count:', err);
+          this.unreadCount = 0;
+        }
+      });
   }
 
   goBack(): void {

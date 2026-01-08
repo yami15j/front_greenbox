@@ -91,10 +91,8 @@
     <div class="weekly-bars">
       <div class="day-bar" *ngFor="let day of weeklyData" (click)="showDayDetail(day)">
         <div class="bar-container">
+          <div class="day-value">{{ day.value }}{{ selectedSensor === 'temperature' ? '°C' : '%' }}</div>
           <div class="bar" [style.height.%]="day.percentage" [class]="'bar-' + selectedSensor"></div>
-        </div>
-        <div class="day-value">{{ day.value }}
-          {{ selectedSensor === 'temperature' ? '°C' : '%' }}
         </div>
         <div class="day-label">{{ day.day }}</div>
       </div>
@@ -136,7 +134,7 @@
       </button>
 
       <!-- Historial -->
-      <button class="tab-button" (click)="goHistory()">
+      <button class="tab-button active" (click)="goHistory()">
         <img src="assets/icon/historial.png" alt="Historial" class="tab-icon">
         <span class="tab-label">Historial</span>
       </button>

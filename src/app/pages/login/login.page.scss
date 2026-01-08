@@ -1,161 +1,379 @@
 .login-page {
-  --background: #d8ebe4;
-  --overflow: hidden;
+  --background: #ffffff;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 100vh;
   position: fixed;
   width: 100%;
-
-  justify-content: center;
+  justify-content: center; // CENTRADO VERTICAL
   align-items: center;
   padding: 20px;
+  overflow: hidden;
+
+  /* Subtle Background Pattern */
+  .background-shapes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(95, 184, 154, 0.04) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(95, 184, 154, 0.04) 0%, transparent 50%);
+
+    .shape {
+      display: none;
+    }
+  }
 
   .login-container {
     width: 100%;
-    max-width: 340px;
+    max-width: 100%;
     margin: 0 auto;
-    top: 170px;
     position: relative;
+    z-index: 1;
+    animation: fadeIn 0.5s ease-out;
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
     .card-content {
       background: #ffffff;
-      border-radius: 24px;
-      padding: 20px 32px 5px;
+      border-radius: 20px;
+      padding: 36px 28px;
       width: 100%;
-      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.05),
+        0 8px 32px rgba(0, 0, 0, 0.08);
       text-align: center;
 
-      h1 {
-        font-family: 'Montserrat';
-        font-weight: 700;
-        font-size: 24px;
-        letter-spacing: 1.5px;
-        margin: 0 0 24px 0;
-        color: #1a1a1a;
-      }
+      /* Logo Section */
+      .logo-section {
+        margin-bottom: 32px;
 
-      .logo-circle {
-        width: 100px;
-        height: 100px;
-        margin: 0 auto 20px;
-        border: 2px solid #d0d0d0;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #ffffff;
-
-        .logo {
-          width: 100px;
-          height: 100px;
-          object-fit: contain;
-        }
-      }
-
-      .subtitle {
-        color: #7a7a7a;
-        font-size: 13px;
-        margin: 0 0 32px 0;
-        font-weight: 400;
-      }
-
-      .form-section {
-        .input-label {
-          display: block;
-          text-align: left;
-          font-size: 14px;
-          font-weight: 600;
-          color: #1a1a1a;
-          margin-bottom: 10px;
-          padding-left: 0;
-          font-family: 'Montserrat';
-        }
-
-        .input-item {
-          --background: transparent;
-          --border-radius: 10px;
-          --padding-start: 16px;
-          --padding-end: 16px;
-          --inner-padding-end: 0;
-          --min-height: 20px;
-          margin-bottom: 20px;
-          border: 1.5px solid #e0e0e0;
-          border-radius: 10px;
+        .logo-circle {
+          width: 90px;
+          height: 90px;
+          margin: 0 auto 20px;
+          border: 2px solid #5fb89a;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           background: #ffffff;
+          transition: all 0.3s ease;
 
-          ion-input {
-            --color: #1a1a1a;
-            --placeholder-color: #b0b0b0;
-            --placeholder-opacity: 1;
-            font-size: 14px;
-            font-weight: 400;
-            font-family: 'Montserrat';
+          &:active {
+            transform: scale(0.95);
+          }
+
+          .logo {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
           }
         }
 
-        ion-button {
-          --background: #5db09a;
-          --background-hover: #52a087;
-          --background-activated: #52a087;
-          --border-radius: 10px;
-          --box-shadow: none;
-          --color: #ffffff;
-          height: 50px;
-          font-weight: 600;
-          font-size: 16px;
-          text-transform: none;
-          margin-top: 0;
-          margin-bottom: 20px;
+        .brand-title {
+          font-family: 'Montserrat', sans-serif;
+          font-weight: 800;
+          font-size: 26px;
+          letter-spacing: 1px;
+          margin: 0 0 6px 0;
+          color: #1a1a1a;
         }
 
-        .footer-text {
-          font-size: 12px;
-          color: #7a7a7a;
+        .subtitle {
+          color: #666666;
+          font-size: 13px;
           margin: 0;
-          line-height: 1.5;
           font-weight: 400;
         }
       }
 
-      .mensaje {
-        margin-top: 16px;
-        font-size: 13px;
-        color: #666666;
-        padding: 10px;
-        border-radius: 8px;
+      /* Form Section */
+      .form-section {
+        .input-group {
+          margin-bottom: 24px;
 
-        &:contains('❌'), &:contains('⚠️') {
-          background: #ffe6e6;
-          color: #cc0000;
+          .input-label {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 6px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            padding-left: 2px;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+
+            .label-icon {
+              font-size: 15px;
+              color: #5fb89a;
+            }
+          }
+
+          .input-item {
+            --background: #ffffff;
+            --border-radius: 12px;
+            --padding-start: 16px;
+            --padding-end: 16px;
+            --min-height: 50px;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            background: #ffffff;
+            transition: all 0.2s ease;
+
+            &:active,
+            &:focus-within {
+              border-color: #5fb89a;
+              box-shadow: 0 0 0 3px rgba(95, 184, 154, 0.1);
+            }
+
+            .input-icon {
+              font-size: 20px;
+              color: #999999;
+              margin-right: 8px;
+            }
+
+            ion-input {
+              --color: #1a1a1a;
+              --placeholder-color: #999999;
+              --placeholder-opacity: 1;
+              font-size: 15px;
+              font-weight: 500;
+              font-family: 'Montserrat', sans-serif;
+            }
+          }
         }
 
-        &:contains('✅') {
-          background: #e6f7f0;
-          color: #2d8a6e;
+        .access-button {
+          --background: #5fb89a;
+          --background-hover: #52a087;
+          --background-activated: #479079;
+          --border-radius: 12px;
+          --box-shadow: 0 4px 12px rgba(95, 184, 154, 0.3);
+          --color: #ffffff;
+          height: 50px;
+          font-weight: 700;
+          font-size: 15px;
+          text-transform: none;
+          margin: 0 0 20px 0;
+          letter-spacing: 0.5px;
+          transition: all 0.2s ease;
+
+          &:active:not([disabled]) {
+            transform: scale(0.98);
+          }
+
+          &[disabled] {
+            opacity: 0.5;
+          }
+
+          ion-icon {
+            margin-left: 8px;
+            font-size: 18px;
+          }
+
+          ion-spinner {
+            --color: white;
+          }
+        }
+
+        .mensaje {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          margin: 16px 0;
+          font-size: 13px;
+          padding: 12px 14px;
+          border-radius: 10px;
+          font-weight: 600;
+          animation: slideDown 0.3s ease;
+
+          @keyframes slideDown {
+            from {
+              opacity: 0;
+              transform: translateY(-10px);
+            }
+
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          .mensaje-icon {
+            font-size: 18px;
+          }
+
+          &.error {
+            background: #fff5f5;
+            color: #d32f2f;
+            border: 1px solid #ffcdd2;
+
+            .mensaje-icon {
+              color: #d32f2f;
+            }
+          }
+
+          &.success {
+            background: #f1f8f5;
+            color: #2e7d5e;
+            border: 1px solid #c8e6d7;
+
+            .mensaje-icon {
+              color: #2e7d5e;
+            }
+          }
+        }
+
+        .footer-info {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          margin-top: 24px;
+          padding-top: 24px;
+          border-top: 1px solid #f0f0f0;
+
+          .footer-icon {
+            font-size: 15px;
+            color: #5fb89a;
+          }
+
+          .footer-text {
+            font-size: 11px;
+            color: #666666;
+            margin: 0;
+            font-weight: 500;
+          }
         }
       }
     }
   }
 }
 
+/* Landscape mode - center more */
+@media (orientation: landscape) {
+  .login-page {
+    justify-content: center;
+    padding: 20px;
+  }
+}
+
+/* Small phones */
 @media (max-width: 360px) {
+  .login-page {
+    padding: 0 16px 50px;
+
+    .login-container {
+      .card-content {
+        padding: 32px 24px;
+
+        .logo-section {
+          margin-bottom: 28px;
+
+          .brand-title {
+            font-size: 24px;
+          }
+
+          .logo-circle {
+            width: 80px;
+            height: 80px;
+
+            .logo {
+              width: 60px;
+              height: 60px;
+            }
+          }
+        }
+
+        .form-section {
+          .input-group {
+            margin-bottom: 20px;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Very small phones */
+@media (max-width: 320px) {
   .login-page {
     .login-container {
       .card-content {
-        padding: 36px 24px 32px;
+        padding: 28px 20px;
 
-        h1 {
-          font-size: 22px;
+        .logo-section {
+          .brand-title {
+            font-size: 22px;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Tablets and larger */
+@media (min-width: 768px) {
+  .login-page {
+    justify-content: center;
+
+    .login-container {
+      max-width: 420px;
+
+      .card-content {
+        padding: 48px 40px;
+
+        .logo-section {
+          margin-bottom: 40px;
+
+          .logo-circle {
+            width: 100px;
+            height: 100px;
+
+            .logo {
+              width: 75px;
+              height: 75px;
+            }
+          }
+
+          .brand-title {
+            font-size: 28px;
+          }
+
+          .subtitle {
+            font-size: 14px;
+          }
         }
 
-        .logo-circle {
-          width: 90px;
-          height: 90px;
+        .form-section {
+          .input-group {
+            margin-bottom: 28px;
 
-          .logo {
-            width: 65px;
-            height: 65px;
+            .input-item {
+              --min-height: 52px;
+            }
+          }
+
+          .access-button {
+            height: 52px;
           }
         }
       }

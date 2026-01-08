@@ -1,8 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, NavController, MenuController } from '@ionic/angular';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ApiService, SensorData } from 'src/app/api.service';
+import { ActuatorStatus } from 'src/app/models/api.models';
+import { environment } from 'src/environments/environment';
+import { addIcons } from 'ionicons';
+import { thermometerOutline, waterOutline, sunnyOutline, leafOutline, helpCircleOutline } from 'ionicons/icons';
 
 interface ActivePlant {
   id: string;
@@ -30,25 +35,32 @@ interface ActivePlant {
 })
 export class HomePage implements OnInit {
 
+  isLoading = true;
   activePlant: ActivePlant | null = null;
   data: SensorData = { temp: 0, hum: 0, light: 0, water: 0 };
-  isLoading = true;
+  actuatorStatus: ActuatorStatus | null = null;
   isOnline = true;
-
-  unreadCount: number = 0; // ✅ CORREGIDO
-
   hamburgerActive = false;
+  unreadCount = 0;
 
   constructor(
-    private router: Router,
     private navCtrl: NavController,
+    private router: Router,
     private api: ApiService,
-    private menu: MenuController
-  ) {}
+    private menu: MenuController,
+    private http: HttpClient
+  ) {
+    // Registrar icono de ayuda
+    addIcons({
+      'help-circle-outline': helpCircleOutline
+    });
+  }
 
   ngOnInit() {
     this.loadActivePlant();
     this.loadSensorData();
+    this.loadActuatorStatus();
+    this.loadUnreadCount();
   }
 
   toggleHamburger() {
@@ -86,6 +98,16 @@ export class HomePage implements OnInit {
     }
   }
 
+  async loadActuatorStatus() {
+    if (!this.activePlant) return;
+    try {
+      this.actuatorStatus = await this.api.getActuatorStatus(this.activePlant.id);
+    } catch (err) {
+      console.error('Error cargando estado de actuadores:', err);
+      this.actuatorStatus = null;
+    }
+  }
+
   async refreshData(event?: any) {
     if (!this.activePlant) return;
     this.isLoading = true;
@@ -93,6 +115,10 @@ export class HomePage implements OnInit {
       const latestData = await this.api.getLatestByPlant(this.activePlant.id);
       this.data = latestData;
       localStorage.setItem('activePlantData', JSON.stringify(latestData));
+
+      // También actualizar estado de actuadores
+      await this.loadActuatorStatus();
+
       this.isOnline = true;
     } catch {
       this.isOnline = false;
@@ -120,7 +146,7 @@ export class HomePage implements OnInit {
   getSensorStatus(sensor: 'temp' | 'hum' | 'light' | 'water'): string {
     if (!this.activePlant) return '';
     const c = this.activePlant.optimalConditions;
-    switch(sensor) {
+    switch (sensor) {
       case 'temp': return (this.data.temp >= c.tempMin && this.data.temp <= c.tempMax) ? 'good' : 'bad';
       case 'hum': return (this.data.hum >= c.humMin && this.data.hum <= c.humMax) ? 'good' : 'bad';
       case 'light': return (this.data.light >= c.lightMin && this.data.light <= c.lightMax) ? 'good' : 'bad';
@@ -129,12 +155,12 @@ export class HomePage implements OnInit {
   }
 
   getSensorStatusText(sensor: 'temp' | 'hum' | 'light' | 'water'): string {
-    return this.getSensorStatus(sensor) === 'good' ? 'Óptimo' : 'Fuera de rango';
+    return this.getSensorStatus(sensor) === 'good' ? 'Óptimo' : 'Revisar';
   }
 
   // ✅ NAVEGACIÓN CORREGIDA
   goPlants() {
-    this.router.navigate(['/plants']);
+    this.router.navigate(['/plant']);
     this.closeMenu();
   }
 
@@ -151,5 +177,26 @@ export class HomePage implements OnInit {
   goHome() {
     document.querySelector('ion-content')?.scrollToTop(300);
     this.closeMenu();
+  }
+
+  goGuide() {
+    this.router.navigate(['/guide']);
+    this.closeMenu();
+  }
+
+  loadUnreadCount() {
+    // Obtener boxId desde localStorage
+    const boxId = localStorage.getItem('selectedBoxId') || '1';
+
+    this.http.get<any[]>(`${environment.apiUrl}/notifications/${boxId}/active`)
+      .subscribe({
+        next: (notifications) => {
+          this.unreadCount = notifications.length;
+        },
+        error: (err) => {
+          console.error('Error loading unread count:', err);
+          this.unreadCount = 0;
+        }
+      });
   }
 }

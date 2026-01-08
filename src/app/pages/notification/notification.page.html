@@ -1,5 +1,5 @@
 <ion-content class="notification-content" [scrollEvents]="true" [fullscreen]="true">
-  
+
   <!-- Pull to Refresh -->
   <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
     <ion-refresher-content></ion-refresher-content>
@@ -45,16 +45,13 @@
 
   <!-- Lista de Notificaciones -->
   <div class="notifications-list" *ngIf="!isLoading">
-    
+
     <!-- Notificaciones de Hoy -->
     <div class="notification-section" *ngIf="todayNotifications.length > 0">
       <h3 class="section-title">Hoy</h3>
-      <div class="notification-item" 
-           *ngFor="let notification of todayNotifications"
-           [class.unread]="!notification.read"
-           [class]="'priority-' + notification.priority"
-           (click)="openNotification(notification)">
-        
+      <div class="notification-item" *ngFor="let notification of todayNotifications" [class.unread]="!notification.read"
+        [class]="'priority-' + notification.priority" (click)="openNotification(notification)">
+
         <div class="notification-icon" [ngClass]="getIconClass(notification.type)">
           <ion-icon [name]="getIconName(notification.type)"></ion-icon>
         </div>
@@ -65,7 +62,7 @@
             <span class="notification-time">{{ notification.time }}</span>
           </div>
           <p class="notification-message">{{ notification.message }}</p>
-          
+
           <div class="notification-meta">
             <span class="notification-plant" *ngIf="notification.plantName">
               <ion-icon name="leaf-outline"></ion-icon>
@@ -86,12 +83,9 @@
     <!-- Notificaciones Anteriores -->
     <div class="notification-section" *ngIf="olderNotifications.length > 0">
       <h3 class="section-title">Anteriores</h3>
-      <div class="notification-item" 
-           *ngFor="let notification of olderNotifications"
-           [class.unread]="!notification.read"
-           [class]="'priority-' + notification.priority"
-           (click)="openNotification(notification)">
-        
+      <div class="notification-item" *ngFor="let notification of olderNotifications" [class.unread]="!notification.read"
+        [class]="'priority-' + notification.priority" (click)="openNotification(notification)">
+
         <div class="notification-icon" [ngClass]="getIconClass(notification.type)">
           <ion-icon [name]="getIconName(notification.type)"></ion-icon>
         </div>
@@ -102,7 +96,7 @@
             <span class="notification-time">{{ notification.date }}</span>
           </div>
           <p class="notification-message">{{ notification.message }}</p>
-          
+
           <div class="notification-meta">
             <span class="notification-plant" *ngIf="notification.plantName">
               <ion-icon name="leaf-outline"></ion-icon>
@@ -155,7 +149,7 @@
       </button>
 
       <!-- Notificaciones -->
-      <button class="tab-button notifications-tab" (click)="goNotifications()">
+      <button class="tab-button notifications-tab active" (click)="goNotifications()">
         <img src="assets/icon/ti.png" alt="Notificaciones" class="tab-icon">
         <span class="tab-label">Notificaciones</span>
         <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>

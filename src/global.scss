@@ -1,202 +1,192 @@
-/*
- * App Global CSS
- * ----------------------------------------------------------------------------
- * Styles applied globally to the entire Ionic app
- */
-
 /* =====================================================
-   CORE IONIC CSS
+   APP GLOBAL SCSS
+   ----------------------------------------------------------------------------
+   Lo mínimo para que se vea tu diseño: fondo, tipografía,
+   colores, modo claro y estilos básicos de alertas
    ===================================================== */
-@import "@ionic/angular/css/core.css";
 
-/* Basic CSS for apps built with Ionic */
+/* ===============================
+   CORE IONIC CSS
+   =============================== */
+@import "@ionic/angular/css/core.css";
 @import "@ionic/angular/css/normalize.css";
 @import "@ionic/angular/css/structure.css";
 @import "@ionic/angular/css/typography.css";
-@import "@ionic/angular/css/display.css";
 
-/* Optional CSS utils */
-@import "@ionic/angular/css/padding.css";
-@import "@ionic/angular/css/float-elements.css";
-@import "@ionic/angular/css/text-alignment.css";
-@import "@ionic/angular/css/text-transformation.css";
-@import "@ionic/angular/css/flex-utils.css";
-
-/* =====================================================
-   🚫 DARK MODE DESACTIVADO
-   ===================================================== */
-/* NO importar ningún palette dark */
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-/* @import "@ionic/angular/css/palettes/dark.system.css"; */
-
-/* =====================================================
-   🔒 FORZAR MODO CLARO GLOBAL
-   ===================================================== */
-:root {
-  color-scheme: light;
-}
-
-/* Fondo global de la app */
-ion-app {
-  background: #e7e1d6;
-}
-
-/* Fondo de ion-content (evita pantalla negra) */
-ion-content {
-  --background: #e7e1d6;
-}
-
-/* =====================================================
+/* ===============================
    FUENTE GLOBAL
-   ===================================================== */
+   =============================== */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
 
-body, ion-app, ion-content {
+body,
+ion-app,
+ion-content {
   font-family: 'Montserrat', sans-serif;
 }
 
-/* =====================================================
-   ESTILOS PERSONALIZADOS GREENBOX
-   ===================================================== */
+/* ===============================
+   MODO CLARO Y COLORES BASE
+   =============================== */
+:root {
+  /* Forzar modo claro */
+  color-scheme: light;
 
-/* Alerts personalizados */
+  /* Colores principales */
+  --ion-color-primary: #6aa88a;
+  --ion-color-primary-contrast: #ffffff;
 
-.custom-alert {
+  /* Fondos */
+  --ion-background-color: #e6f5ef;
+  --ion-card-background: #ffffff;
+  --ion-item-background: #ffffff;
+
+  /* Texto */
+  --ion-text-color: #2c3e50;
+}
+
+/* ===============================
+   FONDO GLOBAL
+   =============================== */
+ion-app {
+  background: var(--ion-background-color);
+}
+
+ion-content {
+  --background: var(--ion-background-color);
+}
+
+/* ===============================
+   ALERTS BÁSICOS (para que se vean)
+   =============================== */
+ion-alert.custom-alert {
   --background: #ffffff;
-  --max-width: 300px;
   --border-radius: 20px;
+}
+
+ion-alert.success-alert {
+  --background: #ffffff;
+  --border-radius: 18px;
+}
+
+/* ===============================
+   CARDS Y ITEMS BÁSICOS
+   =============================== */
+ion-card {
+  background: var(--ion-card-background);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+ion-item {
+  background: var(--ion-item-background);
+  border-radius: 12px;
+}
+
+/* ===============================
+   MODAL DE CONFIGURACIÓN DE NOTIFICACIONES
+   =============================== */
+.notification-settings-alert {
+  --background: #ffffff;
+  --max-width: 340px;
+  --border-radius: 20px;
+  --backdrop-opacity: 0.5;
 
   .alert-wrapper {
-    border-radius: 20px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-radius: 20px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
   }
 
   .alert-head {
-    padding: 20px 20px 12px;
+    padding: 24px 20px 12px !important;
 
     h2 {
-      font-size: 19px;
-      font-weight: 700;
-      color: #2c3e50;
-      text-align: center;
+      font-size: 20px !important;
+      font-weight: 700 !important;
+      color: #1a1a1a !important;
+      letter-spacing: -0.3px !important;
+      margin: 0 !important;
     }
   }
 
   .alert-message {
-    padding: 0 20px 20px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #5a6c7d;
-    text-align: center;
-    line-height: 1.6;
+    padding: 0 20px 16px !important;
+    font-size: 14px !important;
+    color: #666 !important;
+    font-weight: 500 !important;
+    line-height: 1.5 !important;
+  }
+
+  .alert-checkbox-group {
+    padding: 0 !important;
+    max-height: 300px !important;
+    border-top: 1px solid #f0f0f0 !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+
+    .alert-checkbox-label {
+      padding: 16px 20px !important;
+      border-bottom: 1px solid #f5f5f5 !important;
+      min-height: 56px !important;
+
+      &:last-child {
+        border-bottom: none !important;
+      }
+    }
+
+    .alert-checkbox-icon {
+      border-color: #5fb89a !important;
+      border-width: 2.5px !important;
+      border-radius: 6px !important;
+      width: 22px !important;
+      height: 22px !important;
+      margin-inline-end: 16px !important;
+
+      &.alert-checkbox-icon-checked {
+        background-color: #5fb89a !important;
+        border-color: #5fb89a !important;
+
+        .alert-checkbox-inner {
+          border-color: #ffffff !important;
+          border-width: 2px !important;
+        }
+      }
+    }
+
+    span {
+      font-size: 15px !important;
+      font-weight: 600 !important;
+      color: #1a1a1a !important;
+    }
   }
 
   .alert-button-group {
-    padding: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    padding: 12px !important;
 
     button {
-      font-size: 15px;
-      font-weight: 600;
-      text-transform: none;
-      border-radius: 12px;
-      height: 44px;
-      margin: 0;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      text-transform: none !important;
+      border-radius: 10px !important;
+      padding: 12px 20px !important;
+      margin: 4px !important;
+      min-height: 44px !important;
 
       &.alert-button-role-cancel {
-        color: #7f8c8d;
-        background: #f8f9fa;
-        order: 2;
+        color: #666 !important;
+        background: #f5f5f5 !important;
 
         &:hover {
-          background: #e9ecef;
+          background: #e8e8e8 !important;
         }
       }
 
       &:not(.alert-button-role-cancel) {
-        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-        color: white;
-        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
-        order: 1;
+        color: #ffffff !important;
+        background: linear-gradient(135deg, #5fb89a 0%, #4caf50 100%) !important;
+        box-shadow: 0 2px 8px rgba(95, 184, 154, 0.3) !important;
 
         &:hover {
-          box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
+          box-shadow: 0 4px 12px rgba(95, 184, 154, 0.4) !important;
         }
-      }
-    }
-  }
-}
-
-/* =====================================================
-   ALERT DE ÉXITO
-   ===================================================== */
-
-.success-alert {
-  --background: #ffffff;
-  --max-width: 280px;
-  --border-radius: 18px;
-
-  .alert-wrapper {
-    border-radius: 18px;
-    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.2);
-    border: 2px solid #e8f5e9;
-  }
-
-  .alert-head {
-    padding: 20px 16px 8px;
-
-    h2 {
-      font-size: 18px;
-      font-weight: 700;
-      color: #4CAF50;
-      text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-
-      &::before {
-        content: '✓';
-        display: inline-block;
-        width: 28px;
-        height: 28px;
-        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-        color: white;
-        border-radius: 50%;
-        font-size: 16px;
-        line-height: 28px;
-        text-align: center;
-      }
-    }
-  }
-
-  .alert-message {
-    padding: 0 16px 20px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #5a6c7d;
-    text-align: center;
-    line-height: 1.5;
-  }
-
-  .alert-button-group {
-    padding: 8px 12px 12px;
-
-    button {
-      font-size: 15px;
-      font-weight: 600;
-      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-      color: white;
-      border-radius: 12px;
-      height: 42px;
-      box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
-      text-transform: none;
-
-      &:hover {
-        box-shadow: 0 5px 14px rgba(76, 175, 80, 0.4);
       }
     }
   }

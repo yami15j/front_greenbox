@@ -9,10 +9,20 @@ import {
   IonInput,
   IonButton,
   IonLabel,
-  IonSpinner
+  IonSpinner,
+  IonIcon
 } from '@ionic/angular/standalone';
 
 import { ApiService } from '../../api.service';
+import { addIcons } from 'ionicons';
+import {
+  lockClosedOutline,
+  keyOutline,
+  arrowForwardOutline,
+  checkmarkCircle,
+  alertCircle,
+  shieldCheckmarkOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-login',
@@ -27,7 +37,8 @@ import { ApiService } from '../../api.service';
     IonInput,
     IonButton,
     IonLabel,
-    IonSpinner
+    IonSpinner,
+    IonIcon
   ],
 })
 export class LoginPage {
@@ -36,7 +47,16 @@ export class LoginPage {
   mensaje: string = '';
   loading: boolean = false;
 
-  constructor(private router: Router, private api: ApiService) {}
+  constructor(private router: Router, private api: ApiService) {
+    addIcons({
+      lockClosedOutline,
+      keyOutline,
+      arrowForwardOutline,
+      checkmarkCircle,
+      alertCircle,
+      shieldCheckmarkOutline
+    });
+  }
 
   async onAccess() {
 

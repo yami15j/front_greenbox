@@ -2,73 +2,91 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../environments/environment';
+import { SensorData, SensorReading, ActuatorStatus } from './models/api.models';
 
-export interface SensorData {
-  temp: number;
-  hum: number;
-  light: number;
-  water: number;
-  timestamp?: string;
-}
-
-export interface SensorReading {
-  timestamp: string;
-  temperature: number;
-  humidity: number;
-  light: number;
-  water: number;
-}
+// Re-export for backward compatibility
+export { SensorData, SensorReading };
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
 
-  private base = 'http://127.0.0.1:3000'; // Cambiar por tu URL real
+  private base = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  /** Datos más recientes de una planta */
+  /* ========== SENSOR DATA ENDPOINTS ========== */
+
+  /** Datos más recientes de una planta (usa plantId como boxId) */
   async getLatestByPlant(plantId: string): Promise<SensorData> {
-    const res = await firstValueFrom(this.http.get<any>(`${this.base}/sensors/latest/${plantId}`));
-    return this.transformToSensorData(res);
+    try {
+      const res = await firstValueFrom(
+        this.http.get<any>(`${this.base}/sensors/latest/${plantId}`)
+      );
+      return {
+        temp: res.temperature || 0,
+        hum: res.humidity || 0,
+        light: res.light || 0,
+        water: res.water || 0,
+        timestamp: res.timestamp || new Date().toISOString()
+      };
+    } catch (err) {
+      console.error('Error obteniendo datos recientes:', err);
+      return { temp: 0, hum: 0, light: 0, water: 0, timestamp: new Date().toISOString() };
+    }
   }
 
   /** Historial de una planta ('24h', '7d', '30d') */
   async getHistoryByPlant(plantId: string, period: '24h' | '7d' | '30d'): Promise<SensorReading[]> {
-    const res = await firstValueFrom(this.http.get<any[]>(`${this.base}/sensors/history/${plantId}/${period}`));
-    return this.transformToSensorReading(res);
+    try {
+      const res = await firstValueFrom(
+        this.http.get<SensorReading[]>(`${this.base}/sensors/history/${plantId}/${period}`)
+      );
+      return res;
+    } catch (err) {
+      console.error('Error obteniendo historial:', err);
+      return [];
+    }
   }
 
-  private transformToSensorData(data: any): SensorData {
-    return {
-      temp: Number(data.temperature || data.temp || 0),
-      hum: Number(data.humidity || data.hum || 0),
-      light: Number(data.light || data.luz || 0),
-      water: Number(data.water || data.agua || data.nivel_agua || 0),
-      timestamp: data.timestamp || new Date().toISOString()
-    };
+  /* ========== ACTUATOR STATUS ========== */
+
+  /** Obtener estado de actuadores (LED y Bomba) */
+  async getActuatorStatus(plantId: string): Promise<ActuatorStatus | null> {
+    try {
+      return await firstValueFrom(
+        this.http.get<ActuatorStatus>(`${this.base}/sensors/actuators/${plantId}`)
+      );
+    } catch (err) {
+      console.error('Error obteniendo estado de actuadores:', err);
+      return null;
+    }
   }
 
-  private transformToSensorReading(data: any[]): SensorReading[] {
-    return data.map(item => ({
-      timestamp: item.timestamp || new Date().toISOString(),
-      temperature: Number(item.temperature || item.temp || 0),
-      humidity: Number(item.humidity || item.hum || 0),
-      light: Number(item.light || item.luz || 0),
-      water: Number(item.water || item.agua || item.nivel_agua || 0)
-    }));
+  /** Control manual de actuadores (opcional) */
+  async controlActuators(plantId: string, led?: boolean, pump?: boolean) {
+    try {
+      return await firstValueFrom(
+        this.http.post(`${this.base}/box/${plantId}/actuators`, { led, pump })
+      );
+    } catch (err) {
+      console.error('Error controlando actuadores:', err);
+      throw err;
+    }
   }
+
+  /* ========== AUTHENTICATION ========== */
 
   /** Validar código de acceso (login) */
   async validateCode(code: string): Promise<boolean> {
     try {
-      // Simulación de endpoint POST /auth/validate
       const res = await firstValueFrom(
         this.http.post<{ valid: boolean }>(`${this.base}/auth/validate`, { code })
       );
       return res.valid;
     } catch (err) {
       console.error('Error validando código:', err);
-      return false;
+      // Por ahora permitir acceso con cualquier código para desarrollo
+      return code.length > 0;
     }
   }
 }

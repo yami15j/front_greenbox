@@ -8,6 +8,9 @@
   <!-- Header -->
   <div class="page-header">
     <h1 class="page-title">Salud de tu Planta</h1>
+    <button class="guide-button" (click)="goGuide()" title="Guía de Cuidados">
+      <ion-icon name="help-circle-outline"></ion-icon>
+    </button>
   </div>
 
   <!-- Loading -->
@@ -31,12 +34,8 @@
       </div>
 
       <div class="plant-image-container">
-        <img
-          [src]="activePlant.imageUrl"
-          [alt]="activePlant.name"
-          class="plant-image"
-          onerror="this.src='assets/plant/default-plant.jpg';"
-        >
+        <img [src]="activePlant.imageUrl" [alt]="activePlant.name" class="plant-image"
+          onerror="this.src='assets/plant/default-plant.jpg';">
 
         <!-- Botón cambiar planta -->
         <button class="change-plant-btn-overlay" (click)="goPlants()">
@@ -114,32 +113,88 @@
       </div>
 
     </div>
+
+    <!-- Control Automático (LED y Bomba) -->
+    <div class="actuators-section" *ngIf="activePlant && actuatorStatus">
+      <div class="section-header">
+        <ion-icon name="settings-outline" class="section-icon"></ion-icon>
+        <h3 class="section-title">Control Automático</h3>
+      </div>
+
+      <div class="actuators-grid">
+        <!-- LED Status -->
+        <div class="actuator-card" [class.active]="actuatorStatus.led">
+          <div class="actuator-icon-wrapper led">
+            <ion-icon name="bulb" class="actuator-icon"></ion-icon>
+            <div class="status-pulse" *ngIf="actuatorStatus.led"></div>
+          </div>
+          <div class="actuator-info">
+            <span class="actuator-label">Iluminación LED</span>
+            <span class="actuator-status" [class.on]="actuatorStatus.led">
+              {{ actuatorStatus.led ? 'Encendido' : 'Apagado' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Pump Status -->
+        <div class="actuator-card" [class.active]="actuatorStatus.pump">
+          <div class="actuator-icon-wrapper pump">
+            <ion-icon name="water" class="actuator-icon"></ion-icon>
+            <div class="status-pulse" *ngIf="actuatorStatus.pump"></div>
+          </div>
+          <div class="actuator-info">
+            <span class="actuator-label">Bomba de Agua</span>
+            <span class="actuator-status" [class.on]="actuatorStatus.pump">
+              {{ actuatorStatus.pump ? 'Activa' : 'Inactiva' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Watering Info -->
+      <div class="watering-info-card">
+        <div class="watering-stat">
+          <ion-icon name="water-outline" class="stat-icon"></ion-icon>
+          <div class="stat-content">
+            <span class="stat-label">Riegos hoy</span>
+            <span class="stat-value">{{ actuatorStatus.wateringCount }}</span>
+          </div>
+        </div>
+        <div class="watering-stat" *ngIf="actuatorStatus.lastWateringDate">
+          <ion-icon name="time-outline" class="stat-icon"></ion-icon>
+          <div class="stat-content">
+            <span class="stat-label">Último riego</span>
+            <span class="stat-value">{{ actuatorStatus.lastWateringDate | date:'short' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </ion-content>
 
-<!-- Tabs -->
+<!-- Tabs Inferior -->
 <ion-footer class="ion-no-border">
   <ion-toolbar class="tabs-toolbar">
     <div class="custom-tabs">
-
+      <!-- Inicio -->
       <button class="tab-button active" (click)="goHome()">
-        <img src="assets/icon/inicio.png" class="tab-icon">
+        <img src="assets/icon/inicio.png" alt="Inicio" class="tab-icon">
         <span class="tab-label">Inicio</span>
       </button>
 
+      <!-- Historial -->
       <button class="tab-button" (click)="goHistory()">
-        <img src="assets/icon/historial.png" class="tab-icon">
+        <img src="assets/icon/historial.png" alt="Historial" class="tab-icon">
         <span class="tab-label">Historial</span>
       </button>
 
+      <!-- Notificaciones -->
       <button class="tab-button notifications-tab" (click)="goNotifications()">
-        <img src="assets/icon/ti.png" class="tab-icon">
+        <img src="assets/icon/ti.png" alt="Notificaciones" class="tab-icon">
         <span class="tab-label">Notificaciones</span>
-        <span class="notification-badge" *ngIf="unreadCount > 0">
-          {{ unreadCount }}
-        </span>
+        <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
       </button>
-
     </div>
   </ion-toolbar>
 </ion-footer>

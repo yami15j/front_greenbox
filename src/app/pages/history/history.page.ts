@@ -29,7 +29,7 @@ export class HistoryPage implements OnInit {
   constructor(
     private navCtrl: NavController,
     private api: ApiService
-  ) {}
+  ) { }
 
   ngOnInit() {
     // Cargar planta activa para filtrar historial
@@ -37,8 +37,8 @@ export class HistoryPage implements OnInit {
     if (plant) {
       try {
         this.activePlantId = JSON.parse(plant).id;
-      } catch { 
-        this.activePlantId = null; 
+      } catch {
+        this.activePlantId = null;
       }
     }
     this.loadData();

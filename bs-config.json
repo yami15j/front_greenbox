@@ -1,0 +1,9 @@
+{
+  "server": {
+    "baseDir": "./",
+    "index": "index.html",
+    "middleware": {
+      "1": null
+    }
+  }
+}

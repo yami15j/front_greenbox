@@ -3,6 +3,19 @@ import { CommonModule } from '@angular/common';
 import { IonicModule, NavController, AlertController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import { addIcons } from 'ionicons';
+import {
+  warning,
+  alarm,
+  informationCircle,
+  bulb,
+  notifications,
+  leafOutline,
+  checkmarkDone,
+  arrowBack,
+  close
+} from 'ionicons/icons';
 
 interface Notification {
   id: string;
@@ -29,25 +42,38 @@ interface Notification {
   imports: [CommonModule, IonicModule]
 })
 export class NotificationPage implements OnInit {
-  
+
   isLoading = false;
   selectedFilter: 'all' | 'alerts' | 'reminders' | 'system' = 'all';
-  
+
   notifications: Notification[] = [];
   filteredNotifications: Notification[] = [];
   todayNotifications: Notification[] = [];
   olderNotifications: Notification[] = [];
-  
+
   unreadCount = 0;
-  
-  private apiUrl = 'http://127.0.0.1:3000';
+
+  private apiUrl = environment.apiUrl;
   private activePlantId: string | null = null;
 
   constructor(
     private navCtrl: NavController,
     private alertCtrl: AlertController,
     private http: HttpClient
-  ) {}
+  ) {
+    // Registrar iconos
+    addIcons({
+      'warning': warning,
+      'alarm': alarm,
+      'information-circle': informationCircle,
+      'bulb': bulb,
+      'notifications': notifications,
+      'leaf-outline': leafOutline,
+      'checkmark-done': checkmarkDone,
+      'arrow-back': arrowBack,
+      'close': close
+    });
+  }
 
   ngOnInit() {
     this.loadActivePlant();
@@ -67,19 +93,23 @@ export class NotificationPage implements OnInit {
 
   async loadNotifications() {
     this.isLoading = true;
-    
+
     try {
-      // Intentar cargar desde backend
+      if (!this.activePlantId) {
+        throw new Error('No active plant');
+      }
+
+      // Usar endpoint correcto de notificaciones
       const response = await firstValueFrom(
-        this.http.get<Notification[]>(`${this.apiUrl}/notifications/${this.activePlantId || 'default'}`)
+        this.http.get<any[]>(`${this.apiUrl}/notifications/${this.activePlantId}`)
       );
+
       this.notifications = this.processNotifications(response);
     } catch (error) {
       console.log('Backend no disponible, usando notificaciones de ejemplo');
-      // Usar notificaciones de ejemplo si el backend no está disponible
       this.notifications = this.getMockNotifications();
     }
-    
+
     this.filterNotifications();
     this.categorizeByDate();
     this.updateUnreadCount();
@@ -193,33 +223,66 @@ export class NotificationPage implements OnInit {
   }
 
   filterNotifications() {
-    if (this.selectedFilter === 'all') {
-      this.filteredNotifications = [...this.notifications];
+    // Obtener preferencias guardadas
+    const settingsStr = localStorage.getItem('notificationSettings');
+    let enabledTypes: string[] = [];
+
+    if (settingsStr) {
+      try {
+        // Parsear el string JSON y extraer los valores de los checkboxes marcados
+        const parsedSettings = JSON.parse(settingsStr);
+        enabledTypes = Object.keys(parsedSettings).filter(key => parsedSettings[key] === true);
+      } catch {
+        // Si hay error, mostrar todas
+        enabledTypes = ['temperature', 'humidity', 'light', 'water', 'reminders'];
+      }
     } else {
-      this.filteredNotifications = this.notifications.filter(n => {
+      // Por defecto, todas habilitadas
+      enabledTypes = ['temperature', 'humidity', 'light', 'water', 'reminders'];
+    }
+
+    // Filtrar por tipo de sensor/alerta
+    let filtered = this.notifications.filter(n => {
+      // Si es una alerta de sensor, verificar si está habilitada
+      if (n.sensorType) {
+        return enabledTypes.includes(n.sensorType);
+      }
+      // Si es recordatorio, verificar si está habilitado
+      if (n.type === 'reminder') {
+        return enabledTypes.includes('reminders');
+      }
+      // Otros tipos (system, info) siempre se muestran
+      return true;
+    });
+
+    // Aplicar filtro de categoría (all, alerts, reminders, system)
+    if (this.selectedFilter !== 'all') {
+      filtered = filtered.filter(n => {
         switch (this.selectedFilter) {
           case 'alerts':
             return n.type === 'alert';
           case 'reminders':
             return n.type === 'reminder';
           case 'system':
-            return n.type === 'system' || n.type === 'info';
+            return n.type === 'system' || n.type === 'info'; // 'info' se considera parte de 'system' para el filtro
           default:
             return true;
         }
       });
     }
+
+    this.filteredNotifications = filtered;
   }
 
   categorizeByDate() {
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    this.todayNotifications = this.filteredNotifications.filter(n => 
+    this.todayNotifications = this.filteredNotifications.filter(n =>
       n.timestamp >= todayStart
     );
 
-    this.olderNotifications = this.filteredNotifications.filter(n => 
+    this.olderNotifications = this.filteredNotifications.filter(n =>
       n.timestamp < todayStart
     );
   }
@@ -233,7 +296,7 @@ export class NotificationPage implements OnInit {
     if (!notification.read) {
       notification.read = true;
       this.updateUnreadCount();
-      
+
       // Intentar actualizar en backend
       try {
         await firstValueFrom(
@@ -254,22 +317,37 @@ export class NotificationPage implements OnInit {
   }
 
   async showNotificationDetail(notification: Notification) {
+    // Limpiar HTML del mensaje para mostrarlo correctamente
+    const cleanMessage = this.stripHtml(notification.message);
+    const plantInfo = notification.plantName ? `\n\nPlanta: ${notification.plantName}` : '';
+    const sensorInfo = notification.sensorValue ? `\nValor: ${notification.sensorValue}${notification.sensorType === 'temperature' ? '°C' : '%'}` : '';
+    const timeInfo = `\n\n${notification.date} a las ${notification.time}`;
+
+    // Mostrar detalle
     const alert = await this.alertCtrl.create({
       header: notification.title,
-      message: `
-        <p>${notification.message}</p>
-        ${notification.plantName ? `<p><strong>Planta:</strong> ${notification.plantName}</p>` : ''}
-        ${notification.sensorValue ? `<p><strong>Valor:</strong> ${notification.sensorValue}${notification.sensorType === 'temperature' ? '°C' : '%'}</p>` : ''}
-        <p><small>${notification.date} a las ${notification.time}</small></p>
-      `,
+      message: cleanMessage + plantInfo + sensorInfo + timeInfo,
+      cssClass: 'notification-detail-alert',
       buttons: ['OK']
     });
     await alert.present();
   }
 
+  // Método para limpiar HTML de los mensajes
+  private stripHtml(html: string): string {
+    if (!html) return '';
+
+    // Crear un elemento temporal para parsear el HTML
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+
+    // Obtener solo el texto sin etiquetas
+    return tmp.textContent || tmp.innerText || '';
+  }
+
   async dismissNotification(notification: Notification, event: Event) {
     event.stopPropagation();
-    
+
     const alert = await this.alertCtrl.create({
       header: '¿Eliminar notificación?',
       message: 'Esta acción no se puede deshacer.',
@@ -287,11 +365,11 @@ export class NotificationPage implements OnInit {
             this.filterNotifications();
             this.categorizeByDate();
             this.updateUnreadCount();
-            
+
             // Intentar eliminar en backend
             try {
               await firstValueFrom(
-                this.http.delete(`${this.apiUrl}/notifications/${notification.id}`)
+                this.http.delete(`${this.apiUrl} / notifications / ${notification.id}`)
               );
             } catch (error) {
               console.log('No se pudo eliminar en backend');
@@ -305,7 +383,7 @@ export class NotificationPage implements OnInit {
 
   async markAllAsRead() {
     const unreadNotifications = this.notifications.filter(n => !n.read);
-    
+
     if (unreadNotifications.length === 0) return;
 
     unreadNotifications.forEach(n => n.read = true);
@@ -314,7 +392,7 @@ export class NotificationPage implements OnInit {
     // Intentar actualizar en backend
     try {
       await firstValueFrom(
-        this.http.patch(`${this.apiUrl}/notifications/mark-all-read`, {
+        this.http.patch(`${this.apiUrl} / notifications / mark - all - read`, {
           plantId: this.activePlantId
         })
       );
@@ -324,44 +402,59 @@ export class NotificationPage implements OnInit {
   }
 
   async openSettings() {
+    // Cargar configuración actual
+    const settingsStr = localStorage.getItem('notificationSettings');
+    let currentSettings: string[] = [];
+
+    if (settingsStr) {
+      try {
+        currentSettings = JSON.parse(settingsStr);
+      } catch {
+        currentSettings = ['temperature', 'humidity', 'light', 'water', 'reminders'];
+      }
+    } else {
+      currentSettings = ['temperature', 'humidity', 'light', 'water', 'reminders'];
+    }
+
     const alert = await this.alertCtrl.create({
       header: 'Configuración de Notificaciones',
-      message: 'Personaliza qué alertas deseas recibir',
+      subHeader: 'Personaliza qué alertas deseas recibir',
+      cssClass: 'notification-settings-alert',
       inputs: [
         {
           name: 'temperature',
           type: 'checkbox',
           label: 'Alertas de Temperatura',
           value: 'temperature',
-          checked: true
+          checked: currentSettings.includes('temperature')
         },
         {
           name: 'humidity',
           type: 'checkbox',
           label: 'Alertas de Humedad',
           value: 'humidity',
-          checked: true
+          checked: currentSettings.includes('humidity')
         },
         {
           name: 'light',
           type: 'checkbox',
           label: 'Alertas de Luz',
           value: 'light',
-          checked: true
+          checked: currentSettings.includes('light')
         },
         {
           name: 'water',
           type: 'checkbox',
           label: 'Alertas de Agua',
           value: 'water',
-          checked: true
+          checked: currentSettings.includes('water')
         },
         {
           name: 'reminders',
           type: 'checkbox',
           label: 'Recordatorios de Cuidado',
           value: 'reminders',
-          checked: true
+          checked: currentSettings.includes('reminders')
         }
       ],
       buttons: [
@@ -373,8 +466,12 @@ export class NotificationPage implements OnInit {
           text: 'Guardar',
           handler: (data) => {
             console.log('Configuración guardada:', data);
-            // Aquí puedes guardar en localStorage o backend
+            // Guardar en localStorage
             localStorage.setItem('notificationSettings', JSON.stringify(data));
+            // Recargar notificaciones con el nuevo filtro
+            this.filterNotifications();
+            this.categorizeByDate();
+            this.updateUnreadCount();
           }
         }
       ]
@@ -393,7 +490,7 @@ export class NotificationPage implements OnInit {
   }
 
   getIconClass(type: string): string {
-    return `icon-${type}`;
+    return `icon - ${type}`;
   }
 
   getPriorityText(priority: string): string {
@@ -408,7 +505,7 @@ export class NotificationPage implements OnInit {
   private getTimeString(date: Date): string {
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
+    return `${hours}: ${minutes}`;
   }
 
   private getDateString(date: Date): string {
@@ -424,7 +521,7 @@ export class NotificationPage implements OnInit {
     } else {
       const day = date.getDate().toString().padStart(2, '0');
       const month = (date.getMonth() + 1).toString().padStart(2, '0');
-      return `${day}/${month}`;
+      return `${day} / ${month}`;
     }
   }
 
