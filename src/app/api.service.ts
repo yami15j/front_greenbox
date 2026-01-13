@@ -16,11 +16,11 @@ export class ApiService {
 
   /* ========== SENSOR DATA ENDPOINTS ========== */
 
-  /** Datos más recientes de una planta (usa plantId como boxId) */
-  async getLatestByPlant(plantId: string): Promise<SensorData> {
+  /** Datos más recientes de un box (dispositivo físico) */
+  async getLatestByBox(boxId: string): Promise<SensorData> {
     try {
       const res = await firstValueFrom(
-        this.http.get<any>(`${this.base}/sensors/latest/${plantId}`)
+        this.http.get<any>(`${this.base}/sensors/latest/${boxId}`)
       );
       return {
         temp: res.temperature || 0,
@@ -35,11 +35,11 @@ export class ApiService {
     }
   }
 
-  /** Historial de una planta ('24h', '7d', '30d') */
-  async getHistoryByPlant(plantId: string, period: '24h' | '7d' | '30d'): Promise<SensorReading[]> {
+  /** Historial de un box ('24h', '7d', '30d') */
+  async getHistoryByBox(boxId: string, period: '24h' | '7d' | '30d'): Promise<SensorReading[]> {
     try {
       const res = await firstValueFrom(
-        this.http.get<SensorReading[]>(`${this.base}/sensors/history/${plantId}/${period}`)
+        this.http.get<SensorReading[]>(`${this.base}/sensors/history/${boxId}/${period}`)
       );
       return res;
     } catch (err) {
@@ -51,10 +51,10 @@ export class ApiService {
   /* ========== ACTUATOR STATUS ========== */
 
   /** Obtener estado de actuadores (LED y Bomba) */
-  async getActuatorStatus(plantId: string): Promise<ActuatorStatus | null> {
+  async getActuatorStatus(boxId: string): Promise<ActuatorStatus | null> {
     try {
       return await firstValueFrom(
-        this.http.get<ActuatorStatus>(`${this.base}/sensors/actuators/${plantId}`)
+        this.http.get<ActuatorStatus>(`${this.base}/sensors/actuators/${boxId}`)
       );
     } catch (err) {
       console.error('Error obteniendo estado de actuadores:', err);
@@ -63,10 +63,10 @@ export class ApiService {
   }
 
   /** Control manual de actuadores (opcional) */
-  async controlActuators(plantId: string, led?: boolean, pump?: boolean) {
+  async controlActuators(boxId: string, led?: boolean, pump?: boolean) {
     try {
       return await firstValueFrom(
-        this.http.post(`${this.base}/box/${plantId}/actuators`, { led, pump })
+        this.http.post(`${this.base}/box/${boxId}/actuators`, { led, pump })
       );
     } catch (err) {
       console.error('Error controlando actuadores:', err);
@@ -77,16 +77,48 @@ export class ApiService {
   /* ========== AUTHENTICATION ========== */
 
   /** Validar código de acceso (login) */
-  async validateCode(code: string): Promise<boolean> {
+  async validateCode(code: string): Promise<{ valid: boolean; boxId?: string }> {
     try {
       const res = await firstValueFrom(
-        this.http.post<{ valid: boolean }>(`${this.base}/auth/validate`, { code })
+        this.http.post<{ valid: boolean; boxId?: string }>(`${this.base}/auth/validate`, { code })
       );
-      return res.valid;
+
+      // Si es válido y tiene boxId, guardarlo en localStorage
+      if (res.valid && res.boxId) {
+        localStorage.setItem('selectedBoxId', res.boxId);
+      }
+
+      return res;
     } catch (err) {
       console.error('Error validando código:', err);
       // Por ahora permitir acceso con cualquier código para desarrollo
-      return code.length > 0;
+      return { valid: code.length > 0, boxId: 'dev-box-id' };
+    }
+  }
+
+  /* ========== BOX OPERATIONS ========== */
+
+  /** Actualizar la planta de un box */
+  async updateBoxPlant(boxId: string, plantId: string): Promise<any> {
+    try {
+      return await firstValueFrom(
+        this.http.patch(`${this.base}/box/${boxId}`, { plantId })
+      );
+    } catch (err) {
+      console.error('Error actualizando planta del box:', err);
+      throw err;
+    }
+  }
+
+  /** Obtener información completa del box */
+  async getBoxInfo(boxId: string): Promise<any> {
+    try {
+      return await firstValueFrom(
+        this.http.get(`${this.base}/box/${boxId}`)
+      );
+    } catch (err) {
+      console.error('Error obteniendo información del box:', err);
+      throw err;
     }
   }
 }

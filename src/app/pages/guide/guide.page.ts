@@ -38,7 +38,7 @@ export class GuidePage implements OnInit {
     private navCtrl: NavController,
     private router: Router,
     private http: HttpClient
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadActivePlant();
@@ -62,7 +62,7 @@ export class GuidePage implements OnInit {
     this.isLoading = true;
     try {
       const res: any = await this.http
-        .get(`${this.backendUrl}/guides/plant/${plantId}`)
+        .get(`${this.backendUrl}/guide/plant/${plantId}`)
         .toPromise();
       this.plants = res.plants; // Agrupado por planta desde backend
     } catch (err) {

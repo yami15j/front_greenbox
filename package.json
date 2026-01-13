@@ -31,6 +31,7 @@
     "@capacitor/status-bar": "7.0.3",
     "@ionic/angular": "8.2.0",
     "@ionic/storage-angular": "^4.0.0",
+    "@nestjs/mapped-types": "*",
     "axios": "^1.13.2",
     "chart.js": "^4.5.1",
     "ionicons": "^7.0.0",

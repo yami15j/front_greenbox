@@ -70,11 +70,12 @@ export class LoginPage {
     this.mensaje = '';
 
     try {
-      // 🔵 Llama al ApiService (simulado)
-      const isValid = await this.api.validateCode(this.code);
+      // 🔵 Llama al ApiService
+      const response = await this.api.validateCode(this.code);
 
-      if (isValid) {
+      if (response.valid) {
         this.mensaje = '✅ Código correcto, bienvenido!';
+        // El boxId ya fue guardado en localStorage por el ApiService
         setTimeout(() => this.router.navigateByUrl('/plant'), 800);
 
       } else {
@@ -88,5 +89,16 @@ export class LoginPage {
     } finally {
       this.loading = false;
     }
+  }
+
+  /**
+   * Método de logout para limpiar localStorage
+   * Llamar este método cuando el usuario cierre sesión
+   */
+  logout() {
+    localStorage.removeItem('selectedBoxId');
+    localStorage.removeItem('activePlant');
+    localStorage.removeItem('activePlantId');
+    this.router.navigateByUrl('/login');
   }
 }

@@ -24,7 +24,7 @@ export class HistoryPage implements OnInit {
   lightData: BarData[] = [];
   waterData: BarData[] = [];
 
-  activePlantId: string | null = null;
+
 
   constructor(
     private navCtrl: NavController,
@@ -32,15 +32,7 @@ export class HistoryPage implements OnInit {
   ) { }
 
   ngOnInit() {
-    // Cargar planta activa para filtrar historial
-    const plant = localStorage.getItem('activePlant');
-    if (plant) {
-      try {
-        this.activePlantId = JSON.parse(plant).id;
-      } catch {
-        this.activePlantId = null;
-      }
-    }
+    // No necesitamos cargar activePlantId, usamos boxId directamente
     this.loadData();
   }
 
@@ -51,7 +43,8 @@ export class HistoryPage implements OnInit {
 
   /** Carga historial según rango seleccionado */
   async loadData() {
-    if (!this.activePlantId) return;
+    const boxId = localStorage.getItem('selectedBoxId');
+    if (!boxId) return;
     this.isLoading = true;
 
     try {
@@ -59,13 +52,13 @@ export class HistoryPage implements OnInit {
 
       switch (this.selectedRange) {
         case 'day':
-          data = await this.api.getHistoryByPlant(this.activePlantId, '24h');
+          data = await this.api.getHistoryByBox(boxId, '24h');
           break;
         case 'week':
-          data = await this.api.getHistoryByPlant(this.activePlantId, '7d');
+          data = await this.api.getHistoryByBox(boxId, '7d');
           break;
         case 'month':
-          data = await this.api.getHistoryByPlant(this.activePlantId, '30d');
+          data = await this.api.getHistoryByBox(boxId, '30d');
           break;
       }
 
