@@ -1,14 +1,40 @@
+// Forzar estilos para ion-content
+ion-content.login-page {
+  --background: #ffffff !important;
+
+  &::part(scroll) {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-height: 100% !important;
+    padding: 0 20px !important;
+  }
+}
+
+// Wrapper para centrar contenido
+.center-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  min-height: 100vh !important;
+  width: 100% !important;
+  padding: 0 20px !important;
+  position: relative !important;
+}
+
 .login-page {
-  --background: #ffffff;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  position: fixed;
-  width: 100%;
-  justify-content: center; // CENTRADO VERTICAL
-  align-items: center;
-  padding: 20px;
-  overflow: hidden;
+  --background: #f0f0f0;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  position: fixed !important;
+  width: 100% !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0 20px !important;
+  overflow: hidden !important;
 
   /* Subtle Background Pattern */
   .background-shapes {
@@ -271,15 +297,15 @@
 /* Landscape mode - center more */
 @media (orientation: landscape) {
   .login-page {
-    justify-content: center;
-    padding: 20px;
+    justify-content: flex-end !important;
+    padding: 0 20px 40px !important;
   }
 }
 
 /* Small phones */
 @media (max-width: 360px) {
   .login-page {
-    padding: 0 16px 50px;
+    padding: 0 16px 30px !important;
 
     .login-container {
       .card-content {
@@ -333,7 +359,8 @@
 /* Tablets and larger */
 @media (min-width: 768px) {
   .login-page {
-    justify-content: center;
+    justify-content: flex-end !important;
+    padding: 0 20px 60px !important;
 
     .login-container {
       max-width: 420px;

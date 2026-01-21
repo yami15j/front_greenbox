@@ -1,59 +1,61 @@
 <ion-content class="login-page" [scrollY]="false" fullscreen="true">
-  <div class="background-shapes">
-    <div class="shape shape-1"></div>
-    <div class="shape shape-2"></div>
-    <div class="shape shape-3"></div>
-  </div>
+  <div class="center-wrapper">
+    <div class="background-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
 
-  <div class="login-container">
-    <div class="card-content">
-      <!-- Logo Section -->
-      <div class="logo-section">
-        <div class="logo-circle">
-          <img src="/assets/logo 2.png" alt="Logo" class="logo" />
-        </div>
-        <h1 class="brand-title">GREENBOX</h1>
-        <p class="subtitle">Cultivo inteligente a tu alcance</p>
-      </div>
-
-      <!-- Form Section -->
-      <div class="form-section">
-        <div class="input-group">
-          <ion-label class="input-label">
-            <ion-icon name="lock-closed-outline" class="label-icon"></ion-icon>
-            Código de Acceso
-          </ion-label>
-
-          <ion-item class="input-item" lines="none">
-            <ion-icon name="key-outline" slot="start" class="input-icon"></ion-icon>
-            <ion-input placeholder="Ingresa tu código" [(ngModel)]="code" type="text"
-              (keyup.enter)="onAccess()"></ion-input>
-          </ion-item>
+    <div class="login-container">
+      <div class="card-content">
+        <!-- Logo Section -->
+        <div class="logo-section">
+          <div class="logo-circle">
+            <img src="/assets/logo 2.png" alt="Logo" class="logo" />
+          </div>
+          <h1 class="brand-title">GREENBOX</h1>
+          <p class="subtitle">Cultivo inteligente a tu alcance</p>
         </div>
 
-        <!-- Botón de Acceso -->
-        <ion-button expand="block" (click)="onAccess()" [disabled]="loading" class="access-button">
-          <ng-container *ngIf="!loading">
-            <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
-            Acceder
-          </ng-container>
-          <ng-container *ngIf="loading">
-            <ion-spinner name="crescent"></ion-spinner>
-          </ng-container>
-        </ion-button>
+        <!-- Form Section -->
+        <div class="form-section">
+          <div class="input-group">
+            <ion-label class="input-label">
+              <ion-icon name="lock-closed-outline" class="label-icon"></ion-icon>
+              Código de Acceso
+            </ion-label>
 
-        <!-- Mensaje de Error/Éxito -->
-        <div *ngIf="mensaje" class="mensaje" [class.error]="mensaje.includes('❌') || mensaje.includes('⚠️')"
-          [class.success]="mensaje.includes('✅')">
-          <ion-icon [name]="mensaje.includes('✅') ? 'checkmark-circle' : 'alert-circle'"
-            class="mensaje-icon"></ion-icon>
-          {{ mensaje }}
-        </div>
+            <ion-item class="input-item" lines="none">
+              <ion-icon name="key-outline" slot="start" class="input-icon"></ion-icon>
+              <ion-input placeholder="Ingresa tu código" [(ngModel)]="code" type="text"
+                (keyup.enter)="onAccess()"></ion-input>
+            </ion-item>
+          </div>
 
-        <!-- Footer Info -->
-        <div class="footer-info">
-          <ion-icon name="shield-checkmark-outline" class="footer-icon"></ion-icon>
-          <p class="footer-text">Monitoreo en tiempo real de tu cultivo</p>
+          <!-- Botón de Acceso -->
+          <ion-button expand="block" (click)="onAccess()" [disabled]="loading" class="access-button">
+            <ng-container *ngIf="!loading">
+              <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+              Acceder
+            </ng-container>
+            <ng-container *ngIf="loading">
+              <ion-spinner name="crescent"></ion-spinner>
+            </ng-container>
+          </ion-button>
+
+          <!-- Mensaje de Error/Éxito -->
+          <div *ngIf="mensaje" class="mensaje" [class.error]="mensaje.includes('❌') || mensaje.includes('⚠️')"
+            [class.success]="mensaje.includes('✅')">
+            <ion-icon [name]="mensaje.includes('✅') ? 'checkmark-circle' : 'alert-circle'"
+              class="mensaje-icon"></ion-icon>
+            {{ mensaje }}
+          </div>
+
+          <!-- Footer Info -->
+          <div class="footer-info">
+            <ion-icon name="shield-checkmark-outline" class="footer-icon"></ion-icon>
+            <p class="footer-text">Monitoreo en tiempo real de tu cultivo</p>
+          </div>
         </div>
       </div>
     </div>

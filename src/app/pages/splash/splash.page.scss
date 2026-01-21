@@ -15,7 +15,7 @@
       letter-spacing: 2px;
       opacity: 0;
       animation: fadeIn 0.8s ease-in-out 0.5s forwards;
-      
+
     }
 
     .logo-circle {
@@ -28,10 +28,10 @@
       background: white;
       border-radius: 50%;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      
+
       // Animación de expansión
       animation: expandLogo 1.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-      
+
       img {
         width: 200%;
         height: 200%;
@@ -50,9 +50,11 @@
     transform: scale(0.3);
     opacity: 0;
   }
+
   50% {
     opacity: 1;
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -65,6 +67,7 @@
     opacity: 0;
     transform: scale(0.8);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -77,6 +80,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);

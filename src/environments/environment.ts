@@ -5,7 +5,7 @@
 // Este archivo se usa cuando ejecutas: ionic serve o ng serve
 export const environment = {
   production: false,
-  apiUrl: 'http://127.0.0.1:3000'  // ← Tu backend local
+  apiUrl: 'https://greenbox-qni2.onrender.com'  // ← Tu backend local/remoto
 };
 /*
  * For easier debugging in development mode, you can import the following file

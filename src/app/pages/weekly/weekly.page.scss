@@ -748,7 +748,7 @@ ion-footer {
 
     // Estado activo - Verde profesional
     &.active {
-      background: linear-gradient(135deg, #f1f8f5 0%, #e8f5f0 100%);
+      background: transparent;
       color: #5fb89a;
 
       .tab-icon {
@@ -780,7 +780,7 @@ ion-footer {
     // Efecto al tocar/presionar - OSCURECER ICONO
     &:active {
       transform: scale(0.95);
-      background: #e8f0ed;
+      background: transparent;
 
       .tab-icon {
         transform: scale(0.9);
