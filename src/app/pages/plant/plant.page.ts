@@ -40,19 +40,45 @@ export class PlantPage implements OnInit {
   filterType: string = 'all';
 
   plantProfiles: Plantprofile[] = [
-  {
-    id: 'basil',
-    name: 'Albahaca',
-    type: 'Hierba Aromática',
-    icon: '🌿',
-    imageUrl: 'assets/plants/albahaca.jpg',
-    optimalConditions: { tempMin: 18, tempMax: 25, humMin: 55, humMax: 75, lightMin: 65, lightMax: 85, waterMin: 65 },
-    growthTime: '20-30 días',
-    difficulty: 'Fácil',
-    benefits: [''],
-    isActive: false,
-    description: ''
-  },
+    {
+      id: 'poto',
+      name: 'Poto',
+      type: 'Hoja Verde',
+      icon: '🌿',
+      imageUrl: 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop',
+      optimalConditions: { tempMin: 18, tempMax: 29, humMin: 40, humMax: 60, lightMin: 50, lightMax: 70, waterMin: 50 },
+      growthTime: 'Constante',
+      difficulty: 'Fácil',
+      benefits: ['SALUDABLE', 'ORGÁNICO'],
+      isActive: false,
+      description: 'Planta de interior resistente con hermosas hojas variegadas.'
+    },
+    {
+      id: 'crassula_muscosa',
+      name: 'Crassula Muscosa',
+      type: 'Fruto', // or other type to filter
+      icon: '🌱',
+      imageUrl: 'https://images.unsplash.com/photo-1604762524889-3e2fec45568f?q=80&w=500&auto=format&fit=crop',
+      optimalConditions: { tempMin: 15, tempMax: 24, humMin: 30, humMax: 50, lightMin: 60, lightMax: 80, waterMin: 40 },
+      growthTime: 'Lento',
+      difficulty: 'Fácil',
+      benefits: ['SALUDABLE', 'ORGÁNICO'],
+      isActive: false,
+      description: 'Pequeña suculenta con hojas densas y escamosas que asemejan musgo.'
+    },
+    {
+      id: 'basil',
+      name: 'Albahaca',
+      type: 'Hierba Aromática',
+      icon: '🌿',
+      imageUrl: 'assets/plants/albahaca.jpg',
+      optimalConditions: { tempMin: 18, tempMax: 25, humMin: 55, humMax: 75, lightMin: 65, lightMax: 85, waterMin: 65 },
+      growthTime: '20-30 días',
+      difficulty: 'Fácil',
+      benefits: [''],
+      isActive: false,
+      description: ''
+    },
   {
     id: 'strawberry',
     name: 'Fresa',
@@ -271,6 +297,11 @@ export class PlantPage implements OnInit {
   }
 
   async selectPlant(plant: Plantprofile) {
+    if (plant.isActive) {
+      this.router.navigate(['/home']);
+      return;
+    }
+
     const confirmAlert = await this.alertController.create({
       header: '¿Activar planta?',
       message: `¿Deseas activar ${plant.name} como tu cultivo actual?`,

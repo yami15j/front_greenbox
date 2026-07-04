@@ -1,126 +1,213 @@
 .plants-content {
-  --background: #edf2f4;
+  --background: #f3f6f5;
   padding-bottom: calc(80px + env(safe-area-inset-bottom));
-  font-family: 'Helvetica Neue', sans-serif;
+  font-family: 'Outfit', 'Inter', 'Helvetica Neue', sans-serif;
 }
 
-/* ===== HEADER ===== */
-.plants-header {
-  padding: 40px 20px 30px;
-  background: #edf2f4;
+/* ===== HERO HEADER ===== */
+.plants-hero {
   position: relative;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  border-bottom-left-radius: 24px;
-  border-bottom-right-radius: 24px;
+  height: 290px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 24px 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  overflow: hidden;
+
+  &.no-active {
+    background: linear-gradient(135deg, #2d4a3e 0%, #1b2e24 100%);
+  }
+
+  .hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.25) 0%,
+      rgba(0, 0, 0, 0.4) 50%,
+      rgba(0, 0, 0, 0.85) 100__PART__
+    );
+    z-index: 1;
+  }
 
   .back-button {
-  position: absolute;
-  top: 20px;
-  left: 20px;
+    position: absolute;
+    top: 40px;
+    left: 16px;
+    width: 44px;
+    height: 44px;
+    --background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 50%;
+    margin: 0;
+    z-index: 10;
+    --color: #ffffff;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
-  width: 45px;
-  height: 45px;
+    ion-icon {
+      font-size: 20px;
+      color: #ffffff;
+    }
 
-  background: #ffffff;
-  border-radius: 50%;
+    &:hover {
+      transform: scale(1.05);
+    }
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 9999;
-
-  --color: #2f3e34; // 👈 color de la flecha (IMPORTANTE)
-
-  ion-icon {
-    font-size: 24px;
-    color: #2f3e34; // 👈 asegura que la flecha se vea
+    &:active {
+      transform: scale(0.95);
+    }
   }
 
-  &:hover {
-    transform: scale(1.1);
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
 
-  &:active {
-    transform: scale(0.95);
+  .hero-subtitle {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.7);
+    text-transform: uppercase;
   }
-}
-  
 
-  .header-title {
-    font-size: 28px;
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #38a872;
+    color: #ffffff;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    box-shadow: 0 2px 8px rgba(56, 168, 114, 0.3);
+
+    ion-icon {
+      font-size: 13px;
+    }
+
+    &.inactive {
+      background: #e74c3c;
+      box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+    }
+  }
+
+  .hero-title {
+    font-size: 34px;
     font-weight: 800;
-    color: #2f3e34;
-    margin-bottom: 4px;
+    color: #ffffff;
+    margin: 4px 0 6px;
+    letter-spacing: -0.5px;
   }
 
-  .header-subtitle {
-    color: #7a857b;
-    font-size: 14px;
-  }
-}
-
-/* ===== PLANTA ACTIVA ===== */
-.active-plant-card {
-  background: linear-gradient(145deg, #ffffff, #d8ede7);
-  margin: 16px;
-  border-radius: 26px;
-  padding: 20px;
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 16px 28px rgba(0, 0, 0, 0.12);
+  .hero-desc {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+    line-height: 1.45;
   }
 
-  .active-plant-content {
+  .hero-stats {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .hero-stat-pill {
     display: flex;
     align-items: center;
-    gap: 16px;
-  }
-
-  .plant-image-large {
-    width: 90px;
-    height: 90px;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    padding: 6px 14px;
     border-radius: 20px;
-    background-size: cover;
-    background-position: center;
-  }
+    font-size: 12px;
+    font-weight: 600;
 
-  .plant-type {
-    font-size: 13px;
-    color: #7a857b;
+    ion-icon {
+      font-size: 14px;
+    }
   }
 }
 
-/* ===== FILTROS ===== */
-.filter-section {
-  padding: 0 16px 20px;
+/* ===== MAIN LIST CONTAINER ===== */
+.plants-list-container {
+  padding-top: 20px;
+}
 
-  .section-title {
-    font-size: 18px;
+.list-header {
+  padding: 0 20px 12px;
+
+  .available-count {
+    font-size: 13px;
     font-weight: 700;
-    color: #2f3e34;
-    margin-bottom: 12px;
+    color: #7a857b;
+    text-transform: lowercase;
+    
+    &::first-letter {
+      text-transform: uppercase;
+    }
   }
+}
+
+/* ===== FILTERS ===== */
+.filter-section {
+  padding: 0 16px 16px;
 
   .filter-chips {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     overflow-x: auto;
+    padding-bottom: 4px;
+    
+    &::-webkit-scrollbar {
+      display: none;
+    }
 
     ion-chip {
-      --background: #e0f2f1;
-      --color: #2f3e34;
-      border-radius: 999px;
-      font-weight: 600;
+      --background: #ffffff;
+      --color: #2d4a3e;
+      border: 1.5px solid #e5eae7;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 13px;
+      margin: 0;
+      padding: 8px 14px;
+      height: 36px;
+      transition: all 0.25s ease;
+      flex-shrink: 0;
+      white-space: nowrap;
+
+      ion-label {
+        white-space: nowrap;
+      }
 
       &.active {
-        --background: #2f3e34;
+        --background: #2d4a3e;
         --color: #ffffff;
+        border-color: #2d4a3e;
+        box-shadow: 0 4px 12px rgba(45, 74, 62, 0.15);
       }
     }
   }
@@ -130,39 +217,232 @@
 .plants-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  padding: 0 16px;
+  gap: 12px;
+  padding: 0 12px 20px;
 }
 
 /* ===== CARD ===== */
 .plant-card {
   background: #ffffff;
-  border-radius: 22px;
-  padding: 12px;
+  border-radius: 24px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 8px 24px rgba(45, 74, 62, 0.04);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 2px solid transparent;
+  cursor: pointer;
   position: relative;
-  box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.06);
+  min-width: 0;
+  overflow: hidden;
+
+  &.active {
+    border-color: #38a872;
+    box-shadow: 0 12px 30px rgba(56, 168, 114, 0.1);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  .plant-card-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 125px;
+    border-radius: 16px;
+    overflow: hidden;
+  }
 
   .plant-image {
     width: 100%;
-    height: 140px;
-    border-radius: 16px;
+    height: 100%;
     background-size: cover;
     background-position: center;
   }
 
   .difficulty-badge {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    font-size: 11px;
+    top: 6px;
+    right: 6px;
+    font-size: 9px;
+    font-weight: 750;
+    padding: 3px 6px;
+    border-radius: 8px;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    &.facil {
+      background: #38a872;
+    }
+    &.intermedio {
+      background: #f39c12;
+    }
+    &.avanzado {
+      background: #e74c3c;
+    }
+  }
+
+  .card-active-check {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 20px;
+    height: 20px;
+    background: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+
+    ion-icon {
+      font-size: 20px;
+      color: #38a872;
+    }
+  }
+
+  .plant-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0 2px;
+
+    .plant-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: #2d4a3e;
+      margin: 0;
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .plant-conditions-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .condition-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: #f1f6f4;
+    color: #2d4a3e;
+    padding: 3px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+    white-space: nowrap;
+
+    .cond-icon {
+      font-size: 11px;
+      
+      &.temp {
+        color: #38a872;
+      }
+      &.hum {
+        color: #38a872;
+      }
+    }
+  }
+
+  .benefits-section {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+
+    .benefit-tag {
+      font-size: 8px;
+      font-weight: 800;
+      color: #38a872;
+      background: #eefbf5;
+      padding: 2px 5px;
+      border-radius: 6px;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+  }
+
+  .plant-card-footer {
+    margin-top: auto;
+    padding-top: 2px;
+    width: 100%;
+
+    .select-button {
+      margin: 0;
+      height: 36px;
+      font-weight: 750;
+      font-size: 11px;
+      --padding-start: 4px;
+      --padding-end: 4px;
+      text-transform: none;
+      --border-radius: 12px;
+      
+      ion-icon {
+        font-size: 13px;
+        margin-inline-end: 2px;
+      }
+    }
+
+    .inactive-btn {
+      --border-color: #38a872;
+      --color: #38a872;
+      --border-width: 1.5px;
+      
+      &::part(native) {
+        border-color: #38a872;
+        border-width: 1.5px;
+      }
+    }
+
+    .active-btn {
+      --background: #38a872;
+      --color: #ffffff;
+      --box-shadow: 0 3px 8px rgba(56, 168, 114, 0.15);
+    }
   }
 }
 
-/* ===== CONSEJO ===== */
-.info-section {
-  background: linear-gradient(145deg, #e0f2f1, #d0ede5);
-  border-radius: 20px;
-  margin: 20px 16px 30px;
-  padding: 16px;
-  color: #2f3e34;
+/* ===== HOW IT WORKS CARD ===== */
+.how-it-works-card {
+  background: #2d4a3e;
+  border-radius: 28px;
+  margin: 16px;
+  padding: 22px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  box-shadow: 0 12px 28px rgba(45, 74, 62, 0.15);
+
+  .card-icon {
+    font-size: 26px;
+    line-height: 1;
+  }
+
+  .card-text-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+  }
+
+  .card-description {
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    line-height: 1.5;
+  }
 }
+

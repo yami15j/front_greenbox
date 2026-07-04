@@ -79,14 +79,20 @@ export class ApiService {
   /** Validar código de acceso (login) */
   async validateCode(code: string): Promise<boolean> {
     try {
+      if (environment.allowOfflineLogin) {
+        console.warn('Modo offline activado: validación de login omitida en desarrollo.');
+        return code.trim().length > 0;
+      }
       const res = await firstValueFrom(
         this.http.post<{ valid: boolean }>(`${this.base}/auth/validate`, { code })
       );
       return res.valid;
     } catch (err) {
       console.error('Error validando código:', err);
-      // Por ahora permitir acceso con cualquier código para desarrollo
-      return code.length > 0;
+      if (environment.allowOfflineLogin) {
+        return code.trim().length > 0;
+      }
+      return false;
     }
   }
 }
