@@ -99,9 +99,10 @@ export class HomePage implements OnInit {
   }
 
   async loadActuatorStatus() {
-    if (!this.activePlant) return;
+    const boxId = localStorage.getItem('selectedBoxId');
+    if (!boxId) return;
     try {
-      this.actuatorStatus = await this.api.getActuatorStatus(this.activePlant.id);
+      this.actuatorStatus = await this.api.getActuatorStatus(boxId);
     } catch (err) {
       console.error('Error cargando estado de actuadores:', err);
       this.actuatorStatus = null;
@@ -109,10 +110,11 @@ export class HomePage implements OnInit {
   }
 
   async refreshData(event?: any) {
-    if (!this.activePlant) return;
+    const boxId = localStorage.getItem('selectedBoxId');
+    if (!boxId) return;
     this.isLoading = true;
     try {
-      const latestData = await this.api.getLatestByPlant(this.activePlant.id);
+      const latestData = await this.api.getLatestByBox(boxId);
       this.data = latestData;
       localStorage.setItem('activePlantData', JSON.stringify(latestData));
 
