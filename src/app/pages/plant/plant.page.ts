@@ -116,7 +116,7 @@ export class PlantPage implements OnInit {
       name: 'Crassula Muscosa',
       type: 'Fruto',
       icon: '🌱',
-      imageUrl: 'https://images.unsplash.com/photo-1604762524889-3e2fec45568f?q=80&w=500&auto=format&fit=crop',
+      imageUrl: 'assets/plants/crassula mucosa.jpg',
       optimalConditions: { tempMin: 15, tempMax: 24, humMin: 30, humMax: 50, lightMin: 60, lightMax: 80, waterMin: 40 },
       growthTime: 'Lento',
       difficulty: 'Fácil',
@@ -134,7 +134,7 @@ export class PlantPage implements OnInit {
         especie: 'Crassula muscosa'
       },
       timeline: [
-        { date: 'Hoy, 20 Mayo 2026', description: 'Tallos firmes con follaje denso.', imageUrl: 'https://images.unsplash.com/photo-1604762524889-3e2fec45568f?q=80&w=200&auto=format&fit=crop' },
+        { date: 'Hoy, 20 Mayo 2026', description: 'Tallos firmes con follaje denso.', imageUrl: 'assets/plants/crassula mucosa.jpg' },
         { date: '05 Febrero 2026', description: 'Inicio del cultivo de Crassula.', imageUrl: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=200&auto=format&fit=crop' }
       ]
     },
