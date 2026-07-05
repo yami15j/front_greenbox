@@ -1,0 +1,93 @@
+<ion-content class="register-page" fullscreen="true">
+
+  <!-- DECORATIVE LEAVES -->
+  <img src="assets/hoja.png"   class="leaf leaf-top-left"  alt="">
+  <img src="assets/otrs h.png" class="leaf leaf-top-right" alt="">
+
+  <!-- BOTTOM WAVE -->
+  <img src="assets/parte del login.png" class="bottom-wave" alt="">
+
+  <div class="reg-wrapper">
+
+    <!-- LOGO -->
+    <div class="logo-section">
+      <div class="logo-ring">
+        <img src="assets/logo 2.png" alt="GreenBox Logo" class="logo-img">
+      </div>
+      <h1 class="brand-name">GREENBOX</h1>
+      <p class="brand-tagline">Cultivo inteligente a tu alcance</p>
+    </div>
+
+    <!-- FORM -->
+    <div class="form-card">
+
+      <div class="field-group">
+        <label class="field-label">Nombre y Apellido</label>
+        <div class="input-wrap">
+          <ion-icon name="person-outline" class="prefix-icon"></ion-icon>
+          <input type="text" class="field-input" placeholder="John Doe"
+            [(ngModel)]="fullName">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Correo Electrónico</label>
+        <div class="input-wrap">
+          <ion-icon name="mail-outline" class="prefix-icon"></ion-icon>
+          <input type="email" class="field-input" placeholder="example@example.com"
+            [(ngModel)]="email">
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Contraseña</label>
+        <div class="input-wrap">
+          <input [type]="showPass ? 'text' : 'password'" class="field-input"
+            placeholder="••••••••••" [(ngModel)]="password" (keyup.enter)="onRegister()">
+          <button class="eye-btn" (click)="togglePass()">
+            <ion-icon [name]="showPass ? 'eye-outline' : 'eye-off-outline'"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mensaje -->
+      <div *ngIf="mensaje" class="msg-box"
+        [class.error]="mensaje.includes('⚠️') || mensaje.includes('❌')"
+        [class.success]="mensaje.includes('✅')">
+        {{ mensaje }}
+      </div>
+
+      <!-- Botón principal -->
+      <button class="main-btn" (click)="onRegister()" [disabled]="loading">
+        <ion-spinner name="crescent" *ngIf="loading"></ion-spinner>
+        <span *ngIf="!loading">Crear Cuenta</span>
+      </button>
+
+      <!-- Divisor -->
+      <div class="divider-row">
+        <span class="divider-line"></span>
+        <span class="divider-text">O Continua con</span>
+        <span class="divider-line"></span>
+      </div>
+
+      <!-- Opciones sociales -->
+      <div class="social-row">
+        <button class="social-btn">
+          <ion-icon name="mail-outline"></ion-icon>
+          Google
+        </button>
+        <button class="social-btn green" (click)="goEmailLogin()">
+          <ion-icon name="person-outline"></ion-icon>
+          Con Email
+        </button>
+      </div>
+
+      <!-- Volver -->
+      <p class="switch-link" (click)="goLogin()">
+        ← <span>Ya tengo una cuenta</span>
+      </p>
+
+    </div>
+  </div>
+
+</ion-content>

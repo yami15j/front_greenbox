@@ -3,6 +3,7 @@ export interface SensorData {
     hum: number;
     light: number;
     water: number;
+    soilMoisture?: number;
     timestamp?: string;
 }
 

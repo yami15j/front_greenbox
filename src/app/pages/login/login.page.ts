@@ -21,7 +21,9 @@ import {
   arrowForwardOutline,
   checkmarkCircle,
   alertCircle,
-  shieldCheckmarkOutline
+  shieldCheckmarkOutline,
+  mailOutline,
+  leafOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -54,7 +56,9 @@ export class LoginPage {
       arrowForwardOutline,
       checkmarkCircle,
       alertCircle,
-      shieldCheckmarkOutline
+      shieldCheckmarkOutline,
+      mailOutline,
+      leafOutline
     });
   }
 
@@ -76,7 +80,7 @@ export class LoginPage {
       if (response.valid) {
         this.mensaje = '✅ Código correcto, bienvenido!';
         // El boxId ya fue guardado en localStorage por el ApiService
-        setTimeout(() => this.router.navigateByUrl('/plant'), 800);
+        setTimeout(() => this.router.navigateByUrl('/home'), 800);
 
       } else {
         this.mensaje = '❌ Código inválido, intenta de nuevo';
@@ -95,6 +99,9 @@ export class LoginPage {
    * Método de logout para limpiar localStorage
    * Llamar este método cuando el usuario cierre sesión
    */
+  goEmailLogin() { this.router.navigateByUrl('/email-login'); }
+  goRegister()    { this.router.navigateByUrl('/register'); }
+
   logout() {
     localStorage.removeItem('selectedBoxId');
     localStorage.removeItem('activePlant');

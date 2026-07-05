@@ -41,4 +41,16 @@ export const routes: Routes = [
     path: 'notification',
     loadComponent: () => import('./pages/notification/notification.page').then( m => m.NotificationPage)
   },
+  {
+    path: 'camera',
+    loadComponent: () => import('./pages/camera/camera.page').then( m => m.CameraPage)
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./pages/register/register.page').then(m => m.RegisterPage)
+  },
+  {
+    path: 'email-login',
+    loadComponent: () => import('./pages/email-login/email-login.page').then(m => m.EmailLoginPage)
+  }
 ];

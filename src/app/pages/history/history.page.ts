@@ -1,7 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, NavController } from '@ionic/angular';
+import { HttpClient } from '@angular/common/http';
 import { ApiService, SensorReading } from 'src/app/api.service';
+import { environment } from 'src/environments/environment';
+import { addIcons } from 'ionicons';
+import {
+  homeOutline,
+  statsChartOutline,
+  leafOutline,
+  timeOutline
+} from 'ionicons/icons';
 
 interface BarData {
   value: number;
@@ -18,22 +27,29 @@ interface BarData {
 export class HistoryPage implements OnInit {
   isLoading = false;
   selectedRange: 'day' | 'week' | 'month' = 'week';
+  unreadCount = 0;
 
   temperatureData: BarData[] = [];
   humidityData: BarData[] = [];
   lightData: BarData[] = [];
   waterData: BarData[] = [];
 
-
-
   constructor(
     private navCtrl: NavController,
-    private api: ApiService
-  ) { }
+    private api: ApiService,
+    private http: HttpClient
+  ) {
+    addIcons({
+      'home-outline': homeOutline,
+      'stats-chart-outline': statsChartOutline,
+      'leaf-outline': leafOutline,
+      'time-outline': timeOutline
+    });
+  }
 
   ngOnInit() {
-    // No necesitamos cargar activePlantId, usamos boxId directamente
     this.loadData();
+    this.loadUnreadCount();
   }
 
   onRangeChange(event: any) {
@@ -62,7 +78,6 @@ export class HistoryPage implements OnInit {
           break;
       }
 
-      // Mapear datos para mostrar en barras
       this.temperatureData = data.map(d => ({ value: d.temperature, percentage: d.temperature }));
       this.humidityData = data.map(d => ({ value: d.humidity, percentage: d.humidity }));
       this.lightData = data.map(d => ({ value: d.light, percentage: d.light }));
@@ -83,9 +98,24 @@ export class HistoryPage implements OnInit {
     }, 1000);
   }
 
+  loadUnreadCount() {
+    const boxId = localStorage.getItem('selectedBoxId') || '1';
+    this.http.get<any[]>(`${environment.apiUrl}/notifications/${boxId}/active`)
+      .subscribe({
+        next: (notifications) => {
+          this.unreadCount = notifications.length;
+        },
+        error: (err) => {
+          console.error('Error loading unread count in history page:', err);
+          this.unreadCount = 0;
+        }
+      });
+  }
+
   // Navegación
   goBack() { this.navCtrl.back(); }
   goHome() { this.navCtrl.navigateBack('/home'); }
-  gohistory() { this.navCtrl.navigateForward('/weekly'); }
-  goGuide() { this.navCtrl.navigateForward('/plant'); }
+  goStats() { this.navCtrl.navigateForward('/weekly'); }
+  goMyPlant() { this.navCtrl.navigateForward('/plant'); }
+  goNotifications() { this.navCtrl.navigateForward('/notification'); }
 }

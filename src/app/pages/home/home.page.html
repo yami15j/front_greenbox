@@ -6,10 +6,16 @@
   </ion-refresher>
 
   <!-- Header -->
-  <div class="page-header">
-    <h1 class="page-title">Salud de tu Planta</h1>
-    <button class="guide-button" (click)="goGuide()" title="Guía de Cuidados">
-      <ion-icon name="help-circle-outline"></ion-icon>
+  <div class="home-header">
+    <div class="header-greet">
+      <h1 class="greeting-title">
+        Hola, {{ userName }} <ion-icon name="leaf-outline" class="greet-leaf"></ion-icon>
+      </h1>
+      <p class="greeting-subtitle">Bienvenido a tu Cultivo</p>
+    </div>
+    <button class="notification-circle" (click)="goNotifications()">
+      <ion-icon name="notifications-outline"></ion-icon>
+      <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
     </button>
   </div>
 
@@ -30,6 +36,10 @@
       <div class="plant-card-header">
         <div class="plant-info">
           <h2 class="plant-name">{{ activePlant.name }}</h2>
+          <!-- Peach quick action camera button -->
+          <button class="quick-camera-btn" (click)="goCamera()">
+            <ion-icon name="camera"></ion-icon>
+          </button>
         </div>
       </div>
 
@@ -174,27 +184,24 @@
 </ion-content>
 
 <!-- Tabs Inferior -->
-<ion-footer class="ion-no-border">
-  <ion-toolbar class="tabs-toolbar">
-    <div class="custom-tabs">
-      <!-- Inicio -->
-      <button class="tab-button active" (click)="goHome()">
-        <img src="assets/icon/inicio.png" alt="Inicio" class="tab-icon">
-        <span class="tab-label">Inicio</span>
-      </button>
-
-      <!-- Historial -->
-      <button class="tab-button" (click)="goHistory()">
-        <img src="assets/icon/historial.png" alt="Historial" class="tab-icon">
-        <span class="tab-label">Historial</span>
-      </button>
-
-      <!-- Notificaciones -->
-      <button class="tab-button notifications-tab" (click)="goNotifications()">
-        <img src="assets/icon/ti.png" alt="Notificaciones" class="tab-icon">
-        <span class="tab-label">Notificaciones</span>
-        <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
-      </button>
-    </div>
-  </ion-toolbar>
+<ion-footer class="ion-no-border stats-footer">
+  <div class="custom-tabs-nav">
+    <button class="nav-tab active">
+      <ion-icon name="home-outline"></ion-icon>
+      <span class="nav-label">Inicio</span>
+    </button>
+    <button class="nav-tab" (click)="goStats()">
+      <ion-icon name="stats-chart-outline"></ion-icon>
+      <span class="nav-label">Estadística</span>
+    </button>
+    <button class="nav-tab" (click)="goMyPlant()">
+      <ion-icon name="leaf-outline"></ion-icon>
+      <span class="nav-label">Plantas</span>
+    </button>
+    <button class="nav-tab" (click)="goNotifications()">
+      <ion-icon name="time-outline"></ion-icon>
+      <span class="nav-label">Historial</span>
+      <span class="tab-badge-bubble" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+    </button>
+  </div>
 </ion-footer>

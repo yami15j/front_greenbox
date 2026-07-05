@@ -1,0 +1,165 @@
+// ─────────────────────────────────────────────
+//  REGISTER PAGE
+// ─────────────────────────────────────────────
+
+:host {
+  --green-main:  #5fa68c;
+  --green-dark:  #3d7a63;
+  --green-light: #e8f5f0;
+  --text-dark:   #1a1a1a;
+  --text-muted:  #777;
+  --border:      #d9e8e2;
+  --radius:      14px;
+  --font:        'Montserrat', sans-serif;
+}
+
+ion-content.register-page {
+  --background: #f7faf8;
+  font-family: var(--font);
+  height: 100%;
+  &::part(scroll) {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+// ── Decorative leaves ────────────────────────
+.leaf {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+}
+.leaf-top-left  { top: -10px; left: -10px;  width: 130px; opacity: .85; }
+.leaf-top-right { top: -10px; right: -10px; width: 110px; opacity: .75; transform: scaleX(-1); }
+
+// ── Bottom wave ──────────────────────────────
+.bottom-wave {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  width: 100%; height: 110px;
+  object-fit: cover; object-position: top;
+  pointer-events: none; z-index: 0;
+}
+
+// ── Main wrapper ─────────────────────────────
+.reg-wrapper {
+  position: relative; z-index: 1;
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 80px 24px 140px;
+}
+
+// ── Logo section ─────────────────────────────
+.logo-section {
+  display: flex; flex-direction: column; align-items: center;
+  margin-bottom: 28px;
+
+  .logo-ring {
+    width: 72px; height: 72px; border-radius: 50%;
+    border: 2.5px solid var(--green-main);
+    display: flex; align-items: center; justify-content: center;
+    background: #fff;
+    box-shadow: 0 4px 18px rgba(95,166,140,.15);
+    margin-bottom: 12px;
+    .logo-img { width: 50px; height: 50px; object-fit: contain; }
+  }
+
+  .brand-name {
+    font-size: 26px; font-weight: 900;
+    color: var(--text-dark); letter-spacing: 2px; margin: 0 0 4px;
+  }
+  .brand-tagline { font-size: 13px; color: var(--text-muted); font-weight: 500; margin: 0; }
+}
+
+// ── Form card ────────────────────────────────
+.form-card {
+  width: 100%; max-width: 400px;
+  display: flex; flex-direction: column;
+}
+
+// ── Field group ──────────────────────────────
+.field-group {
+  margin-bottom: 14px;
+  .field-label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 700; color: var(--text-dark);
+    margin-bottom: 7px;
+  }
+}
+
+// ── Input wrap ───────────────────────────────
+.input-wrap {
+  display: flex; align-items: center;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff; padding: 0 14px; height: 50px;
+  transition: border-color .2s;
+  &:focus-within { border-color: var(--green-main); box-shadow: 0 0 0 3px rgba(95,166,140,.12); }
+
+  .prefix-icon { color: #aaa; font-size: 18px; margin-right: 8px; flex-shrink: 0; }
+
+  .field-input {
+    flex: 1; border: none; outline: none;
+    background: transparent; font-size: 14px;
+    color: var(--text-dark); font-family: var(--font); height: 100%;
+    &::placeholder { color: #aaa; }
+  }
+  .eye-btn {
+    background: none; border: none; color: #aaa;
+    cursor: pointer; padding: 8px; display: flex; align-items: center;
+    ion-icon { font-size: 20px; }
+  }
+}
+
+// ── Main button ──────────────────────────────
+.main-btn {
+  width: 100%; height: 50px;
+  background: var(--green-main); color: #fff;
+  border: none; border-radius: var(--radius);
+  font-size: 15px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  gap: 8px; margin: 6px 0 20px;
+  box-shadow: 0 4px 16px rgba(95,166,140,.28);
+  transition: all .2s; font-family: var(--font);
+  &:active { transform: scale(.97); }
+  &:disabled { opacity: .6; cursor: not-allowed; }
+}
+
+// ── Divider ──────────────────────────────────
+.divider-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  .divider-line  { flex: 1; height: 1px; background: #ddd; }
+  .divider-text  { font-size: 12px; color: var(--text-muted); white-space: nowrap; font-weight: 500; }
+}
+
+// ── Social row ───────────────────────────────
+.social-row {
+  display: flex; gap: 10px; margin-bottom: 20px;
+  .social-btn {
+    flex: 1; height: 46px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius); background: #fff;
+    font-size: 13px; font-weight: 600; color: var(--text-dark);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 8px; font-family: var(--font); transition: all .2s;
+    ion-icon { font-size: 18px; color: var(--green-main); }
+    &:active { background: var(--green-light); border-color: var(--green-main); }
+    &.green { border-color: var(--green-main); color: var(--green-dark); }
+  }
+}
+
+// ── Switch link ──────────────────────────────
+.switch-link {
+  text-align: center; font-size: 13px; color: var(--text-muted);
+  cursor: pointer; margin: 0;
+  span { color: var(--green-dark); font-weight: 700; text-decoration: underline; }
+}
+
+// ── Message ──────────────────────────────────
+.msg-box {
+  font-size: 12.5px; font-weight: 600;
+  padding: 8px 12px; border-radius: 10px; margin-bottom: 8px;
+  &.error   { color: #e74c3c; background: #fdf0ef; }
+  &.success { color: var(--green-dark); background: var(--green-light); }
+}

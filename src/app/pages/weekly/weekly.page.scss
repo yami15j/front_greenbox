@@ -1,810 +1,296 @@
 .weekly-content {
-  --background: #f8f9fa;
-  padding-bottom: calc(70px + env(safe-area-inset-bottom));
-  --padding-bottom: 110px;
-}
+  --background: #fafafa;
 
-ion-content {
-  --overflow: auto;
-}
-
-/* Header Moderno */
-.weekly-header {
-  .back-button {
-    --color: #1a1a1a;
-    position: absolute;
-    top: 20px;
-    left: 10px;
-    z-index: 10;
-    padding-left: 40px;
-
-    ion-icon {
-      font-size: 24px;
-      color: #1a1a1a;
-    }
+  .main-container {
+    padding: 20px 18px;
+    padding-top: calc(16px + env(safe-area-inset-top));
+    padding-bottom: calc(90px + env(safe-area-inset-bottom));
   }
 
-  .history-button {
-    --color: #1a1a1a;
-    position: absolute;
-    top: 20px;
-    right: 16px;
-    z-index: 9999;
-
-    ion-icon {
-      font-size: 24px;
-      color: #1a1a1a;
-    }
-  }
-}
-
-/* Selector de Sensores - Profesional */
-.sensor-selector {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  padding: 16px;
-  margin-top: 20px;
-  background: #ffffff;
-  border-bottom: 1px solid #f0f0f0;
-
-  .sensor-button {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 14px 6px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s ease;
-
-    &:active {
-      transform: scale(0.95);
-    }
-
-    &.active {
-      background: #ffffff;
-      border-color: #5fb89a;
-      box-shadow: 0 2px 8px rgba(95, 184, 154, 0.15);
-
-      .sensor-label {
-        color: #5fb89a;
-        font-weight: 700;
-      }
-    }
-
-    .sensor-icon {
-      width: 24px;
-      height: 24px;
-      object-fit: contain;
-      opacity: 0.8;
-    }
-
-    .sensor-label {
-      font-size: 10px;
-      font-weight: 600;
-      color: #666;
-      text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-  }
-}
-
-/* Resumen Semanal - Premium */
-.summary-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border-radius: 20px;
-  padding: 24px;
-  margin: 16px;
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.06),
-    0 0 0 1px rgba(0, 0, 0, 0.04);
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, #5fb89a 0%, #4caf50 100%);
-  }
-
-  .summary-header {
+  /* ========== HEADER ========== */
+  .weekly-header {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
+    height: 44px;
 
-    .summary-label,
-    .summary-change {
-      font-size: 11px;
-      color: #666;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-  }
-
-  .summary-values {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-
-    .main-value {
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-
-      .value-number {
-        font-size: 40px;
-        font-weight: 800;
-        background: linear-gradient(135deg, #5fb89a 0%, #4caf50 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        letter-spacing: -2px;
-      }
-
-      .value-unit {
-        font-size: 20px;
-        color: #999;
-        font-weight: 600;
-      }
-    }
-
-    .change-value {
+    .header-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: transparent;
+      border: none;
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 16px;
-      font-weight: 700;
-      padding: 8px 14px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
-      &.positive {
-        color: #ffffff;
-        background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
-      }
-
-      &.negative {
-        color: #ffffff;
-        background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
-      }
+      justify-content: center;
+      cursor: pointer;
+      color: #1a1a1a;
+      transition: background 0.2s ease;
 
       ion-icon {
-        font-size: 18px;
-      }
-    }
-  }
-
-  .summary-minmax {
-    display: flex;
-    justify-content: space-around;
-    padding-top: 20px;
-    border-top: 2px solid #f0f0f0;
-
-    .minmax-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 20px;
-      background: #f8f9fa;
-      border-radius: 12px;
-
-      .minmax-label {
-        font-size: 10px;
-        color: #999;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-      }
-
-      .minmax-value {
-        font-size: 20px;
-        font-weight: 800;
-        color: #1a1a1a;
-      }
-    }
-  }
-}
-
-/* Gráfico Semanal - Premium */
-.weekly-chart-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border-radius: 20px;
-  padding: 24px;
-  margin: 0 16px 16px 16px;
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.06),
-    0 0 0 1px rgba(0, 0, 0, 0.04);
-
-  .chart-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin-bottom: 24px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    &::before {
-      content: '';
-      width: 4px;
-      height: 20px;
-      background: linear-gradient(180deg, #5fb89a 0%, #4caf50 100%);
-      border-radius: 2px;
-    }
-  }
-
-  .weekly-bars {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    height: 140px;
-    gap: 8px;
-    padding: 16px;
-    background: linear-gradient(180deg, rgba(95, 184, 154, 0.03) 0%, transparent 100%);
-    border-radius: 12px;
-
-    .day-bar {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-
-      &:hover {
-        transform: translateY(-4px);
-      }
-
-      .bar-container {
-        width: 100%;
-        height: 100px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-end;
-        margin-bottom: 10px;
-        position: relative;
-
-        .day-value {
-          font-size: 11px;
-          font-weight: 700;
-          color: #1a1a1a;
-          background: #ffffff;
-          padding: 4px 8px;
-          border-radius: 6px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
-          position: absolute;
-          bottom: -30px;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 2;
-          white-space: nowrap;
-        }
-
-        .bar {
-          width: 32px;
-          min-height: 30px;
-          border-radius: 8px 8px 0 0;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow:
-            0 4px 8px rgba(0, 0, 0, 0.12),
-            inset 0 1px 0 rgba(255, 255, 255, 0.3);
-          position: relative;
-          margin-top: auto;
-
-          &::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 50%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
-            border-radius: 8px 8px 0 0;
-          }
-
-          &.bar-temperature {
-            background: linear-gradient(180deg, #5fb89a 0%, #4caf50 100%);
-          }
-
-          &.bar-humidity {
-            background: linear-gradient(180deg, #42a5f5 0%, #2196f3 100%);
-          }
-
-          &.bar-light {
-            background: linear-gradient(180deg, #ffa726 0%, #ff9800 100%);
-          }
-
-          &.bar-water {
-            background: linear-gradient(180deg, #42a5f5 0%, #2196f3 100%);
-          }
-        }
-      }
-
-      .day-label {
-        font-size: 9px;
-        color: #999;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+        font-size: 22px;
       }
 
       &:active {
-        .bar {
-          transform: translateY(-4px) scale(1.05);
-          box-shadow:
-            0 8px 16px rgba(0, 0, 0, 0.16),
-            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        background: #f0f0f0;
+      }
+
+      &.calendar-btn {
+        background: #ededed;
+        width: 38px;
+        height: 38px;
+
+        ion-icon {
+          font-size: 18px;
+          color: #444;
+        }
+
+        &:active {
+          background: #e0e0e0;
         }
       }
     }
-  }
-}
 
-/* Detalle Diario - Premium */
-.daily-detail-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border-radius: 20px;
-  padding: 24px;
-  margin: 0 16px 20px 16px;
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.06),
-    0 0 0 1px rgba(0, 0, 0, 0.04);
-
-  .detail-header {
-    font-size: 13px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    &::before {
-      content: '';
-      width: 4px;
-      height: 20px;
-      background: linear-gradient(180deg, #5fb89a 0%, #4caf50 100%);
-      border-radius: 2px;
+    .page-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin: 0;
+      font-family: 'Montserrat', sans-serif;
+      text-align: center;
+      flex: 1;
     }
   }
 
-  .detail-list {
+  /* ========== SEGMENT TIME FILTER ========== */
+  .time-filter-segment {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+
+    .filter-capsule {
+      flex: 1;
+      height: 36px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-family: 'Montserrat', sans-serif;
+
+      &.active {
+        background: #3a9c7b;
+        color: #ffffff;
+        border-color: #3a9c7b;
+        box-shadow: 0 4px 12px rgba(58, 156, 123, 0.25);
+      }
+
+      &:active:not(.active) {
+        background: #f8fafc;
+        transform: scale(0.97);
+      }
+    }
+  }
+
+  /* ========== SHIMMER LOADING ========== */
+  .loading-container {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
 
-    .detail-item {
+    .shimmer-chart-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .shimmer {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer-animation 1.5s infinite;
+      border-radius: 8px;
+    }
+
+    .header-shimmer {
+      height: 20px;
+      width: 140px;
+    }
+
+    .plot-shimmer {
+      height: 90px;
+      width: 100%;
+    }
+  }
+
+  @keyframes shimmer-animation {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  /* ========== CHART CARDS ========== */
+  .charts-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .chart-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid #f0f0f0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.015);
+
+    .chart-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px;
-      background: #ffffff;
-      border-radius: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 2px solid transparent;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      margin-bottom: 14px;
 
-      &:hover {
-        transform: translateX(4px);
-      }
-
-      &:active {
-        background: linear-gradient(135deg, #f1f8f5 0%, #e8f4f0 100%);
-        border-color: #5fb89a;
-        transform: scale(0.98);
-        box-shadow: 0 4px 12px rgba(95, 184, 154, 0.15);
-      }
-
-      .detail-left {
+      .header-left {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 8px;
 
-        .detail-icon {
-          width: 28px;
-          height: 28px;
-          object-fit: contain;
-          padding: 6px;
-          background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-          border-radius: 10px;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+        .sensor-icon {
+          font-size: 20px;
+          flex-shrink: 0;
         }
 
-        .detail-info {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-
-          .detail-day {
-            font-size: 14px;
-            font-weight: 700;
-            color: #1a1a1a;
-          }
-
-          .detail-date {
-            font-size: 11px;
-            color: #999;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-          }
-        }
-      }
-
-      .detail-right {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 6px;
-
-        .detail-value {
-          font-size: 18px;
-          font-weight: 800;
-          color: #1a1a1a;
-        }
-
-        .detail-change {
-          font-size: 10px;
+        .sensor-title {
+          font-size: 11px;
           font-weight: 700;
-          padding: 3px 8px;
-          border-radius: 6px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-
-          &.positive {
-            color: #ffffff;
-            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
-          }
-
-          &.negative {
-            color: #ffffff;
-            background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
-          }
+          color: #444;
+          letter-spacing: 0.5px;
+          font-family: 'Montserrat', sans-serif;
         }
       }
     }
-  }
-}
 
-// Footer fijo con tabs personalizados
-ion-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
+    .chart-plot-area {
+      position: relative;
+      width: 100%;
 
-  .tabs-toolbar {
-    --background: white;
-    --border-width: 0;
-    --padding-top: 0;
-    --padding-bottom: 0;
-    --min-height: auto;
-    border-top: 1px solid #e0e0e0;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-  }
-}
-
-.custom-tabs {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 8px 0;
-  padding-bottom: calc(8px + env(safe-area-inset-bottom));
-  background: white;
-
-  /* ✅ ICONOS DEL TAB (TAMAÑO CORRECTO) */
-  .tab-icon {
-    width: 22px;
-    height: 22px;
-    object-fit: contain;
-    display: block;
-  }
-
-  .notifications-tab .tab-icon {
-    width: 26px;
-    height: 26px;
-  }
-
-  .tab-button {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    background: transparent;
-    border: none;
-    padding: 6px; // 👈 menos padding para que no se vea grande
-    cursor: pointer;
-    transition: all 0.3s ease;
-    color: #999;
-
-    .tab-label {
-      font-size: 12px;
-      font-weight: 500;
-      margin: 0;
-      transition: color 0.3s ease;
-    }
-
-    &.active {
-      color: #5fb89a;
-
-      .tab-label {
-        color: #5fb89a;
-        font-weight: 600;
-      }
-    }
-
-    &:active {
-      transform: scale(0.95);
-    }
-  }
-}
-
-/* Responsive */
-@media (max-width: 360px) {
-  .custom-tabs {
-    .tab-icon {
-      width: 20px;
-      height: 20px;
-    }
-
-    .tab-label {
-      font-size: 11px;
-    }
-  }
-}
-
-/* ============================================
-   ⭐ ESTILOS NUEVOS: BOTÓN DE HISTORIAL COMPLETO
-   ============================================ */
-
-.action-button-container {
-  padding: 16px 20px;
-  margin-top: -20px;
-}
-
-.weekly-history-button {
-  width: 100%;
-  background: linear-gradient(135deg, #c5baa7 0%, #978667 100%);
-  border: none;
-  border-radius: 16px;
-  padding: 0;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-  transition: all 0.3s ease;
-  margin-top: auto;
-  padding-top: 2px;
-
-  &:active {
-    transform: scale(0.98);
-    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-  }
-
-  &:hover::before {
-    left: 100%;
-  }
-}
-
-.button-content {
-  display: flex;
-  align-items: center;
-  padding: 18px 20px;
-  position: relative;
-  z-index: 1;
-}
-
-.button-icon {
-  font-size: 28px;
-  color: #ffffff;
-  margin-right: 14px;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-.button-text {
-  flex: 1;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.button-title {
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-}
-
-.button-subtitle {
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 13px;
-  font-weight: 400;
-}
-
-.button-arrow {
-  font-size: 22px;
-  color: rgba(255, 255, 255, 0.9);
-  margin-left: 10px;
-  transition: transform 0.3s ease;
-}
-
-.weekly-history-button:active .button-arrow {
-  transform: translateX(4px);
-}
-
-// Responsive para pantallas pequeñas
-@media (max-width: 360px) {
-  .button-title {
-    font-size: 14px;
-  }
-
-  .button-subtitle {
-    font-size: 12px;
-  }
-
-  .button-icon {
-    font-size: 24px;
-  }
-}
-
-/* Footer / Tabs */
-ion-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
-
-  .tabs-toolbar {
-    --background: white;
-    border-radius: 20px 20px 0 0;
-    border-top: 1px solid #e0e0e0;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.06);
-    padding: 0;
-  }
-}
-
-.custom-tabs {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  height: 56px;
-  background: white;
-  padding-bottom: env(safe-area-inset-bottom);
-
-  .tab-button {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    background: transparent;
-    border: none;
-    padding: 8px;
-    cursor: pointer;
-    color: #999;
-    transition: all 0.3s ease;
-    position: relative;
-    border-radius: 12px;
-
-    .tab-icon {
-      width: 24px;
-      height: 24px;
-      object-fit: contain;
-      transition: all 0.3s ease;
-      opacity: 0.4;
-      filter: grayscale(100%);
-    }
-
-    .tab-label {
-      font-size: 11px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-    }
-
-    // Estado activo - Verde profesional
-    &.active {
-      background: transparent;
-      color: #5fb89a;
-
-      .tab-icon {
-        opacity: 1;
-        transform: translateY(-2px) scale(1.1);
-        // Filtro que colorea el icono en verde manteniendo visibilidad
-        filter: invert(66%) sepia(25%) saturate(500%) hue-rotate(115deg) brightness(100%) contrast(90%);
+      .line-chart-svg {
+        width: 100%;
+        height: auto;
+        display: block;
+        overflow: visible;
       }
 
-      .tab-label {
+      .chart-value-text {
+        font-size: 8.5px;
         font-weight: 700;
-        color: #5fb89a;
+        fill: #222;
+        font-family: 'Montserrat', sans-serif;
       }
 
-      // Indicador inferior - ESTANDARIZADO
-      &::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 32px;
-        height: 3px;
-        background: #5fb89a;
-        border-radius: 3px 3px 0 0;
+      .chart-coordinate-label {
+        font-size: 8px;
+        font-weight: 600;
+        fill: #888;
+        font-family: 'Montserrat', sans-serif;
+      }
+
+      .chart-grid-line {
+        stroke-dasharray: 2, 2;
       }
     }
+  }
+}
 
-    // Efecto al tocar/presionar - OSCURECER ICONO
-    &:active {
-      transform: scale(0.95);
+/* ========== CUSTOM FOOTER / TABS ========== */
+.stats-footer {
+  background: transparent;
+
+  .custom-tabs-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 64px;
+    background: #ffffff;
+    border-top: 1px solid #eaeaea;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.04);
+    padding: 0 10px;
+    padding-bottom: env(safe-area-inset-bottom);
+
+    .nav-tab {
+      flex: 1;
+      height: 48px;
       background: transparent;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      margin: 0 4px;
 
-      .tab-icon {
-        transform: scale(0.9);
-        filter: brightness(0.3) !important;
+      ion-icon {
+        font-size: 20px;
+        transition: transform 0.2s ease;
       }
 
-      .tab-label {
-        color: #333;
+      .nav-label {
+        font-size: 11px;
+        font-weight: 500;
       }
-    }
 
-    .notification-badge {
-      position: absolute;
-      top: 4px;
-      right: calc(50% - 20px);
-      background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
-      color: white;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 10px;
-      min-width: 18px;
-      text-align: center;
-      box-shadow: 0 2px 4px rgba(244, 67, 54, 0.3);
+      .tab-badge-bubble {
+        position: absolute;
+        top: 4px;
+        right: calc(50% - 18px);
+        background: #f44336;
+        color: white;
+        font-size: 9px;
+        font-weight: 700;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Active tab state - Capsule style */
+      &.active {
+        background: #d8ebe4 !important; /* Sage green capsule background */
+        color: #1b4332 !important;     /* Sage green dark text */
+        border-radius: 16px;
+
+        ion-icon {
+          transform: translateY(-1px);
+          color: #1b4332;
+        }
+
+        .nav-label {
+          font-weight: 700;
+          color: #1b4332;
+        }
+      }
+
+      &:active:not(.active) {
+        transform: scale(0.95);
+        background: #f5f5f5;
+        border-radius: 12px;
+      }
     }
   }
 }

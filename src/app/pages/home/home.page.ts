@@ -7,7 +7,7 @@ import { ApiService, SensorData } from 'src/app/api.service';
 import { ActuatorStatus } from 'src/app/models/api.models';
 import { environment } from 'src/environments/environment';
 import { addIcons } from 'ionicons';
-import { thermometerOutline, waterOutline, sunnyOutline, leafOutline, helpCircleOutline } from 'ionicons/icons';
+import { thermometerOutline, waterOutline, sunnyOutline, leafOutline, helpCircleOutline, notificationsOutline, homeOutline, statsChartOutline, timeOutline, camera } from 'ionicons/icons';
 
 interface ActivePlant {
   id: string;
@@ -42,6 +42,7 @@ export class HomePage implements OnInit {
   isOnline = true;
   hamburgerActive = false;
   unreadCount = 0;
+  userName = 'Usuario';
 
   constructor(
     private navCtrl: NavController,
@@ -50,9 +51,15 @@ export class HomePage implements OnInit {
     private menu: MenuController,
     private http: HttpClient
   ) {
-    // Registrar icono de ayuda
+    // Registrar iconos
     addIcons({
-      'help-circle-outline': helpCircleOutline
+      'help-circle-outline': helpCircleOutline,
+      'leaf-outline': leafOutline,
+      'notifications-outline': notificationsOutline,
+      'home-outline': homeOutline,
+      'stats-chart-outline': statsChartOutline,
+      'time-outline': timeOutline,
+      'camera': camera
     });
   }
 
@@ -61,6 +68,16 @@ export class HomePage implements OnInit {
     this.loadSensorData();
     this.loadActuatorStatus();
     this.loadUnreadCount();
+    this.loadUserName();
+  }
+
+  loadUserName() {
+    const savedName = localStorage.getItem('selectedBoxName');
+    if (savedName) {
+      this.userName = savedName;
+    } else {
+      this.userName = 'Usuario';
+    }
   }
 
   toggleHamburger() {
@@ -160,8 +177,18 @@ export class HomePage implements OnInit {
     return this.getSensorStatus(sensor) === 'good' ? 'Óptimo' : 'Revisar';
   }
 
-  // ✅ NAVEGACIÓN CORREGIDA
-  goPlants() {
+  // ✅ NAVEGACIÓN TABS CORREGIDA
+  goHome() {
+    document.querySelector('ion-content')?.scrollToTop(300);
+    this.closeMenu();
+  }
+
+  goStats() {
+    this.router.navigate(['/weekly']);
+    this.closeMenu();
+  }
+
+  goMyPlant() {
     this.router.navigate(['/plant']);
     this.closeMenu();
   }
@@ -171,13 +198,14 @@ export class HomePage implements OnInit {
     this.closeMenu();
   }
 
-  goHistory() {
-    this.router.navigate(['/weekly']);
+  goPlants() {
+    // Para cambiar planta (forzado a modo selección)
+    this.router.navigate(['/plant'], { queryParams: { mode: 'select' } });
     this.closeMenu();
   }
 
-  goHome() {
-    document.querySelector('ion-content')?.scrollToTop(300);
+  goCamera() {
+    this.router.navigate(['/camera']);
     this.closeMenu();
   }
 

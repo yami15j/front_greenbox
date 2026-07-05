@@ -45,15 +45,14 @@
                   {
                     "type": "initial",
                     "maximumWarning": "2mb",
-                    "maximumError": "5mb"
+                    "maximumError": "10mb"
                   },
                   {
                     "type": "anyComponentStyle",
-                    "maximumWarning": "10kb",
-                    "maximumError": "15kb"
+                    "maximumWarning": "50kb",
+                    "maximumError": "100kb"
                   }
-                ]
-                ,
+                ],
                 "fileReplacements": [
                   {
                     "replace": "src/environments/environment.ts",

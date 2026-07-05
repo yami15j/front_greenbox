@@ -14,7 +14,10 @@ import {
   leafOutline,
   checkmarkDone,
   arrowBack,
-  close
+  close,
+  homeOutline,
+  statsChartOutline,
+  timeOutline
 } from 'ionicons/icons';
 
 interface Notification {
@@ -71,7 +74,10 @@ export class NotificationPage implements OnInit {
       'leaf-outline': leafOutline,
       'checkmark-done': checkmarkDone,
       'arrow-back': arrowBack,
-      'close': close
+      'close': close,
+      'home-outline': homeOutline,
+      'stats-chart-outline': statsChartOutline,
+      'time-outline': timeOutline
     });
   }
 
@@ -533,5 +539,9 @@ export class NotificationPage implements OnInit {
   goBack() { this.navCtrl.back(); }
   goHome() { this.navCtrl.navigateBack('/home'); }
   goHistory() { this.navCtrl.navigateForward('/weekly'); }
-  goNotifications() { this.navCtrl.navigateForward('/notification'); }
+  goMyPlant() { this.navCtrl.navigateForward('/plant'); }
+  goNotifications() {
+    const content = document.querySelector('ion-content') as any;
+    content?.scrollToTop(300);
+  }
 }

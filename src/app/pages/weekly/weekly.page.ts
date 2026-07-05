@@ -1,20 +1,37 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, NavController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
-import { interval, Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { addIcons } from 'ionicons';
+import {
+  arrowBack,
+  calendarOutline,
+  homeOutline,
+  statsChartOutline,
+  leafOutline,
+  timeOutline,
+  thermometerOutline,
+  waterOutline,
+  sunnyOutline
+} from 'ionicons/icons';
 
-interface DayData {
-  day: string;
-  dayName: string;
-  date: string;
-  value: number;
-  change: number;
-  percentage: number;
+interface ChartPoint {
+  x: number;
+  y: number;
+  val: string;
+  label: string;
 }
 
-type SensorType = 'temperature' | 'humidity' | 'light' | 'water';
+interface ChartDataset {
+  title: string;
+  key: string;
+  color: string;
+  pointsString: string;
+  points: ChartPoint[];
+  icon: string;
+  unit: string;
+}
 
 @Component({
   selector: 'app-weekly',
@@ -23,274 +40,224 @@ type SensorType = 'temperature' | 'humidity' | 'light' | 'water';
   standalone: true,
   imports: [CommonModule, IonicModule]
 })
-export class WeeklyPage implements OnInit, OnDestroy {
+export class WeeklyPage implements OnInit {
 
-  /* =====================
-     ESTADO GENERAL
-  ====================== */
-  selectedSensor: SensorType = 'temperature';
-
-  currentAverage = '0';
-  weeklyChange = 0;
-  maxValue = '0';
-  minValue = '0';
-  currentUnit = '°C';
-  sensorTitle = 'Temperatura';
-
-  weeklyData: DayData[] = [];
-  dailyDetails: DayData[] = [];
-
+  selectedRange: 'day' | 'week' | 'month' = 'week';
   isLoading = false;
-  isOnline = true;
   unreadCount = 0;
-
-  /* =====================
-     CONFIG
-  ====================== */
-  private readonly boxId = '1';
-  private readonly apiUrl = 'http://127.0.0.1:3000';
-  private pollSubscription?: Subscription;
+  charts: ChartDataset[] = [];
 
   constructor(
     private navCtrl: NavController,
     private http: HttpClient
-  ) { }
+  ) {
+    addIcons({
+      'arrow-back': arrowBack,
+      'calendar-outline': calendarOutline,
+      'home-outline': homeOutline,
+      'stats-chart-outline': statsChartOutline,
+      'leaf-outline': leafOutline,
+      'time-outline': timeOutline,
+      'thermometer-outline': thermometerOutline,
+      'water-outline': waterOutline,
+      'sunny-outline': sunnyOutline
+    });
+  }
 
-  /* =====================
-     CICLO DE VIDA
-  ====================== */
   ngOnInit(): void {
-    this.loadSensorData(this.selectedSensor);
-    this.startPolling();
-    this.loadUnreadNotifications();
+    this.loadAllChartsData();
     this.loadUnreadCount();
   }
 
-  ngOnDestroy(): void {
-    this.pollSubscription?.unsubscribe();
+  changeRange(range: 'day' | 'week' | 'month'): void {
+    this.selectedRange = range;
+    this.loadAllChartsData();
   }
 
-  /* =====================
-     CARGA DE DATOS
-  ====================== */
-  async loadSensorData(sensor: SensorType): Promise<void> {
-    this.selectedSensor = sensor;
-    this.sensorTitle = this.getSensorName(sensor);
-    this.currentUnit = this.getUnit(sensor);
+  async loadAllChartsData(): Promise<void> {
     this.isLoading = true;
+    const boxId = localStorage.getItem('selectedBoxId') || 'dev-box-id';
+    const period = this.selectedRange === 'day' ? '24h' : this.selectedRange === 'week' ? '7d' : '30d';
 
-    // Usar el endpoint correcto: /sensors/history/:boxId/7d
-    this.http
-      .get<any[]>(`${this.apiUrl}/sensors/history/${this.boxId}/7d`)
-      .subscribe({
-        next: (response) => {
-          this.mapResponseToWeekly(response, sensor);
-          this.isOnline = true;
-          this.isLoading = false;
-        },
-        error: (err) => {
-          console.error('Error cargando datos:', err);
-          this.isOnline = false;
-          this.isLoading = false;
-          // Usar datos de ejemplo en caso de error
-          this.useMockData(sensor);
-        }
-      });
-  }
-
-  private mapResponseToWeekly(response: any[], sensor: SensorType): void {
-    if (!response || response.length === 0) {
-      this.useMockData(sensor);
+    if (environment.allowOfflineLogin && boxId === 'dev-box-id') {
+      setTimeout(() => {
+        this.generateMockCharts();
+        this.isLoading = false;
+      }, 500);
       return;
     }
 
-    // Extraer el valor correcto según el sensor
-    const sensorField = this.getSensorField(sensor);
-    const data = response.slice(-7); // Últimos 7 días
-    const values = data.map(d => Number(d[sensorField] || 0));
-
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const avg = (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
-
-    this.currentAverage = avg;
-    this.maxValue = max.toFixed(1);
-    this.minValue = min.toFixed(1);
-    this.weeklyChange = Number((values[values.length - 1] - values[0]).toFixed(1));
-
-    this.weeklyData = data.map((d, i) => {
-      const value = Number(d[sensorField] || 0);
-      const change = i === 0 ? 0 : Number((value - values[i - 1]).toFixed(1));
-      const timestamp = new Date(d.timestamp || d.createdAt);
-
-      return {
-        day: `D${i + 1}`,
-        dayName: this.getDayName(timestamp.getDay()),
-        date: timestamp.toLocaleDateString('es-ES'),
-        value: Number(value.toFixed(1)),
-        change,
-        percentage: this.calculatePercentage(value, values)
-      };
-    });
-
-    this.dailyDetails = [...this.weeklyData];
-  }
-
-  private getSensorField(sensor: SensorType): string {
-    const fields: Record<SensorType, string> = {
-      temperature: 'temperature',
-      humidity: 'humidity',
-      light: 'light',
-      water: 'water'
-    };
-    return fields[sensor];
-  }
-
-  private useMockData(sensor: SensorType): void {
-    // Datos de ejemplo para desarrollo
-    const mockValues = sensor === 'temperature'
-      ? [22, 23, 24, 23, 25, 24, 23]
-      : [65, 68, 70, 67, 72, 69, 68];
-
-    const min = Math.min(...mockValues);
-    const max = Math.max(...mockValues);
-    const avg = (mockValues.reduce((a, b) => a + b, 0) / mockValues.length).toFixed(1);
-
-    this.currentAverage = avg;
-    this.maxValue = max.toString();
-    this.minValue = min.toString();
-    this.weeklyChange = mockValues[mockValues.length - 1] - mockValues[0];
-
-    this.weeklyData = mockValues.map((value, i) => ({
-      day: `D${i + 1}`,
-      dayName: this.getDayName((new Date().getDay() - 6 + i + 7) % 7),
-      date: new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000).toLocaleDateString('es-ES'),
-      value,
-      change: i === 0 ? 0 : value - mockValues[i - 1],
-      percentage: this.calculatePercentage(value, mockValues)
-    }));
-
-    this.dailyDetails = [...this.weeklyData];
-  }
-
-  /* =====================
-     POLLING (CORREGIDO)
-  ====================== */
-  private startPolling(): void {
-    this.pollSubscription?.unsubscribe();
-
-    this.pollSubscription = interval(30000)
-      .pipe(
-        switchMap(() =>
-          this.http.get<any[]>(
-            `${this.apiUrl}/sensors/history/${this.boxId}/7d`
-          )
-        )
-      )
+    this.http.get<any[]>(`${environment.apiUrl}/sensors/history/${boxId}/${period}`)
       .subscribe({
-        next: (response) => this.mapResponseToWeekly(response, this.selectedSensor),
+        next: (response) => {
+          this.processHistoryResponse(response);
+          this.isLoading = false;
+        },
         error: (err) => {
-          console.error('Error en polling:', err);
-          this.isOnline = false;
+          console.error('Error loading history data:', err);
+          this.generateMockCharts();
+          this.isLoading = false;
         }
       });
   }
 
-  /* =====================
-     NOTIFICACIONES
-  ====================== */
-  private loadUnreadNotifications(): void {
-    this.http
-      .get<{ count: number }>(`${this.apiUrl}/notifications/unread-count`)
-      .subscribe({
-        next: res => this.unreadCount = res.count,
-        error: err => console.error('Error notificaciones:', err)
+  private processHistoryResponse(response: any[]): void {
+    if (!response || response.length === 0) {
+      this.generateMockCharts();
+      return;
+    }
+
+    // Sample exactly 6 data points evenly from response
+    const sampledData = this.sampleArray(response, 6);
+    
+    // Prepare the 4 datasets
+    const configs = [
+      { title: 'Temperatura', key: 'temperature', color: '#ff7043', icon: 'thermometer-outline', unit: '°' },
+      { title: 'Humedad', key: 'humidity', color: '#26c6da', icon: 'water-outline', unit: '%' },
+      { title: 'Luz', key: 'light', color: '#ffca28', icon: 'sunny-outline', unit: '%' },
+      { title: 'Humedad del Suelo', key: 'soilMoisture', color: '#66bb6a', icon: 'leaf-outline', unit: '%' }
+    ];
+
+    this.charts = configs.map(cfg => {
+      const values = sampledData.map(d => {
+        let val = Number(d[cfg.key]);
+        if (isNaN(val)) {
+          // Fallback field mapping variants
+          if (cfg.key === 'light') val = Number(d.lightHours || 0);
+          else if (cfg.key === 'water') val = Number(d.waterLevel || 0);
+          else if (cfg.key === 'soilMoisture') val = Number(d.soilMoisture || 0);
+          else val = 0;
+        }
+        return val;
       });
+
+      const labels = sampledData.map((d, i) => {
+        const date = new Date(d.timestamp || d.createdAt || Date.now());
+        if (this.selectedRange === 'day') {
+          return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        } else if (this.selectedRange === 'week') {
+          const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+          return days[date.getDay()];
+        } else {
+          return `${date.getDate()}/${date.getMonth() + 1}`;
+        }
+      });
+
+      return this.buildDataset(cfg.title, cfg.key, cfg.color, cfg.icon, cfg.unit, values, labels);
+    });
   }
 
-  /* =====================
-     UI / INTERACCIÓN
-  ====================== */
-  showDayDetail(day: DayData): void {
-    console.log('Detalle día:', day);
+  private sampleArray<T>(arr: T[], count: number): T[] {
+    if (arr.length <= count) return arr;
+    const sampled: T[] = [];
+    const step = (arr.length - 1) / (count - 1);
+    for (let i = 0; i < count; i++) {
+      sampled.push(arr[Math.round(i * step)]);
+    }
+    return sampled;
   }
 
-  goToSensorDetail(sensor: SensorType): void {
-    this.loadSensorData(sensor);
+  private buildDataset(
+    title: string,
+    key: string,
+    color: string,
+    icon: string,
+    unit: string,
+    values: number[],
+    labels: string[]
+  ): ChartDataset {
+    const minVal = Math.min(...values);
+    const maxVal = Math.max(...values);
+    const range = maxVal - minVal || 1;
 
-    const content = document.querySelector('ion-content') as any;
-    content?.scrollToTop(300);
-  }
+    // SVG coordinate settings
+    const chartWidth = 250;
+    const chartHeight = 55;
+    const paddingLeft = 32;
+    const paddingTop = 20;
 
-  async refreshData(event: any): Promise<void> {
-    await this.loadSensorData(this.selectedSensor);
-    event?.target?.complete();
-  }
+    const points: ChartPoint[] = values.map((val, i) => {
+      const x = paddingLeft + i * (chartWidth / (values.length - 1 || 1));
+      const y = paddingTop + chartHeight - ((val - minVal) / range) * chartHeight;
+      return {
+        x: Math.round(x),
+        y: Math.round(y),
+        val: val.toFixed(key === 'temperature' ? 1 : 0),
+        label: labels[i] || ''
+      };
+    });
 
-  /* =====================
-     CÁLCULOS
-  ====================== */
-  calculatePercentage(value: number, values: number[]): number {
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    if (max === min) return 80;
-    return 40 + ((value - min) / (max - min)) * 60;
-  }
+    const pointsString = points.map(pt => `${pt.x},${pt.y}`).join(' ');
 
-  /* =====================
-     ICONOS / TEXTO
-  ====================== */
-  getSensorIcon(): string {
-    const icons: Record<SensorType, string> = {
-      temperature: 'assets/icon/temperatura.png',
-      humidity: 'assets/icon/humedad.png',
-      light: 'assets/icon/luz.png',
-      water: 'assets/icon/agua.png'
+    return {
+      title,
+      key,
+      color,
+      pointsString,
+      points,
+      icon,
+      unit
     };
-    return icons[this.selectedSensor];
   }
 
-  private getSensorName(sensor: SensorType): string {
-    const names: Record<SensorType, string> = {
-      temperature: 'Temperatura',
-      humidity: 'Humedad',
-      light: 'Luz',
-      water: 'Agua'
-    };
-    return names[sensor];
-  }
+  private generateMockCharts(): void {
+    // Generate beautiful mockup-matching datasets
+    const labels = this.selectedRange === 'day' 
+      ? ['00:00', '04:00', '08:00', '12:00', '14:00', '20:00']
+      : this.selectedRange === 'week'
+      ? ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+      : ['01/07', '06/07', '11/07', '16/07', '21/07', '26/07'];
 
-  private getUnit(sensor: SensorType): string {
-    return sensor === 'temperature' ? '°C' : '%';
-  }
+    const mockSets = [
+      {
+        title: 'Temperatura',
+        key: 'temperature',
+        color: '#f26419',
+        icon: 'thermometer-outline',
+        unit: '°',
+        values: [18.2, 18.7, 19.1, 20.3, 20.1, 19.2]
+      },
+      {
+        title: 'Humedad',
+        key: 'humidity',
+        color: '#33a8c7',
+        icon: 'water-outline',
+        unit: '%',
+        values: [55, 57, 60, 62, 61, 58]
+      },
+      {
+        title: 'Luz',
+        key: 'light',
+        color: '#f5b301',
+        icon: 'sunny-outline',
+        unit: '%',
+        values: [48, 52, 58, 64, 62, 55]
+      },
+      {
+        title: 'Humedad del Suelo',
+        key: 'soilMoisture',
+        color: '#5fb89a',
+        icon: 'leaf-outline',
+        unit: '%',
+        values: [65, 68, 70, 74, 72, 69]
+      }
+    ];
 
-  private getDayName(index: number): string {
-    const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-    return dias[index] || '';
-  }
-
-  /* =====================
-     NAVEGACIÓN
-  ====================== */
-  goHistory(): void {
-    // Scroll to top en lugar de navegar
-    const content = document.querySelector('ion-content') as any;
-    content?.scrollToTop(300);
-  }
-
-  goHome(): void {
-    this.navCtrl.navigateBack('/home');
-  }
-
-  goNotifications(): void {
-    this.navCtrl.navigateForward('/notification');
+    this.charts = mockSets.map(cfg => {
+      // Modify values slightly based on period
+      let valMod = cfg.values;
+      if (this.selectedRange === 'day') {
+        valMod = cfg.values;
+      } else if (this.selectedRange === 'month') {
+        valMod = cfg.values.map(v => v * 1.05); // slightly higher
+      }
+      return this.buildDataset(cfg.title, cfg.key, cfg.color, cfg.icon, cfg.unit, valMod, labels);
+    });
   }
 
   loadUnreadCount() {
-    // Obtener boxId desde localStorage
     const boxId = localStorage.getItem('selectedBoxId') || '1';
-
-    this.http.get<any[]>(`${this.apiUrl}/notifications/${boxId}/active`)
+    this.http.get<any[]>(`${environment.apiUrl}/notifications/${boxId}/active`)
       .subscribe({
         next: (notifications) => {
           this.unreadCount = notifications.length;
@@ -306,8 +273,20 @@ export class WeeklyPage implements OnInit, OnDestroy {
     this.navCtrl.back();
   }
 
-  goHistoryWeekly(): void {
-    localStorage.setItem('historyRange', 'week');
-    this.navCtrl.navigateForward('/history');
+  goHome(): void {
+    this.navCtrl.navigateBack('/home');
+  }
+
+  goPlants(): void {
+    this.navCtrl.navigateForward('/plant');
+  }
+
+  goNotifications(): void {
+    this.navCtrl.navigateForward('/notification');
+  }
+
+  refreshData(event: any): void {
+    this.loadAllChartsData();
+    event?.target?.complete();
   }
 }

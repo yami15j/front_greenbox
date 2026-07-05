@@ -2,5 +2,5 @@
 export const environment = {
   production: true,
   apiUrl: 'https://greenbox-qni2.onrender.com',  // ← URL de Render
-  allowOfflineLogin: false
+  allowOfflineLogin: true   // Permite entrar aunque Render esté en cold start
 };

@@ -1,0 +1,116 @@
+<ion-content class="camera-content" [fullscreen]="true" [scrollEvents]="false">
+
+  <!-- ====================
+       VISTA 1: NUEVA FOTO (CÁMARA)
+       ==================== -->
+  <div class="camera-flow-container" *ngIf="viewMode === 'camera'">
+    <!-- HEADER -->
+    <div class="camera-header">
+      <button class="header-btn" (click)="goBack()">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <h1 class="camera-title">Nueva foto</h1>
+      <button class="header-btn flash-btn" (click)="toggleFlash()" [class.active]="flashActive">
+        <ion-icon name="flash-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- VIEWFINDER PREVIEW -->
+    <div class="viewfinder-box" [class.front-facing]="cameraFacing === 'user'">
+      <video #videoElement autoplay playsinline class="camera-video-stream" [style.display]="capturedImage ? 'none' : 'block'"></video>
+      <img [src]="capturedImage || (activePlant?.imageUrl || 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop')" class="live-preview-image" [style.display]="capturedImage ? 'block' : 'none'">
+      
+      <!-- SCANNING LINE EFFECT -->
+      <div class="scan-line"></div>
+      
+      <!-- GRID LINES -->
+      <div class="camera-grid">
+        <div class="grid-line horizontal-1"></div>
+        <div class="grid-line horizontal-2"></div>
+        <div class="grid-line vertical-1"></div>
+        <div class="grid-line vertical-2"></div>
+      </div>
+
+      <!-- BOTTOM INSTRUCTION OVERLAY -->
+      <div class="viewfinder-instruction">
+        Toma una foto para el progreso de tu planta
+      </div>
+    </div>
+
+    <!-- CONTROLS ROW -->
+    <div class="camera-controls-row">
+      <!-- Gallery Button -->
+      <button class="control-circle-btn" (click)="selectFromGallery()">
+        <ion-icon name="image-outline"></ion-icon>
+      </button>
+      
+      <!-- Shutter Trigger Button -->
+      <button class="shutter-outer-ring" (click)="triggerShutter()">
+        <div class="shutter-inner-solid"></div>
+      </button>
+      
+      <!-- Switch Camera Button -->
+      <button class="control-circle-btn" (click)="switchCamera()">
+        <ion-icon name="refresh-outline"></ion-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- ====================
+       VISTA 2: DETALLE DE LA FOTO
+       ==================== -->
+  <div class="photo-detail-container" *ngIf="viewMode === 'photo-detail'">
+    <!-- HEADER -->
+    <div class="photo-detail-header">
+      <button class="header-btn" (click)="goBack()">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <h1 class="page-title">Detalle de la foto</h1>
+      <button class="header-btn delete-btn" (click)="deleteCapturedPhoto()">
+        <ion-icon name="trash-outline"></ion-icon>
+      </button>
+    </div>
+
+    <!-- CONTENT BODY -->
+    <div class="photo-detail-body">
+      <!-- CAPTURED IMAGE WITH ROUNDED CORNERS -->
+      <div class="captured-image-frame">
+        <img [src]="capturedImage" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
+      </div>
+
+      <!-- DATE & INITIAL CAPTION -->
+      <div class="date-caption-row">
+        <h4 class="caption-date">Hoy, 20 Mayo 2026</h4>
+        <p class="caption-status">La planta se ve saludable</p>
+      </div>
+
+      <!-- PROGRESS SLIDER -->
+      <div class="progress-slider-section">
+        <h4 class="section-subtitle">Progreso de la Planta</h4>
+        <div class="slider-wrapper-row">
+          <input type="range" min="0" max="100"
+            [(ngModel)]="progressValue"
+            class="progress-range-slider"
+            [style.background]="'linear-gradient(to right, #5fb89a ' + progressValue + '%, #eef2f0 ' + progressValue + '%)'">
+          <span class="percentage-display-text">{{ progressValue }} %</span>
+        </div>
+      </div>
+
+      <!-- OPTIONAL NOTE INPUT -->
+      <div class="note-input-section">
+        <h4 class="section-subtitle">Nota (opcional)</h4>
+        <textarea 
+          placeholder="Escribe una nota sobre el estado de tu planta ...." 
+          [(ngModel)]="optionalNote"
+          class="custom-note-textarea">
+        </textarea>
+      </div>
+
+      <!-- SAVE BUTTON -->
+      <button class="save-detail-btn" (click)="savePhotoDetail()">
+        Guardar
+      </button>
+    </div>
+  </div>
+
+</ion-content>
