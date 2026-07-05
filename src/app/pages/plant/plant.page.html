@@ -135,7 +135,7 @@
        ==================== -->
   <div class="plant-select-container" *ngIf="viewMode === 'select'">
     <!-- Hero / Header Area -->
-    <div class="plants-hero" [class.no-active]="!selectedPlant" [style.background-image]="(selectedPlant && selectedPlant.imageUrl) ? 'url(' + selectedPlant.imageUrl + ')' : null">
+    <div class="plants-hero" [class.no-active]="!selectedPlant" [style.background-image]="(selectedPlant && selectedPlant.imageUrl) ? 'url(\'' + selectedPlant.imageUrl + '\')' : null">
       <div class="hero-overlay"></div>
       
       <ion-button fill="clear" class="back-button" (click)="goBack()">
