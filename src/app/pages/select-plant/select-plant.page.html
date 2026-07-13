@@ -47,18 +47,18 @@
     <!-- FILTROS -->
     <div class="filter-section">
       <div class="filter-chips">
-        <ion-chip [class.active]="filterType === 'all'" (click)="applyFilter('all')">
-          <ion-label>Todos</ion-label>
-        </ion-chip>
-        <ion-chip [class.active]="filterType === 'Hoja Verde'" (click)="applyFilter('Hoja Verde')">
-          <ion-label>Hojas Verdes</ion-label>
-        </ion-chip>
-        <ion-chip [class.active]="filterType === 'Fruto'" (click)="applyFilter('Fruto')">
-          <ion-label>Frutos</ion-label>
-        </ion-chip>
-        <ion-chip [class.active]="filterType === 'Hierba Aromática'" (click)="applyFilter('Hierba Aromática')">
-          <ion-label>Hierbas</ion-label>
-        </ion-chip>
+        <button class="filter-chip" [class.active]="filterType === 'all'" (click)="applyFilter('all')">
+          <span>Todos</span>
+        </button>
+        <button class="filter-chip" [class.active]="filterType === 'Hoja Verde'" (click)="applyFilter('Hoja Verde')">
+          <span>Hojas Verdes</span>
+        </button>
+        <button class="filter-chip" [class.active]="filterType === 'Fruto'" (click)="applyFilter('Fruto')">
+          <span>Frutos</span>
+        </button>
+        <button class="filter-chip" [class.active]="filterType === 'Hierba Aromática'" (click)="applyFilter('Hierba Aromática')">
+          <span>Hierbas</span>
+        </button>
       </div>
     </div>
 
@@ -115,19 +115,16 @@
         </div>
 
         <div class="plant-card-footer">
-          <ion-button
-            expand="block"
-            shape="round"
-            [fill]="plant.isActive ? 'solid' : 'outline'"
+          <button
             [class.active-btn]="plant.isActive"
             [class.inactive-btn]="!plant.isActive"
-            class="select-button">
+            class="select-btn-custom"
+            (click)="selectPlant(plant); $event.stopPropagation()">
             <ion-icon
-              [name]="plant.isActive ? 'checkmark-circle' : 'add-circle-outline'"
-              slot="start">
+              [name]="plant.isActive ? 'checkmark-circle' : 'add-circle-outline'">
             </ion-icon>
-            {{ plant.isActive ? 'Activa' : 'Seleccionar' }}
-          </ion-button>
+            <span>{{ plant.isActive ? 'Activa' : 'Seleccionar' }}</span>
+          </button>
         </div>
       </div>
     </div>

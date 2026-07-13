@@ -78,9 +78,6 @@ export class PlantPage implements OnInit {
 
   async ionViewWillEnter() {
     await this.loadActivePlant();
-    if (!this.activePlant) {
-      this.router.navigate(['/select-plant']);
-    }
   }
 
   async loadActivePlant() {
@@ -89,10 +86,10 @@ export class PlantPage implements OnInit {
     if (boxId) {
       try {
         const boxInfo = await this.api.getBoxInfo(boxId);
-        if (boxInfo && boxInfo.box && boxInfo.box.plant) {
-          const plantId = boxInfo.box.plant.id;
+        if (boxInfo && boxInfo.plant) {
+          const plantId = boxInfo.plant.id || boxInfo.plantId;
           if (plantId) {
-            const savedPlant = this.plantProfiles.find(p => p.id === plantId || String(p.id) === String(plantId));
+            const savedPlant = this.plantProfiles.find(p => p.id === plantId);
             if (savedPlant) {
               this.plantProfiles.forEach(p => p.isActive = false);
               savedPlant.isActive = true;
@@ -159,7 +156,7 @@ export class PlantPage implements OnInit {
 
   async deleteProgress(progressId: number, event: Event) {
     event.stopPropagation();
-    
+
     const alert = await this.alertController.create({
       header: 'Confirmar eliminación',
       message: '¿Estás segura de que deseas eliminar esta foto de progreso?',
@@ -174,18 +171,18 @@ export class PlantPage implements OnInit {
           handler: async () => {
             try {
               await this.api.deletePlantProgress(progressId);
-              
+
               // Recargar timeline
               const boxId = localStorage.getItem('selectedBoxId');
               if (boxId) {
                 await this.loadProgressTimeline(boxId);
               }
-              
+
               // Actualizar localStorage
               if (this.activePlant) {
                 localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
               }
-              
+
               const toast = await this.toastController.create({
                 message: '✅ Foto de progreso eliminada',
                 duration: 2000,
@@ -207,7 +204,7 @@ export class PlantPage implements OnInit {
         }
       ]
     });
-    
+
     await alert.present();
   }
 
@@ -293,12 +290,12 @@ export class PlantPage implements OnInit {
 
   async savePhotoDetail() {
     const todayStr = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-    
+
     if (this.activePlant) {
       if (!this.activePlant.timeline) {
         this.activePlant.timeline = this.getDefaultTimeline();
       }
-      
+
       this.activePlant.timeline.unshift({
         date: `Hoy, ${todayStr}`,
         description: this.optionalNote || 'La planta se ve saludable',
@@ -349,9 +346,9 @@ export class PlantPage implements OnInit {
             if (data.name && this.activePlant) {
               this.activePlant.name = data.name;
               this.activePlant.description = data.description;
-              
+
               localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
-              
+
               if (this.selectedPlant && this.selectedPlant.id === this.activePlant.id) {
                 this.selectedPlant.name = data.name;
                 this.selectedPlant.description = data.description;
