@@ -78,6 +78,9 @@ export class PlantPage implements OnInit {
 
   async ionViewWillEnter() {
     await this.loadActivePlant();
+    if (!this.activePlant) {
+      this.router.navigate(['/select-plant']);
+    }
   }
 
   async loadActivePlant() {
@@ -86,10 +89,10 @@ export class PlantPage implements OnInit {
     if (boxId) {
       try {
         const boxInfo = await this.api.getBoxInfo(boxId);
-        if (boxInfo && boxInfo.plant) {
-          const plantId = boxInfo.plant.id || boxInfo.plantId;
+        if (boxInfo && boxInfo.box && boxInfo.box.plant) {
+          const plantId = boxInfo.box.plant.id;
           if (plantId) {
-            const savedPlant = this.plantProfiles.find(p => p.id === plantId);
+            const savedPlant = this.plantProfiles.find(p => p.id === plantId || String(p.id) === String(plantId));
             if (savedPlant) {
               this.plantProfiles.forEach(p => p.isActive = false);
               savedPlant.isActive = true;
