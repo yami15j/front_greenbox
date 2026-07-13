@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, AlertController, ToastController } from '@ionic/angular';
+import { IonicModule, NavController, AlertController, ToastController, LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ApiService } from 'src/app/api.service';
 import { PLANT_PROFILES, Plantprofile } from 'src/app/models/plants.data';
@@ -38,6 +38,7 @@ export class SelectPlantPage implements OnInit {
     private router: Router,
     private alertController: AlertController,
     private toastController: ToastController,
+    private loadingController: LoadingController,
     private api: ApiService
   ) {
     // Registrar iconos necesarios
@@ -138,6 +139,12 @@ export class SelectPlantPage implements OnInit {
         {
           text: 'OK',
           handler: async () => {
+            const loading = await this.loadingController.create({
+              message: 'Actualizando cultivo en GreenBox (despertando servidor)...',
+              spinner: 'crescent'
+            });
+            await loading.present();
+
             try {
               const response = await this.api.updateBoxPlant(boxId, plant.id);
 
@@ -147,6 +154,8 @@ export class SelectPlantPage implements OnInit {
 
               localStorage.setItem('activePlantId', plant.id);
               localStorage.setItem('activePlant', JSON.stringify(plant));
+
+              await loading.dismiss();
 
               const successAlert = await this.alertController.create({
                 header: '✔ Planta Activada',
@@ -159,12 +168,16 @@ export class SelectPlantPage implements OnInit {
               // Volver a la pantalla de detalles de la planta activa
               this.router.navigate(['/plant']);
 
-            } catch (error) {
+            } catch (error: any) {
+              await loading.dismiss();
               console.error('Error al actualizar la planta:', error);
 
+              // Extraer mensaje detallado del error de red/servidor
+              const details = error.error?.message || error.message || 'Error de conexión';
+
               const errorAlert = await this.alertController.create({
-                header: 'Error',
-                message: 'No se pudo actualizar la planta. Por favor, intenta de nuevo.',
+                header: 'Error al Seleccionar',
+                message: `No se pudo actualizar la planta. Detalle: ${details}`,
                 buttons: ['OK']
               });
               await errorAlert.present();
