@@ -162,14 +162,35 @@ export class HomePage implements OnInit, OnDestroy {
     this.menu.close('main-menu');
   }
 
-  loadActivePlant() {
+  async loadActivePlant() {
+    // 1. Intentar cargar desde localStorage primero (más rápido)
     const plantData = localStorage.getItem('activePlant');
     if (plantData) {
       try {
         this.activePlant = JSON.parse(plantData);
+        return; // Ya tenemos la planta en caché, no necesitamos backend
       } catch {
         this.activePlant = null;
       }
+    }
+
+    // 2. Si no hay datos locales, consultar el backend (para Vercel / sesión nueva)
+    const boxId = localStorage.getItem('selectedBoxId');
+    if (!boxId) return;
+
+    try {
+      const boxInfo = await this.api.getBoxInfo(boxId);
+      if (boxInfo && boxInfo.box && boxInfo.box.plant) {
+        const plant = boxInfo.box.plant;
+        this.activePlant = plant;
+        localStorage.setItem('activePlant', JSON.stringify(plant));
+        if (plant.id) {
+          localStorage.setItem('activePlantId', String(plant.id));
+        }
+      }
+    } catch (err) {
+      console.warn('No se pudo obtener la planta activa del backend:', err);
+      this.activePlant = null;
     }
   }
 
@@ -262,7 +283,12 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   goMyPlant() {
-    this.router.navigate(['/plant']);
+    // Si no hay planta activa, ir directo a selección
+    if (!this.activePlant) {
+      this.router.navigate(['/select-plant']);
+    } else {
+      this.router.navigate(['/plant']);
+    }
     this.closeMenu();
   }
 
