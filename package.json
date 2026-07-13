@@ -34,6 +34,7 @@
     "@nestjs/mapped-types": "*",
     "axios": "^1.13.2",
     "chart.js": "^4.5.1",
+    "firebase": "^12.16.0",
     "ionicons": "^7.0.0",
     "rxjs": "7.8.1",
     "tslib": "^2.3.0",

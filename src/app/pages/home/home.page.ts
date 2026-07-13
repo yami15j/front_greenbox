@@ -1,13 +1,31 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonicModule, NavController, MenuController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ApiService, SensorData } from 'src/app/api.service';
+import { SocketService } from 'src/app/socket.service';
 import { ActuatorStatus } from 'src/app/models/api.models';
 import { environment } from 'src/environments/environment';
 import { addIcons } from 'ionicons';
-import { thermometerOutline, waterOutline, sunnyOutline, leafOutline, helpCircleOutline, notificationsOutline, homeOutline, statsChartOutline, timeOutline, camera } from 'ionicons/icons';
+import {
+  thermometerOutline,
+  waterOutline,
+  sunnyOutline,
+  leafOutline,
+  helpCircleOutline,
+  notificationsOutline,
+  homeOutline,
+  statsChartOutline,
+  timeOutline,
+  camera,
+  cloudyOutline,
+  eyeOffOutline,
+  rainyOutline,
+  snowOutline,
+  thunderstormOutline
+} from 'ionicons/icons';
+import { Subscription } from 'rxjs';
 
 interface ActivePlant {
   id: string;
@@ -18,11 +36,10 @@ interface ActivePlant {
   optimalConditions: {
     tempMin: number;
     tempMax: number;
-    humMin: number;
-    humMax: number;
     lightMin: number;
     lightMax: number;
     waterMin: number;
+    tempMax_?: number; // Optional fields matching actual usage if any
   };
 }
 
@@ -33,10 +50,10 @@ interface ActivePlant {
   standalone: true,
   imports: [CommonModule, IonicModule],
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, OnDestroy {
 
   isLoading = true;
-  activePlant: ActivePlant | null = null;
+  activePlant: any | null = null;
   data: SensorData = { temp: 0, hum: 0, light: 0, water: 0 };
   actuatorStatus: ActuatorStatus | null = null;
   isOnline = true;
@@ -44,12 +61,20 @@ export class HomePage implements OnInit {
   unreadCount = 0;
   userName = 'Usuario';
 
+  // Variables para el Clima Real
+  weatherData: any = null;
+  weatherLocation = 'Eindhoven, Países Bajos';
+  weatherTime = '';
+
+  private socketSub?: Subscription;
+
   constructor(
     private navCtrl: NavController,
     private router: Router,
     private api: ApiService,
     private menu: MenuController,
-    private http: HttpClient
+    private http: HttpClient,
+    private socketService: SocketService
   ) {
     // Registrar iconos
     addIcons({
@@ -59,7 +84,13 @@ export class HomePage implements OnInit {
       'home-outline': homeOutline,
       'stats-chart-outline': statsChartOutline,
       'time-outline': timeOutline,
-      'camera': camera
+      'camera': camera,
+      'sunny-outline': sunnyOutline,
+      'cloudy-outline': cloudyOutline,
+      'eye-off-outline': eyeOffOutline,
+      'rainy-outline': rainyOutline,
+      'snow-outline': snowOutline,
+      'thunderstorm-outline': thunderstormOutline
     });
   }
 
@@ -69,15 +100,57 @@ export class HomePage implements OnInit {
     this.loadActuatorStatus();
     this.loadUnreadCount();
     this.loadUserName();
+    this.setupWebSocket();
+    this.loadWeather();
+  }
+
+  ngOnDestroy() {
+    if (this.socketSub) {
+      this.socketSub.unsubscribe();
+    }
+    this.socketService.disconnect();
+  }
+
+  setupWebSocket() {
+    try {
+      const wsUrl = environment.apiUrl.replace(/^http/, 'ws');
+      console.log('🔌 Conectando WebSocket a:', wsUrl);
+      this.socketService.connect(wsUrl);
+
+      this.socketSub = this.socketService.getData().subscribe({
+        next: (wsData) => {
+          const boxId = localStorage.getItem('selectedBoxId');
+          // Verificar si recibimos datos válidos y corresponden al box actual
+          if (wsData && wsData.boxId && String(wsData.boxId) === String(boxId)) {
+            console.log('📡 Lectura recibida por WebSocket:', wsData);
+            this.data = {
+              temp: wsData.temp ?? 0,
+              hum: wsData.hum ?? 0,
+              light: wsData.light ?? 0,
+              water: wsData.water ?? 0,
+              soilMoisture: wsData.soilMoisture ?? 0,
+              timestamp: wsData.timestamp || new Date().toISOString()
+            };
+            // Guardar en localStorage para consistencia offline
+            localStorage.setItem('activePlantData', JSON.stringify(this.data));
+          }
+        },
+        error: (err) => {
+          console.error('❌ Error en suscripción de WebSocket:', err);
+        }
+      });
+    } catch (e) {
+      console.error('❌ Error al inicializar WebSocket:', e);
+    }
   }
 
   loadUserName() {
     const savedName = localStorage.getItem('selectedBoxName');
-    if (savedName) {
-      this.userName = savedName;
-    } else {
-      this.userName = 'Usuario';
-    }
+    const registeredName = localStorage.getItem('userName');
+    const rawName = savedName || registeredName || 'Usuario';
+    
+    // Remueve "Caja de " (sin importar mayúsculas/minúsculas) al inicio
+    this.userName = rawName.replace(/^caja de\s+/i, '').trim();
   }
 
   toggleHamburger() {
@@ -199,8 +272,7 @@ export class HomePage implements OnInit {
   }
 
   goPlants() {
-    // Para cambiar planta (forzado a modo selección)
-    this.router.navigate(['/plant'], { queryParams: { mode: 'select' } });
+    this.router.navigate(['/select-plant']);
     this.closeMenu();
   }
 
@@ -228,5 +300,102 @@ export class HomePage implements OnInit {
           this.unreadCount = 0;
         }
       });
+  }
+
+  // ====================
+  // SISTEMA DE CLIMA REAL
+  // ====================
+  get todayDateString(): string {
+    const d = new Date();
+    return d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  }
+
+  getWeatherInfo(code: number): { text: string; icon: string } {
+    if (code === 0) return { text: 'Despejado', icon: 'sunny-outline' };
+    if (code >= 1 && code <= 3) return { text: 'Algo Nublado', icon: 'cloudy-outline' };
+    if (code >= 45 && code <= 48) return { text: 'Neblina', icon: 'eye-off-outline' };
+    if (code >= 51 && code <= 55) return { text: 'Llovizna', icon: 'rainy-outline' };
+    if (code >= 61 && code <= 65) return { text: 'Lluvia', icon: 'rainy-outline' };
+    if (code >= 71 && code <= 77) return { text: 'Nieve', icon: 'snow-outline' };
+    if (code >= 80 && code <= 82) return { text: 'Chubasco', icon: 'rainy-outline' };
+    if (code >= 95 && code <= 99) return { text: 'Tormenta', icon: 'thunderstorm-outline' };
+    return { text: 'Despejado', icon: 'sunny-outline' };
+  }
+
+  loadWeather() {
+    // 1. Hora actual formateada
+    const now = new Date();
+    this.weatherTime = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+    // 2. Intentar geolocalizar al usuario
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          this.fetchWeather(lat, lon);
+          this.fetchCityName(lat, lon);
+        },
+        (error) => {
+          console.warn('Geolocation failed, defaulting to Eindhoven');
+          this.fetchWeather(51.4416, 5.4697);
+        }
+      );
+    } else {
+      this.fetchWeather(51.4416, 5.4697);
+    }
+  }
+
+  fetchWeather(lat: number, lon: number) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,is_day,precipitation,rain,weather_code&hourly=temperature_2m,weather_code&forecast_days=1`;
+    this.http.get<any>(url).subscribe({
+      next: (res) => {
+        if (res && res.current) {
+          const currentHour = new Date().getHours();
+          const hourlyForecast: any[] = [];
+          
+          if (res.hourly && res.hourly.time) {
+            for (let i = 0; i < 24; i++) {
+              const hourTime = new Date(res.hourly.time[i]);
+              const hourVal = hourTime.getHours();
+              if (hourVal > currentHour && hourlyForecast.length < 5) {
+                hourlyForecast.push({
+                  time: hourTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                  temp: Math.round(res.hourly.temperature_2m[i]),
+                  code: res.hourly.weather_code[i]
+                });
+              }
+            }
+          }
+
+          this.weatherData = {
+            temp: Math.round(res.current.temperature_2m),
+            humidity: res.current.relative_humidity_2m,
+            rain: res.current.rain,
+            code: res.current.weather_code,
+            hourly: hourlyForecast
+          };
+        }
+      },
+      error: (err) => console.error('Error fetching weather:', err)
+    });
+  }
+
+  fetchCityName(lat: number, lon: number) {
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+    this.http.get<any>(url).subscribe({
+      next: (res) => {
+        if (res && res.address) {
+          const city = res.address.city || res.address.town || res.address.village || res.address.suburb;
+          const country = res.address.country;
+          if (city) {
+            this.weatherLocation = `${city}, ${country}`;
+          } else {
+            this.weatherLocation = country;
+          }
+        }
+      },
+      error: (err) => console.warn('Error reverse geocoding city name:', err)
+    });
   }
 }

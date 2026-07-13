@@ -31,6 +31,10 @@ export const routes: Routes = [
     path: 'plant',
     loadComponent: () => import('./pages/plant/plant.page').then( m => m.PlantPage)
   },
+  {
+    path: 'select-plant',
+    loadComponent: () => import('./pages/select-plant/select-plant.page').then(m => m.SelectPlantPage)
+  },
 
   {
     path: 'guide',

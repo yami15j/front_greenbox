@@ -18,6 +18,7 @@ interface TimelineEvent {
   description: string;
   imageUrl: string;
   progress?: number;
+  id?: any;
 }
 
 interface Plantprofile {

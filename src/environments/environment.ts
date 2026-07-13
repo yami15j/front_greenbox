@@ -6,7 +6,15 @@
 export const environment = {
   production: false,
   apiUrl: 'http://localhost:3000',  // ← Vinculado a tu backend local
-  allowOfflineLogin: true  // Permitir acceso sin backend para desarrollo local
+  allowOfflineLogin: false,  // Desactivado para consumir datos reales del backend
+  firebase: {
+    apiKey: "AIzaSyCGA2vn1DZan29mH6Lz_XpmHPrUCRVhlrk",
+    authDomain: "greenbox1.firebaseapp.com",
+    projectId: "greenbox1",
+    storageBucket: "greenbox1.firebasestorage.app",
+    messagingSenderId: "502680482164",
+    appId: "1:502680482164:web:f36f5e6497458efdcefc21"
+  }
 };
 /*
  * For easier debugging in development mode, you can import the following file

@@ -75,6 +75,43 @@
       </div>
     </div>
 
+    <!-- Weather Widget Real-time -->
+    <div class="weather-widget-card" *ngIf="weatherData">
+      <div class="weather-header">
+        <div class="weather-title-container">
+          <span class="weather-section-title">Clima de Hoy</span>
+          <span class="weather-date">{{ todayDateString }}</span>
+        </div>
+        <div class="weather-loc-time">
+          <span class="weather-location">{{ weatherLocation }}</span>
+          <span class="weather-time">{{ weatherTime }}</span>
+        </div>
+      </div>
+      
+      <div class="weather-main">
+        <div class="weather-left">
+          <ion-icon [name]="getWeatherInfo(weatherData.code).icon" class="weather-main-icon"></ion-icon>
+          <div class="weather-desc-container">
+            <span class="weather-desc-text">{{ getWeatherInfo(weatherData.code).text }}</span>
+            <span class="weather-rain-chance" *ngIf="weatherData.rain > 0">Lluvia: {{ weatherData.rain }} mm</span>
+          </div>
+        </div>
+        <div class="weather-temp-large">
+          {{ weatherData.temp }}<span class="weather-degree">°</span>
+        </div>
+      </div>
+      
+      <div class="weather-forecast-divider"></div>
+      
+      <div class="weather-forecast-row">
+        <div class="forecast-item" *ngFor="let f of weatherData.hourly">
+          <span class="forecast-temp">{{ f.temp }}°</span>
+          <ion-icon [name]="getWeatherInfo(f.code).icon" class="forecast-icon"></ion-icon>
+          <span class="forecast-time">{{ f.time }}</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Sensores -->
     <div class="sensors-grid-compact">
 
@@ -124,61 +161,7 @@
 
     </div>
 
-    <!-- Control Automático (LED y Bomba) -->
-    <div class="actuators-section" *ngIf="activePlant && actuatorStatus">
-      <div class="section-header">
-        <ion-icon name="settings-outline" class="section-icon"></ion-icon>
-        <h3 class="section-title">Control Automático</h3>
-      </div>
 
-      <div class="actuators-grid">
-        <!-- LED Status -->
-        <div class="actuator-card" [class.active]="actuatorStatus.led">
-          <div class="actuator-icon-wrapper led">
-            <ion-icon name="bulb" class="actuator-icon"></ion-icon>
-            <div class="status-pulse" *ngIf="actuatorStatus.led"></div>
-          </div>
-          <div class="actuator-info">
-            <span class="actuator-label">Iluminación LED</span>
-            <span class="actuator-status" [class.on]="actuatorStatus.led">
-              {{ actuatorStatus.led ? 'Encendido' : 'Apagado' }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Pump Status -->
-        <div class="actuator-card" [class.active]="actuatorStatus.pump">
-          <div class="actuator-icon-wrapper pump">
-            <ion-icon name="water" class="actuator-icon"></ion-icon>
-            <div class="status-pulse" *ngIf="actuatorStatus.pump"></div>
-          </div>
-          <div class="actuator-info">
-            <span class="actuator-label">Bomba de Agua</span>
-            <span class="actuator-status" [class.on]="actuatorStatus.pump">
-              {{ actuatorStatus.pump ? 'Activa' : 'Inactiva' }}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Watering Info -->
-      <div class="watering-info-card">
-        <div class="watering-stat">
-          <ion-icon name="water-outline" class="stat-icon"></ion-icon>
-          <div class="stat-content">
-            <span class="stat-label">Riegos hoy</span>
-            <span class="stat-value">{{ actuatorStatus.wateringCount }}</span>
-          </div>
-        </div>
-        <div class="watering-stat" *ngIf="actuatorStatus.lastWateringDate">
-          <ion-icon name="time-outline" class="stat-icon"></ion-icon>
-          <div class="stat-content">
-            <span class="stat-label">Último riego</span>
-            <span class="stat-value">{{ actuatorStatus.lastWateringDate | date:'short' }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
 
   </div>
 </ion-content>

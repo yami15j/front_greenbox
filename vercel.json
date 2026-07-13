@@ -1,32 +1,7 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "www",
-  "framework": null,
-  "installCommand": "npm install --legacy-peer-deps",
-  "headers": [
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
-        { "key": "Access-Control-Allow-Origin", "value": "*" }
-      ]
-    },
-    {
-      "source": "/(.*)\\.js",
-      "headers": [
-        { "key": "Content-Type", "value": "application/javascript; charset=utf-8" }
-      ]
-    },
-    {
-      "source": "/(.*)\\.css",
-      "headers": [
-        { "key": "Content-Type", "value": "text/css; charset=utf-8" }
-      ]
-    }
-  ],
   "rewrites": [
     {
-      "source": "/((?!assets/|.*\\.).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]

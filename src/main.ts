@@ -6,6 +6,11 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
+import { initializeApp } from 'firebase/app';
+import { environment } from './environments/environment';
+
+// Inicializar Firebase SDK
+initializeApp(environment.firebase);
 
 bootstrapApplication(AppComponent, {
   providers: [

@@ -7,6 +7,107 @@ import { SensorData, SensorReading, ActuatorStatus } from './models/api.models';
 // Re-export for backward compatibility
 export { SensorData, SensorReading };
 
+const PLANT_PROFILES_MAP: { [key: string]: any } = {
+  '1': {
+    id: 'strawberry',
+    name: 'Fresa',
+    type: 'Fruto',
+    icon: '🍓',
+    imageUrl: 'assets/plants/fresa.jpg',
+    growthTime: '50-60 días',
+    difficulty: 'Intermedio',
+    benefits: ['VITAMINA C', 'DULCE']
+  },
+  '3': {
+    id: 'poto',
+    name: 'Poto',
+    type: 'Hoja Verde',
+    icon: '🌿',
+    imageUrl: 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop',
+    growthTime: 'Constante',
+    difficulty: 'Fácil',
+    benefits: ['SALUDABLE', 'ORGÁNICO']
+  },
+  '4': {
+    id: 'crassula_muscosa',
+    name: 'Crassula Muscosa',
+    type: 'Fruto',
+    icon: '🌱',
+    imageUrl: 'assets/plants/crassula_mucosa.jpg',
+    growthTime: 'Lento',
+    difficulty: 'Fácil',
+    benefits: ['SALUDABLE', 'ORGÁNICO']
+  },
+  '5': {
+    id: 'basil',
+    name: 'Albahaca',
+    type: 'Hierba Aromática',
+    icon: '🌿',
+    imageUrl: 'assets/plants/albahaca.jpg',
+    growthTime: '20-30 días',
+    difficulty: 'Fácil',
+    benefits: ['DIGESTIVO', 'SABOR']
+  },
+  '6': {
+    id: 'chives',
+    name: 'Cebollín',
+    type: 'Hierba Aromática',
+    icon: '🧅',
+    imageUrl: 'assets/plants/cebollin.jpg',
+    growthTime: '30-40 días',
+    difficulty: 'Fácil',
+    benefits: ['SAZONADOR']
+  },
+  '7': {
+    id: 'coriander',
+    name: 'Cilantro',
+    type: 'Hierba Aromática',
+    icon: '🌿',
+    imageUrl: 'assets/plants/cilantro.jpg',
+    growthTime: '20-30 días',
+    difficulty: 'Fácil',
+    benefits: ['FRESCO']
+  },
+  '8': {
+    id: 'kale',
+    name: 'Colrizada',
+    type: 'Hoja Verde',
+    icon: '🥬',
+    imageUrl: 'assets/plants/colrizada.jpg',
+    growthTime: '45-60 días',
+    difficulty: 'Intermedio',
+    benefits: ['SÚPER ALIMENTO']
+  }
+};
+
+function mapBackendPlantToProfile(dbPlant: any): any {
+  if (!dbPlant) return null;
+  const key = String(dbPlant.id);
+  const baseProfile = PLANT_PROFILES_MAP[key] || {
+    id: String(dbPlant.id),
+    name: dbPlant.name,
+    type: 'Otros',
+    icon: '🌱',
+    imageUrl: 'assets/plant/default-plant.jpg',
+    growthTime: 'Desconocido',
+    difficulty: 'Fácil',
+    benefits: []
+  };
+
+  return {
+    ...baseProfile,
+    optimalConditions: {
+      tempMin: dbPlant.minTemperature ?? 15,
+      tempMax: dbPlant.maxTemperature ?? 30,
+      humMin: dbPlant.minHumidity ?? 40,
+      humMax: dbPlant.maxHumidity ?? 80,
+      lightMin: dbPlant.lightHours ? (dbPlant.lightHours * 8.3) : 50,
+      lightMax: dbPlant.lightHours ? (dbPlant.lightHours * 8.3 + 20) : 80,
+      waterMin: dbPlant.minWaterLevel ?? 30
+    }
+  };
+}
+
 @Injectable({ providedIn: 'root' })
 export class ApiService {
 
@@ -78,7 +179,7 @@ export class ApiService {
   /* ========== AUTHENTICATION ========== */
 
   /** Validar código de acceso (login) */
-  async validateCode(code: string): Promise<{ valid: boolean; boxId?: string; boxName?: string }> {
+  async validateCode(code: string): Promise<{ valid: boolean; boxId?: string; boxName?: string; plant?: any }> {
     try {
       if (environment.allowOfflineLogin) {
         console.warn('Modo offline activado: validación de login omitida en desarrollo.');
@@ -89,22 +190,32 @@ export class ApiService {
         } else {
           name = 'Usuario';
         }
-        const fakeRes = { valid: cleanCode.length > 0, boxId: 'dev-box-id', boxName: name };
+        const fakeRes = { valid: cleanCode.length > 0, boxId: '1', boxName: name, plant: null };
         if (fakeRes.valid) {
           localStorage.setItem('selectedBoxId', fakeRes.boxId);
           localStorage.setItem('selectedBoxName', fakeRes.boxName);
+          localStorage.removeItem('activePlant');
+          localStorage.removeItem('activePlantId');
         }
         return fakeRes;
       }
       const res = await firstValueFrom(
-        this.http.post<{ valid: boolean; boxId?: string; boxName?: string }>(`${this.base}/auth/validate`, { code })
+        this.http.post<{ valid: boolean; boxId?: string; boxName?: string; plant?: any }>(`${this.base}/auth/validate`, { code })
       );
 
       // Si es válido y tiene boxId, guardarlo en localStorage
       if (res.valid && res.boxId) {
-        localStorage.setItem('selectedBoxId', res.boxId);
+        localStorage.setItem('selectedBoxId', String(res.boxId));
         if (res.boxName) {
           localStorage.setItem('selectedBoxName', res.boxName);
+        }
+        if (res.plant) {
+          const mappedPlant = mapBackendPlantToProfile(res.plant);
+          localStorage.setItem('activePlant', JSON.stringify(mappedPlant));
+          localStorage.setItem('activePlantId', String(mappedPlant.id));
+        } else {
+          localStorage.removeItem('activePlant');
+          localStorage.removeItem('activePlantId');
         }
       }
 
@@ -119,10 +230,12 @@ export class ApiService {
         } else {
           name = 'Usuario';
         }
-        const fakeRes = { valid: cleanCode.length > 0, boxId: 'dev-box-id', boxName: name };
+        const fakeRes = { valid: cleanCode.length > 0, boxId: '1', boxName: name, plant: null };
         if (fakeRes.valid) {
           localStorage.setItem('selectedBoxId', fakeRes.boxId);
           localStorage.setItem('selectedBoxName', fakeRes.boxName);
+          localStorage.removeItem('activePlant');
+          localStorage.removeItem('activePlantId');
         }
         return fakeRes;
       }
@@ -139,8 +252,22 @@ export class ApiService {
         console.warn('Modo offline: simulando actualización de planta en backend.');
         return { success: true };
       }
+
+      // Map string frontend ID to numeric backend ID
+      const idMapping: { [key: string]: number } = {
+        'strawberry': 1,
+        'poto': 3,
+        'crassula_muscosa': 4,
+        'basil': 5,
+        'chives': 6,
+        'coriander': 7,
+        'kale': 8
+      };
+      
+      const mappedPlantId = idMapping[plantId] || parseInt(plantId, 10) || 1;
+
       return await firstValueFrom(
-        this.http.patch(`${this.base}/box/${boxId}`, { plantId })
+        this.http.patch(`${this.base}/box/${boxId}`, { plantId: mappedPlantId })
       );
     } catch (err) {
       console.error('Error actualizando planta del box:', err);
@@ -159,9 +286,13 @@ export class ApiService {
         console.warn('Modo offline: simulando obtención de información del box.');
         return { id: 'dev-box-id', plant: null };
       }
-      return await firstValueFrom(
+      const res: any = await firstValueFrom(
         this.http.get(`${this.base}/box/${boxId}`)
       );
+      if (res && res.box && res.box.plant) {
+        res.box.plant = mapBackendPlantToProfile(res.box.plant);
+      }
+      return res;
     } catch (err) {
       console.error('Error obteniendo información del box:', err);
       if (environment.allowOfflineLogin) {
@@ -202,6 +333,18 @@ export class ApiService {
       );
     } catch (err) {
       console.error('Error deleting plant progress:', err);
+      throw err;
+    }
+  }
+
+  /** Generar y enviar código de acceso a la caja por correo electrónico */
+  async generateAndSendBoxCode(email: string, name: string): Promise<any> {
+    try {
+      return await firstValueFrom(
+        this.http.post<any>(`${this.base}/auth/register-send-code`, { email, name })
+      );
+    } catch (err) {
+      console.error('Error al generar y enviar código de caja:', err);
       throw err;
     }
   }
