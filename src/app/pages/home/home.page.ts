@@ -163,12 +163,36 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
+  getUserDisplayName(rawDbName: string): string {
+    // 1. Prioridad 1: Nombre de usuario registrado en localStorage
+    const localUser = localStorage.getItem('userName');
+    if (localUser && localUser.trim().length > 0 && !localUser.trim().startsWith('Green-')) {
+      return localUser.trim();
+    }
+
+    // 2. Prioridad 2: Limpiar el nombre de la DB si es un nombre real (no un código genérico)
+    if (rawDbName && rawDbName.trim().length > 0) {
+      const parts = rawDbName.split(' | ');
+      const cleanName = parts[0].replace(/^caja de\s+/i, '').trim();
+      if (cleanName && !cleanName.startsWith('Green-')) {
+        return cleanName;
+      }
+    }
+
+    // 3. Prioridad 3: Extraer del correo electrónico registrado
+    const email = localStorage.getItem('currentUserEmail');
+    if (email && email.includes('@')) {
+      const prefix = email.split('@')[0];
+      return prefix.charAt(0).toUpperCase() + prefix.slice(1);
+    }
+
+    return 'Usuario';
+  }
+
   async loadUserName() {
-    // 1. Carga rápida local: priorizar el nombre de usuario registrado sobre el nombre genérico del box
-    const registeredName = localStorage.getItem('userName');
-    const savedBoxName = localStorage.getItem('selectedBoxName');
-    const rawName = registeredName || (savedBoxName ? savedBoxName.split(' | ')[0] : 'Usuario');
-    this.userName = rawName.replace(/^caja de\s+/i, '').trim();
+    // 1. Carga rápida local
+    const savedBoxName = localStorage.getItem('selectedBoxName') || '';
+    this.userName = this.getUserDisplayName(savedBoxName);
     this.profileImage = localStorage.getItem('profileImage') || null;
     this.cdr.detectChanges();
 
@@ -179,27 +203,12 @@ export class HomePage implements OnInit, OnDestroy {
         const res = await this.api.getBoxInfo(boxId);
         if (res && res.box) {
           const dbName = res.box.name || '';
-          const parts = dbName.split(' | ');
-          const nameOnly = parts[0].replace(/^caja de\s+/i, '').trim();
           
-          // Solo actualizamos el nombre si no tenemos un nombre de usuario registrado o si el del DB es un nombre real
-          const localUser = localStorage.getItem('userName');
-          if (localUser) {
-            this.userName = localUser;
-          } else if (nameOnly && !nameOnly.startsWith('Green-')) {
-            this.userName = nameOnly;
-            localStorage.setItem('userName', nameOnly);
-          } else {
-            this.userName = nameOnly || 'Usuario';
-          }
-          
+          this.userName = this.getUserDisplayName(dbName);
           this.profileImage = res.box.profileImage || null;
 
           // Sincronizar localStorage
-          localStorage.setItem('selectedBoxName', parts[0]);
-          if (parts[1]) {
-            localStorage.setItem('currentUserEmail', parts[1].trim());
-          }
+          localStorage.setItem('selectedBoxName', dbName.split(' | ')[0]);
           if (res.box.profileImage) {
             localStorage.setItem('profileImage', res.box.profileImage);
           } else {

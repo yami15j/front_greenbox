@@ -72,6 +72,32 @@ export class ProfilePage implements OnInit {
     await this.loadUserProfile();
   }
 
+  getUserDisplayName(rawDbName: string): string {
+    // 1. Prioridad 1: Nombre de usuario registrado en localStorage
+    const localUser = localStorage.getItem('userName');
+    if (localUser && localUser.trim().length > 0 && !localUser.trim().startsWith('Green-')) {
+      return localUser.trim();
+    }
+
+    // 2. Prioridad 2: Limpiar el nombre de la DB si es un nombre real (no un código genérico)
+    if (rawDbName && rawDbName.trim().length > 0) {
+      const parts = rawDbName.split(' | ');
+      const cleanName = parts[0].replace(/^caja de\s+/i, '').trim();
+      if (cleanName && !cleanName.startsWith('Green-')) {
+        return cleanName;
+      }
+    }
+
+    // 3. Prioridad 3: Extraer del correo electrónico registrado
+    const email = localStorage.getItem('currentUserEmail');
+    if (email && email.includes('@')) {
+      const prefix = email.split('@')[0];
+      return prefix.charAt(0).toUpperCase() + prefix.slice(1);
+    }
+
+    return 'Usuario';
+  }
+
   async loadUserProfile() {
     this.isLoading = true;
     try {
@@ -81,25 +107,25 @@ export class ProfilePage implements OnInit {
         
         // Parse "Caja de [Name] | [Email]"
         const parts = rawName.split(' | ');
-        const cleanName = parts[0].replace(/^caja de\s+/i, '').trim();
-        this.userName = cleanName;
         this.userEmail = parts[1] || localStorage.getItem('currentUserEmail') || '';
         this.profileImage = res.box.profileImage || null;
         
+        // Cargar nombre priorizado
+        this.userName = this.getUserDisplayName(rawName);
 
       } else {
         // Fallback local storage
         const savedName = localStorage.getItem('selectedBoxName') || 'Usuario';
-        this.userName = savedName.split(' | ')[0].replace(/^caja de\s+/i, '').trim();
         this.userEmail = localStorage.getItem('currentUserEmail') || '';
         this.profileImage = localStorage.getItem('profileImage') || null;
+        this.userName = this.getUserDisplayName(savedName);
       }
     } catch (err) {
       console.error('Error al cargar perfil:', err);
       const savedName = localStorage.getItem('selectedBoxName') || 'Usuario';
-      this.userName = savedName.split(' | ')[0].replace(/^caja de\s+/i, '').trim();
       this.userEmail = localStorage.getItem('currentUserEmail') || '';
       this.profileImage = localStorage.getItem('profileImage') || null;
+      this.userName = this.getUserDisplayName(savedName);
     } finally {
       this.isLoading = false;
     }
