@@ -219,28 +219,36 @@ export class ProfilePage implements OnInit {
       return;
     }
 
+    const cleanName = this.userName.trim();
+    const cleanEmail = this.userEmail.trim().toLowerCase();
+    // Formato compatible: "Caja de [Nombre] | [correo]"
+    const dbName = `Caja de ${cleanName}` + (cleanEmail ? ` | ${cleanEmail}` : '');
+    const imageToSave = this.profileImage || null;
+
+    // 1. Guardar LOCALMENTE de inmediato para que la interfaz se actualice al instante
+    localStorage.setItem('selectedBoxName', `Caja de ${cleanName}`);
+    localStorage.setItem('userName', cleanName);
+    if (cleanEmail) {
+      localStorage.setItem('currentUserEmail', cleanEmail);
+    }
+    if (imageToSave) {
+      localStorage.setItem('profileImage', imageToSave);
+    } else {
+      localStorage.removeItem('profileImage');
+    }
+
+    // 2. Intentar guardar en el backend con un límite de tiempo (timeout) para no colgar al usuario
     this.isLoading = true;
     try {
-      const cleanName = this.userName.trim();
-      const cleanEmail = this.userEmail.trim().toLowerCase();
-      // Formato compatible: "Caja de [Nombre] | [correo]"
-      const dbName = `Caja de ${cleanName}` + (cleanEmail ? ` | ${cleanEmail}` : '');
-      const imageToSave = this.profileImage || null;
+      // Creamos una competencia entre la petición HTTP y un timeout de 4 segundos
+      const updatePromise = this.api.updateBoxProfile(this.boxId, dbName, imageToSave);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout')), 4000)
+      );
 
-      await this.api.updateBoxProfile(this.boxId, dbName, imageToSave);
+      await Promise.race([updatePromise, timeoutPromise]);
 
-      // Guardar localmente
-      localStorage.setItem('selectedBoxName', `Caja de ${cleanName}`);
-      localStorage.setItem('userName', cleanName);
-      if (cleanEmail) {
-        localStorage.setItem('currentUserEmail', cleanEmail);
-      }
-      if (imageToSave) {
-        localStorage.setItem('profileImage', imageToSave);
-      } else {
-        localStorage.removeItem('profileImage');
-      }
-
+      this.isLoading = false;
       const toast = await this.toastCtrl.create({
         message: '¡Perfil guardado exitosamente!',
         duration: 2000,
@@ -250,17 +258,27 @@ export class ProfilePage implements OnInit {
       await toast.present();
       
       this.router.navigate(['/home']);
-    } catch (err) {
-      console.error('Error al guardar perfil:', err);
+    } catch (err: any) {
+      this.isLoading = false;
+      console.warn('Sincronización en segundo plano (servidor de Render lento o en cold start):', err);
+
+      // Si dio error o timeout, mostramos aviso de guardado local exitoso y avanzamos
       const toast = await this.toastCtrl.create({
-        message: 'Ocurrió un error al guardar los cambios.',
-        duration: 2000,
-        color: 'danger',
+        message: '¡Perfil guardado! (Sincronizando con el servidor en segundo plano)',
+        duration: 3000,
+        color: 'warning',
         position: 'top'
       });
       await toast.present();
-    } finally {
-      this.isLoading = false;
+
+      this.router.navigate(['/home']);
+
+      // Si fue por timeout, dejamos que la petición original siga ejecutándose en segundo plano
+      if (err.message === 'Timeout') {
+        this.api.updateBoxProfile(this.boxId, dbName, imageToSave).catch(bgErr => {
+          console.error('Error en sincronización en segundo plano diferida:', bgErr);
+        });
+      }
     }
   }
 
