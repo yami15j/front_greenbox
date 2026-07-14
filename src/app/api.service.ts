@@ -179,7 +179,7 @@ export class ApiService {
   /* ========== AUTHENTICATION ========== */
 
   /** Validar código de acceso (login) */
-  async validateCode(code: string): Promise<{ valid: boolean; boxId?: string; boxName?: string; plant?: any }> {
+  async validateCode(code: string): Promise<{ valid: boolean; boxId?: string; boxName?: string; profileImage?: string; plant?: any }> {
     try {
       if (environment.allowOfflineLogin) {
         console.warn('Modo offline activado: validación de login omitida en desarrollo.');
@@ -190,17 +190,18 @@ export class ApiService {
         } else {
           name = 'Usuario';
         }
-        const fakeRes = { valid: cleanCode.length > 0, boxId: '1', boxName: name, plant: null };
+        const fakeRes = { valid: cleanCode.length > 0, boxId: '1', boxName: name, profileImage: '', plant: null };
         if (fakeRes.valid) {
           localStorage.setItem('selectedBoxId', fakeRes.boxId);
           localStorage.setItem('selectedBoxName', fakeRes.boxName);
+          localStorage.removeItem('profileImage');
           localStorage.removeItem('activePlant');
           localStorage.removeItem('activePlantId');
         }
         return fakeRes;
       }
       const res = await firstValueFrom(
-        this.http.post<{ valid: boolean; boxId?: string; boxName?: string; plant?: any }>(`${this.base}/auth/validate`, { code })
+        this.http.post<{ valid: boolean; boxId?: string; boxName?: string; profileImage?: string; plant?: any }>(`${this.base}/auth/validate`, { code })
       );
 
       // Si es válido y tiene boxId, guardarlo en localStorage
@@ -208,6 +209,11 @@ export class ApiService {
         localStorage.setItem('selectedBoxId', String(res.boxId));
         if (res.boxName) {
           localStorage.setItem('selectedBoxName', res.boxName);
+        }
+        if (res.profileImage) {
+          localStorage.setItem('profileImage', res.profileImage);
+        } else {
+          localStorage.removeItem('profileImage');
         }
         if (res.plant) {
           const mappedPlant = mapBackendPlantToProfile(res.plant);
@@ -230,10 +236,11 @@ export class ApiService {
         } else {
           name = 'Usuario';
         }
-        const fakeRes = { valid: cleanCode.length > 0, boxId: '1', boxName: name, plant: null };
+        const fakeRes = { valid: cleanCode.length > 0, boxId: '1', boxName: name, profileImage: '', plant: null };
         if (fakeRes.valid) {
           localStorage.setItem('selectedBoxId', fakeRes.boxId);
           localStorage.setItem('selectedBoxName', fakeRes.boxName);
+          localStorage.removeItem('profileImage');
           localStorage.removeItem('activePlant');
           localStorage.removeItem('activePlantId');
         }
@@ -298,6 +305,25 @@ export class ApiService {
       if (environment.allowOfflineLogin) {
         console.warn('Modo offline: ignorando error de obtención de info del box.');
         return { id: boxId, plant: null };
+      }
+      throw err;
+    }
+  }
+
+  /** Actualizar perfil de box (nombre y foto de perfil) */
+  async updateBoxProfile(boxId: string, name: string, profileImage: string | null): Promise<any> {
+    try {
+      if (environment.allowOfflineLogin && boxId === 'dev-box-id') {
+        console.warn('Modo offline: simulando actualización de perfil.');
+        return { success: true };
+      }
+      return await firstValueFrom(
+        this.http.patch(`${this.base}/box/${boxId}`, { name, profileImage })
+      );
+    } catch (err) {
+      console.error('Error actualizando perfil del box:', err);
+      if (environment.allowOfflineLogin) {
+        return { success: true };
       }
       throw err;
     }

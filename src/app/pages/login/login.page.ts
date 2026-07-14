@@ -79,7 +79,28 @@ export class LoginPage {
 
       if (response.valid) {
         this.mensaje = '✅ Código correcto, bienvenido!';
-        // El boxId ya fue guardado en localStorage por el ApiService
+        
+        // Copiar a las llaves específicas del usuario logueado actualmente
+        const currentEmail = localStorage.getItem('currentUserEmail');
+        if (currentEmail) {
+          const boxId = localStorage.getItem('selectedBoxId');
+          if (boxId) {
+            localStorage.setItem('selectedBoxId_' + currentEmail, boxId);
+          }
+          const activePlant = localStorage.getItem('activePlant');
+          if (activePlant) {
+            localStorage.setItem('activePlant_' + currentEmail, activePlant);
+          } else {
+            localStorage.removeItem('activePlant_' + currentEmail);
+          }
+          const activePlantId = localStorage.getItem('activePlantId');
+          if (activePlantId) {
+            localStorage.setItem('activePlantId_' + currentEmail, activePlantId);
+          } else {
+            localStorage.removeItem('activePlantId_' + currentEmail);
+          }
+        }
+
         setTimeout(() => this.router.navigateByUrl('/home'), 800);
 
       } else {
@@ -106,6 +127,7 @@ export class LoginPage {
     localStorage.removeItem('selectedBoxId');
     localStorage.removeItem('activePlant');
     localStorage.removeItem('activePlantId');
+    localStorage.removeItem('currentUserEmail');
     this.router.navigateByUrl('/login');
   }
 }

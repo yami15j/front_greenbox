@@ -131,26 +131,4 @@
   </div>
 
 </ion-content>
-
-<!-- Tabs Inferior -->
-<ion-footer class="ion-no-border stats-footer">
-  <div class="custom-tabs-nav">
-    <button class="nav-tab" (click)="goHome()">
-      <ion-icon name="home-outline"></ion-icon>
-      <span class="nav-label">Inicio</span>
-    </button>
-    <button class="nav-tab" (click)="goHistory()">
-      <ion-icon name="stats-chart-outline"></ion-icon>
-      <span class="nav-label">Estadística</span>
-    </button>
-    <button class="nav-tab" (click)="goMyPlant()">
-      <ion-icon name="leaf-outline"></ion-icon>
-      <span class="nav-label">Plantas</span>
-    </button>
-    <button class="nav-tab active">
-      <ion-icon name="time-outline"></ion-icon>
-      <span class="nav-label">Historial</span>
-      <span class="tab-badge-bubble" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
-    </button>
-  </div>
-</ion-footer>
+

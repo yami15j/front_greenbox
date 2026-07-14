@@ -49,11 +49,35 @@ export class EmailLoginPage {
 
       this.mensaje = '✅ Sesión iniciada con Google';
       
-      // Guardar nombre del usuario en localStorage
-      localStorage.setItem('userName', user.displayName || 'Usuario Google');
-
-      // Crear su caja en la base de datos si es primera vez
       if (user.email) {
+        // Guardar email del usuario actual y su nombre
+        localStorage.setItem('currentUserEmail', user.email);
+        localStorage.setItem('userName', user.displayName || 'Usuario Google');
+
+        // Cargar boxId guardado para este correo
+        const savedBoxId = localStorage.getItem('selectedBoxId_' + user.email);
+        if (savedBoxId) {
+          localStorage.setItem('selectedBoxId', savedBoxId);
+        } else {
+          localStorage.removeItem('selectedBoxId');
+        }
+
+        // Cargar activePlant guardada para este correo
+        const savedPlant = localStorage.getItem('activePlant_' + user.email);
+        if (savedPlant) {
+          localStorage.setItem('activePlant', savedPlant);
+        } else {
+          localStorage.removeItem('activePlant');
+        }
+
+        const savedPlantId = localStorage.getItem('activePlantId_' + user.email);
+        if (savedPlantId) {
+          localStorage.setItem('activePlantId', savedPlantId);
+        } else {
+          localStorage.removeItem('activePlantId');
+        }
+
+        // Crear su caja en la base de datos si es primera vez
         try {
           await this.api.generateAndSendBoxCode(user.email, user.displayName || 'Usuario Google');
         } catch (dbErr) {
@@ -91,12 +115,41 @@ export class EmailLoginPage {
 
     try {
       const auth = getAuth();
-      await signInWithEmailAndPassword(auth, this.email.trim(), this.password);
+      const userCredential = await signInWithEmailAndPassword(auth, this.email.trim(), this.password);
+      const user = userCredential.user;
 
       this.mensaje = '✅ Sesión iniciada correctamente';
       
-      // Si ya tiene guardado un código de caja en localstorage, va directo al home.
-      // Si no, le redirigimos a ingresar su código de acceso.
+      const email = this.email.trim().toLowerCase();
+      localStorage.setItem('currentUserEmail', email);
+      
+      // Intentar obtener el nombre del usuario
+      const displayName = user.displayName || email.split('@')[0] || 'Usuario';
+      localStorage.setItem('userName', displayName.charAt(0).toUpperCase() + displayName.slice(1));
+
+      // Cargar boxId guardado para este correo
+      const savedBoxId = localStorage.getItem('selectedBoxId_' + email);
+      if (savedBoxId) {
+        localStorage.setItem('selectedBoxId', savedBoxId);
+      } else {
+        localStorage.removeItem('selectedBoxId');
+      }
+
+      // Cargar activePlant guardada para este correo
+      const savedPlant = localStorage.getItem('activePlant_' + email);
+      if (savedPlant) {
+        localStorage.setItem('activePlant', savedPlant);
+      } else {
+        localStorage.removeItem('activePlant');
+      }
+
+      const savedPlantId = localStorage.getItem('activePlantId_' + email);
+      if (savedPlantId) {
+        localStorage.setItem('activePlantId', savedPlantId);
+      } else {
+        localStorage.removeItem('activePlantId');
+      }
+
       const boxId = localStorage.getItem('selectedBoxId');
       setTimeout(() => {
         if (boxId) {

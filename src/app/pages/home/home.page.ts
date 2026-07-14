@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule, NavController, MenuController } from '@ionic/angular';
+import { IonicModule, NavController, MenuController, ActionSheetController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ApiService, SensorData } from 'src/app/api.service';
@@ -23,7 +23,11 @@ import {
   eyeOffOutline,
   rainyOutline,
   snowOutline,
-  thunderstormOutline
+  thunderstormOutline,
+  personOutline,
+  chevronDownOutline,
+  logOutOutline,
+  closeOutline
 } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 
@@ -60,6 +64,7 @@ export class HomePage implements OnInit, OnDestroy {
   hamburgerActive = false;
   unreadCount = 0;
   userName = 'Usuario';
+  profileImage: string | null = null;
 
   // Variables para el Clima Real
   weatherData: any = null;
@@ -74,7 +79,9 @@ export class HomePage implements OnInit, OnDestroy {
     private api: ApiService,
     private menu: MenuController,
     private http: HttpClient,
-    private socketService: SocketService
+    private socketService: SocketService,
+    private actionSheetCtrl: ActionSheetController,
+    private cdr: ChangeDetectorRef
   ) {
     // Registrar iconos
     addIcons({
@@ -85,6 +92,10 @@ export class HomePage implements OnInit, OnDestroy {
       'stats-chart-outline': statsChartOutline,
       'time-outline': timeOutline,
       'camera': camera,
+      'person-outline': personOutline,
+      'chevron-down-outline': chevronDownOutline,
+      'log-out-outline': logOutOutline,
+      'close-outline': closeOutline,
       'sunny-outline': sunnyOutline,
       'cloudy-outline': cloudyOutline,
       'eye-off-outline': eyeOffOutline,
@@ -102,6 +113,14 @@ export class HomePage implements OnInit, OnDestroy {
     this.loadUserName();
     this.setupWebSocket();
     this.loadWeather();
+  }
+
+  ionViewWillEnter() {
+    this.loadActivePlant();
+    this.loadSensorData();
+    this.loadActuatorStatus();
+    this.loadUnreadCount();
+    this.loadUserName();
   }
 
   ngOnDestroy() {
@@ -144,13 +163,46 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
-  loadUserName() {
+  async loadUserName() {
+    // 1. Carga rápida local
     const savedName = localStorage.getItem('selectedBoxName');
     const registeredName = localStorage.getItem('userName');
     const rawName = savedName || registeredName || 'Usuario';
-    
-    // Remueve "Caja de " (sin importar mayúsculas/minúsculas) al inicio
-    this.userName = rawName.replace(/^caja de\s+/i, '').trim();
+    const cleanName = rawName.split(' | ')[0];
+    this.userName = cleanName.replace(/^caja de\s+/i, '').trim();
+    this.profileImage = localStorage.getItem('profileImage') || null;
+    this.cdr.detectChanges();
+
+    // 2. Consulta asíncrona al backend para mantener los datos vinculados y actualizados
+    const boxId = localStorage.getItem('selectedBoxId');
+    if (boxId) {
+      try {
+        const res = await this.api.getBoxInfo(boxId);
+        if (res && res.box) {
+          const dbName = res.box.name || '';
+          const parts = dbName.split(' | ');
+          const nameOnly = parts[0].replace(/^caja de\s+/i, '').trim();
+          
+          this.userName = nameOnly;
+          this.profileImage = res.box.profileImage || null;
+
+          // Sincronizar localStorage
+          localStorage.setItem('selectedBoxName', parts[0]);
+          localStorage.setItem('userName', nameOnly);
+          if (parts[1]) {
+            localStorage.setItem('currentUserEmail', parts[1].trim());
+          }
+          if (res.box.profileImage) {
+            localStorage.setItem('profileImage', res.box.profileImage);
+          } else {
+            localStorage.removeItem('profileImage');
+          }
+          this.cdr.detectChanges();
+        }
+      } catch (err) {
+        console.error('Error al sincronizar datos de cabecera con el backend:', err);
+      }
+    }
   }
 
   toggleHamburger() {
@@ -186,6 +238,14 @@ export class HomePage implements OnInit, OnDestroy {
         localStorage.setItem('activePlant', JSON.stringify(plant));
         if (plant.id) {
           localStorage.setItem('activePlantId', String(plant.id));
+        }
+
+        const currentEmail = localStorage.getItem('currentUserEmail');
+        if (currentEmail) {
+          localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(plant));
+          if (plant.id) {
+            localStorage.setItem('activePlantId_' + currentEmail, String(plant.id));
+          }
         }
       }
     } catch (err) {
@@ -271,7 +331,52 @@ export class HomePage implements OnInit, OnDestroy {
     return this.getSensorStatus(sensor) === 'good' ? 'Óptimo' : 'Revisar';
   }
 
+  async showAccountMenu() {
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Mi Cuenta',
+      buttons: [
+        {
+          text: 'Cerrar Sesión / Cambiar Cuenta',
+          role: 'destructive',
+          icon: 'log-out-outline',
+          handler: () => {
+            this.logout();
+          }
+        },
+        {
+          text: 'Ver Perfil',
+          icon: 'person-outline',
+          handler: () => {
+            this.goProfile();
+          }
+        },
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+          icon: 'close-outline'
+        }
+      ]
+    });
+    await actionSheet.present();
+  }
+
+  logout() {
+    localStorage.removeItem('selectedBoxId');
+    localStorage.removeItem('selectedBoxName');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('profileImage');
+    localStorage.removeItem('activePlant');
+    localStorage.removeItem('activePlantId');
+    localStorage.removeItem('currentUserEmail');
+    this.router.navigate(['/login']);
+  }
+
   // ✅ NAVEGACIÓN TABS CORREGIDA
+  goProfile() {
+    this.router.navigate(['/perfil']);
+    this.closeMenu();
+  }
+
   goHome() {
     document.querySelector('ion-content')?.scrollToTop(300);
     this.closeMenu();
@@ -294,6 +399,11 @@ export class HomePage implements OnInit, OnDestroy {
 
   goNotifications() {
     this.router.navigate(['/notification']);
+    this.closeMenu();
+  }
+
+  goHistory() {
+    this.router.navigate(['/history']);
     this.closeMenu();
   }
 

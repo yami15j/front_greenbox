@@ -118,4 +118,5 @@ export class HistoryPage implements OnInit {
   goStats() { this.navCtrl.navigateForward('/weekly'); }
   goMyPlant() { this.navCtrl.navigateForward('/plant'); }
   goNotifications() { this.navCtrl.navigateForward('/notification'); }
+  goHistory() { document.querySelector('ion-content')?.scrollToTop(300); }
 }

@@ -13,7 +13,8 @@ import {
   timeOutline,
   thermometerOutline,
   waterOutline,
-  sunnyOutline
+  sunnyOutline,
+  personOutline
 } from 'ionicons/icons';
 
 interface ChartPoint {
@@ -60,7 +61,8 @@ export class WeeklyPage implements OnInit {
       'time-outline': timeOutline,
       'thermometer-outline': thermometerOutline,
       'water-outline': waterOutline,
-      'sunny-outline': sunnyOutline
+      'sunny-outline': sunnyOutline,
+      'person-outline': personOutline
     });
   }
 
@@ -283,6 +285,14 @@ export class WeeklyPage implements OnInit {
 
   goNotifications(): void {
     this.navCtrl.navigateForward('/notification');
+  }
+
+  goHistory(): void {
+    this.navCtrl.navigateForward('/history');
+  }
+
+  goProfile(): void {
+    this.navCtrl.navigateForward('/perfil');
   }
 
   refreshData(event: any): void {

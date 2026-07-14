@@ -16,7 +16,8 @@ import {
   statsChartOutline,
   leafOutline,
   timeOutline,
-  addCircleOutline
+  addCircleOutline,
+  personOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -52,7 +53,8 @@ export class SelectPlantPage implements OnInit {
       statsChartOutline,
       leafOutline,
       timeOutline,
-      addCircleOutline
+      addCircleOutline,
+      'person-outline': personOutline
     });
   }
 
@@ -155,6 +157,12 @@ export class SelectPlantPage implements OnInit {
               localStorage.setItem('activePlantId', plant.id);
               localStorage.setItem('activePlant', JSON.stringify(plant));
 
+              const currentEmail = localStorage.getItem('currentUserEmail');
+              if (currentEmail) {
+                localStorage.setItem('activePlantId_' + currentEmail, plant.id);
+                localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(plant));
+              }
+
               await loading.dismiss();
 
               const successAlert = await this.alertController.create({
@@ -165,8 +173,8 @@ export class SelectPlantPage implements OnInit {
               await successAlert.present();
               await successAlert.onDidDismiss();
               
-              // Volver a la pantalla de detalles de la planta activa
-              this.router.navigate(['/plant']);
+              // Volver a la pantalla de Home
+              this.router.navigate(['/home']);
 
             } catch (error: any) {
               await loading.dismiss();
@@ -202,6 +210,10 @@ export class SelectPlantPage implements OnInit {
   }
 
   goHistory() {
-    this.router.navigate(['/notification']);
+    this.router.navigate(['/history']);
+  }
+
+  goProfile() {
+    this.router.navigate(['/perfil']);
   }
 }

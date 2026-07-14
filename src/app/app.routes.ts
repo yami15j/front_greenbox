@@ -46,6 +46,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/notification/notification.page').then( m => m.NotificationPage)
   },
   {
+    path: 'perfil',
+    loadComponent: () => import('./pages/profile/profile.page').then(m => m.ProfilePage)
+  },
+  {
     path: 'camera',
     loadComponent: () => import('./pages/camera/camera.page').then( m => m.CameraPage)
   },

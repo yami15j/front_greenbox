@@ -112,10 +112,9 @@
       <ion-icon name="leaf-outline"></ion-icon>
       <span class="nav-label">Plantas</span>
     </button>
-    <button class="nav-tab" (click)="goNotifications()">
+    <button class="nav-tab active" (click)="goHistory()">
       <ion-icon name="time-outline"></ion-icon>
       <span class="nav-label">Historial</span>
-      <span class="tab-badge-bubble" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
     </button>
   </div>
 </ion-footer>

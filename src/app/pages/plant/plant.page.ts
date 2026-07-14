@@ -17,7 +17,8 @@ import {
   flashOutline,
   imageOutline,
   refreshOutline,
-  trashOutline
+  trashOutline,
+  personOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -62,7 +63,8 @@ export class PlantPage implements OnInit {
       'flash-outline': flashOutline,
       'image-outline': imageOutline,
       'refresh-outline': refreshOutline,
-      'trash-outline': trashOutline
+      'trash-outline': trashOutline,
+      'person-outline': personOutline
     });
   }
 
@@ -101,6 +103,12 @@ export class PlantPage implements OnInit {
               await this.loadProgressTimeline(boxId);
 
               localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
+
+              const currentEmail = localStorage.getItem('currentUserEmail');
+              if (currentEmail) {
+                localStorage.setItem('activePlantId_' + currentEmail, plantId);
+                localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(this.activePlant));
+              }
               return;
             }
           }
@@ -181,6 +189,10 @@ export class PlantPage implements OnInit {
               // Actualizar localStorage
               if (this.activePlant) {
                 localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
+                const currentEmail = localStorage.getItem('currentUserEmail');
+                if (currentEmail) {
+                  localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(this.activePlant));
+                }
               }
 
               const toast = await this.toastController.create({
@@ -305,6 +317,10 @@ export class PlantPage implements OnInit {
 
       // Persistir en localstorage
       localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
+      const currentEmail = localStorage.getItem('currentUserEmail');
+      if (currentEmail) {
+        localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(this.activePlant));
+      }
 
       const toast = await this.toastController.create({
         message: '¡Foto y notas guardadas exitosamente!',
@@ -348,6 +364,10 @@ export class PlantPage implements OnInit {
               this.activePlant.description = data.description;
 
               localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
+              const currentEmail = localStorage.getItem('currentUserEmail');
+              if (currentEmail) {
+                localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(this.activePlant));
+              }
 
               if (this.selectedPlant && this.selectedPlant.id === this.activePlant.id) {
                 this.selectedPlant.name = data.name;
@@ -390,6 +410,10 @@ export class PlantPage implements OnInit {
   }
 
   goHistory(): void {
-    this.router.navigate(['/notification']);
+    this.router.navigate(['/history']);
+  }
+
+  goProfile(): void {
+    this.router.navigate(['/perfil']);
   }
 }

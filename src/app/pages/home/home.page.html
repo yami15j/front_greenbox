@@ -9,14 +9,22 @@
   <div class="home-header">
     <div class="header-greet">
       <h1 class="greeting-title">
-        Hola, {{ userName }} <ion-icon name="leaf-outline" class="greet-leaf"></ion-icon>
+        Hola, {{ userName }}
       </h1>
       <p class="greeting-subtitle">Bienvenido a tu Cultivo</p>
     </div>
-    <button class="notification-circle" (click)="goNotifications()">
-      <ion-icon name="notifications-outline"></ion-icon>
-      <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
-    </button>
+    <div class="header-actions">
+      <button class="notification-circle" (click)="goNotifications()">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </button>
+      <button class="profile-circle" (click)="goProfile()">
+        <img 
+          [src]="profileImage || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150'" 
+          class="header-avatar"
+          onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=150';">
+      </button>
+    </div>
   </div>
 
   <!-- Loading -->
@@ -46,12 +54,6 @@
       <div class="plant-image-container">
         <img [src]="activePlant.imageUrl" [alt]="activePlant.name" class="plant-image"
           onerror="this.src='assets/plant/default-plant.jpg';">
-
-        <!-- Botón cambiar planta -->
-        <button class="change-plant-btn-overlay" (click)="goPlants()">
-          <ion-icon name="swap"></ion-icon>
-          Cambiar Planta
-        </button>
       </div>
     </div>
 
@@ -161,7 +163,13 @@
 
     </div>
 
-
+    <!-- Botón Cambiar Planta al Final -->
+    <div class="change-plant-bottom-container" *ngIf="activePlant">
+      <button class="change-plant-btn-bottom" (click)="goPlants()">
+        <ion-icon name="swap-horizontal-outline"></ion-icon>
+        Cambiar Planta
+      </button>
+    </div>
 
   </div>
 </ion-content>
@@ -181,10 +189,9 @@
       <ion-icon name="leaf-outline"></ion-icon>
       <span class="nav-label">Plantas</span>
     </button>
-    <button class="nav-tab" (click)="goNotifications()">
-      <ion-icon name="time-outline"></ion-icon>
-      <span class="nav-label">Historial</span>
-      <span class="tab-badge-bubble" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+    <button class="nav-tab" (click)="goProfile()">
+      <ion-icon name="person-outline"></ion-icon>
+      <span class="nav-label">Perfil</span>
     </button>
   </div>
 </ion-footer>
