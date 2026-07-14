@@ -164,12 +164,11 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   async loadUserName() {
-    // 1. Carga rápida local
-    const savedName = localStorage.getItem('selectedBoxName');
+    // 1. Carga rápida local: priorizar el nombre de usuario registrado sobre el nombre genérico del box
     const registeredName = localStorage.getItem('userName');
-    const rawName = savedName || registeredName || 'Usuario';
-    const cleanName = rawName.split(' | ')[0];
-    this.userName = cleanName.replace(/^caja de\s+/i, '').trim();
+    const savedBoxName = localStorage.getItem('selectedBoxName');
+    const rawName = registeredName || (savedBoxName ? savedBoxName.split(' | ')[0] : 'Usuario');
+    this.userName = rawName.replace(/^caja de\s+/i, '').trim();
     this.profileImage = localStorage.getItem('profileImage') || null;
     this.cdr.detectChanges();
 
@@ -183,12 +182,21 @@ export class HomePage implements OnInit, OnDestroy {
           const parts = dbName.split(' | ');
           const nameOnly = parts[0].replace(/^caja de\s+/i, '').trim();
           
-          this.userName = nameOnly;
+          // Solo actualizamos el nombre si no tenemos un nombre de usuario registrado o si el del DB es un nombre real
+          const localUser = localStorage.getItem('userName');
+          if (localUser) {
+            this.userName = localUser;
+          } else if (nameOnly && !nameOnly.startsWith('Green-')) {
+            this.userName = nameOnly;
+            localStorage.setItem('userName', nameOnly);
+          } else {
+            this.userName = nameOnly || 'Usuario';
+          }
+          
           this.profileImage = res.box.profileImage || null;
 
           // Sincronizar localStorage
           localStorage.setItem('selectedBoxName', parts[0]);
-          localStorage.setItem('userName', nameOnly);
           if (parts[1]) {
             localStorage.setItem('currentUserEmail', parts[1].trim());
           }

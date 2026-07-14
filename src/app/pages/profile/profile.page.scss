@@ -63,6 +63,22 @@
           box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
         }
 
+        .user-avatar-initial {
+          width: 100px;
+          height: 100px;
+          background: linear-gradient(135deg, #ffffff 0%, #d4ece1 100%);
+          color: #3d7a63;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          border: 3px solid #ffffff;
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+          font-size: 40px;
+          font-weight: 800;
+          font-family: 'Outfit', sans-serif;
+        }
+
         .avatar-icon-badge {
           position: absolute;
           bottom: 0px;

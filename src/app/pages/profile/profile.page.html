@@ -19,9 +19,10 @@
     <!-- Avatar Preview (Clickable to trigger file upload/camera) -->
     <div class="avatar-preview-container" (click)="triggerFilePicker()">
       <div class="avatar-container">
-        <img [src]="profileImage || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=250'"
-          alt="Avatar" class="user-avatar"
-          onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=250';">
+        <img *ngIf="profileImage" [src]="profileImage" alt="Avatar" class="user-avatar">
+        <div *ngIf="!profileImage" class="user-avatar-initial">
+          {{ (userName || 'U').charAt(0).toUpperCase() }}
+        </div>
         <div class="avatar-icon-badge">
           <ion-icon name="camera-outline"></ion-icon>
         </div>
