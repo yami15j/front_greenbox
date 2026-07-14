@@ -77,6 +77,106 @@ const PLANT_PROFILES_MAP: { [key: string]: any } = {
     growthTime: '45-60 días',
     difficulty: 'Intermedio',
     benefits: ['SÚPER ALIMENTO']
+  },
+  '9': {
+    id: 'spinach',
+    name: 'Espinaca',
+    type: 'Hoja Verde',
+    icon: '🥗',
+    imageUrl: 'assets/plants/espinacas.jpg',
+    growthTime: '35-45 días',
+    difficulty: 'Fácil',
+    benefits: ['HIERRO']
+  },
+  '10': {
+    id: 'lettuce',
+    name: 'Lechuga',
+    type: 'Hoja Verde',
+    icon: '🥬',
+    imageUrl: 'assets/plants/lechuga.jpg',
+    growthTime: '30-45 días',
+    difficulty: 'Fácil',
+    benefits: ['LIGERA']
+  },
+  '11': {
+    id: 'mint',
+    name: 'Menta',
+    type: 'Hierba Aromática',
+    icon: '🌱',
+    imageUrl: 'assets/plants/menta.jpg',
+    growthTime: '25-35 días',
+    difficulty: 'Fácil',
+    benefits: ['MEDICINAL', 'DIGESTIVA']
+  },
+  '12': {
+    id: 'cucumber',
+    name: 'Pepino',
+    type: 'Fruto',
+    icon: '🥒',
+    imageUrl: 'assets/plants/pepino.jpg',
+    growthTime: '50-60 días',
+    difficulty: 'Intermedio',
+    benefits: ['HIDRATACIÓN']
+  },
+  '13': {
+    id: 'parsley',
+    name: 'Perejil',
+    type: 'Hierba Aromática',
+    icon: '🌿',
+    imageUrl: 'assets/plants/perejil.jpg',
+    growthTime: '25-35 días',
+    difficulty: 'Fácil',
+    benefits: ['ANTOXIDANTE']
+  },
+  '14': {
+    id: 'pepper',
+    name: 'Pimiento',
+    type: 'Fruto',
+    icon: '🌶️',
+    imageUrl: 'assets/plants/pimiento.jpg',
+    growthTime: '60-85 días',
+    difficulty: 'Intermedio',
+    benefits: ['VITAMINA A']
+  },
+  '15': {
+    id: 'radish',
+    name: 'Rábano',
+    type: 'Raíz',
+    icon: '🔴',
+    imageUrl: 'assets/plants/rabano.jpg',
+    growthTime: '25-35 días',
+    difficulty: 'Fácil',
+    benefits: ['PICANTE']
+  },
+  '16': {
+    id: 'arugula',
+    name: 'Rúcula',
+    type: 'Hoja Verde',
+    icon: '🥬',
+    imageUrl: 'assets/plants/rucula.jpg',
+    growthTime: '30-40 días',
+    difficulty: 'Fácil',
+    benefits: ['SABOR INTENSO']
+  },
+  '17': {
+    id: 'tomato',
+    name: 'Tomate',
+    type: 'Fruto',
+    icon: '🍅',
+    imageUrl: 'assets/plants/tomato.jpg',
+    growthTime: '60-80 días',
+    difficulty: 'Intermedio',
+    benefits: ['LICOPENO']
+  },
+  '18': {
+    id: 'carrot',
+    name: 'Zanahoria',
+    type: 'Raíz',
+    icon: '🥕',
+    imageUrl: 'assets/plants/zanahoria.jpg',
+    growthTime: '70-90 días',
+    difficulty: 'Intermedio',
+    benefits: ['BETACAROTENO']
   }
 };
 
@@ -119,6 +219,13 @@ export class ApiService {
 
   /** Datos más recientes de un box (dispositivo físico) */
   async getLatestByBox(boxId: string): Promise<SensorData> {
+    if (environment.allowOfflineLogin && boxId === 'dev-box-id') {
+      const localData = localStorage.getItem('activePlantData');
+      if (localData) {
+        try { return JSON.parse(localData); } catch {}
+      }
+      return { temp: 22.5, hum: 65, light: 60, water: 80, soilMoisture: 65, timestamp: new Date().toISOString() };
+    }
     try {
       const res = await firstValueFrom(
         this.http.get<any>(`${this.base}/sensors/latest/${boxId}`)
@@ -139,6 +246,9 @@ export class ApiService {
 
   /** Historial de un box ('24h', '7d', '30d') */
   async getHistoryByBox(boxId: string, period: '24h' | '7d' | '30d'): Promise<SensorReading[]> {
+    if (environment.allowOfflineLogin && boxId === 'dev-box-id') {
+      return [];
+    }
     try {
       const res = await firstValueFrom(
         this.http.get<SensorReading[]>(`${this.base}/sensors/history/${boxId}/${period}`)
@@ -154,6 +264,9 @@ export class ApiService {
 
   /** Obtener estado de actuadores (LED y Bomba) */
   async getActuatorStatus(boxId: string): Promise<ActuatorStatus | null> {
+    if (environment.allowOfflineLogin && boxId === 'dev-box-id') {
+      return { boxId: 1, boxName: 'dev-box-id', led: false, pump: false, wateringCount: 0, lastWateringDate: null };
+    }
     try {
       return await firstValueFrom(
         this.http.get<ActuatorStatus>(`${this.base}/sensors/actuators/${boxId}`)
@@ -166,6 +279,9 @@ export class ApiService {
 
   /** Control manual de actuadores (opcional) */
   async controlActuators(boxId: string, led?: boolean, pump?: boolean) {
+    if (environment.allowOfflineLogin && boxId === 'dev-box-id') {
+      return { success: true };
+    }
     try {
       return await firstValueFrom(
         this.http.post(`${this.base}/box/${boxId}/actuators`, { led, pump })
@@ -181,25 +297,7 @@ export class ApiService {
   /** Validar código de acceso (login) */
   async validateCode(code: string): Promise<{ valid: boolean; boxId?: string; boxName?: string; profileImage?: string; plant?: any }> {
     try {
-      if (environment.allowOfflineLogin) {
-        console.warn('Modo offline activado: validación de login omitida en desarrollo.');
-        const cleanCode = code.trim();
-        let name = cleanCode;
-        if (name.length > 0) {
-          name = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-        } else {
-          name = 'Usuario';
-        }
-        const fakeRes = { valid: cleanCode.length > 0, boxId: '1', boxName: name, profileImage: '', plant: null };
-        if (fakeRes.valid) {
-          localStorage.setItem('selectedBoxId', fakeRes.boxId);
-          localStorage.setItem('selectedBoxName', fakeRes.boxName);
-          localStorage.removeItem('profileImage');
-          localStorage.removeItem('activePlant');
-          localStorage.removeItem('activePlantId');
-        }
-        return fakeRes;
-      }
+      // Intentar primero validación real contra el backend
       const res = await firstValueFrom(
         this.http.post<{ valid: boolean; boxId?: string; boxName?: string; profileImage?: string; plant?: any }>(`${this.base}/auth/validate`, { code })
       );
@@ -227,8 +325,11 @@ export class ApiService {
 
       return res;
     } catch (err) {
-      console.error('Error validando código:', err);
+      console.error('Error validando código en backend:', err);
+      
+      // Fallback offline si está permitido en la configuración
       if (environment.allowOfflineLogin) {
+        console.warn('Modo offline: simulando login exitoso con dev-box-id.');
         const cleanCode = code.trim();
         let name = cleanCode;
         if (name.length > 0) {
@@ -236,7 +337,7 @@ export class ApiService {
         } else {
           name = 'Usuario';
         }
-        const fakeRes = { valid: cleanCode.length > 0, boxId: '1', boxName: name, profileImage: '', plant: null };
+        const fakeRes = { valid: cleanCode.length > 0, boxId: 'dev-box-id', boxName: name, profileImage: '', plant: null };
         if (fakeRes.valid) {
           localStorage.setItem('selectedBoxId', fakeRes.boxId);
           localStorage.setItem('selectedBoxName', fakeRes.boxName);
@@ -268,7 +369,17 @@ export class ApiService {
         'basil': 5,
         'chives': 6,
         'coriander': 7,
-        'kale': 8
+        'kale': 8,
+        'spinach': 9,
+        'lettuce': 10,
+        'mint': 11,
+        'cucumber': 12,
+        'parsley': 13,
+        'pepper': 14,
+        'radish': 15,
+        'arugula': 16,
+        'tomato': 17,
+        'carrot': 18
       };
       
       const mappedPlantId = idMapping[plantId] || parseInt(plantId, 10) || 1;
@@ -331,6 +442,9 @@ export class ApiService {
 
   /* ========== PLANT PROGRESS ENDPOINTS ========== */
   async getPlantProgress(boxId: string): Promise<any[]> {
+    if (environment.allowOfflineLogin && boxId === 'dev-box-id') {
+      return [];
+    }
     try {
       return await firstValueFrom(
         this.http.get<any[]>(`${this.base}/progress/${boxId}`)
@@ -342,6 +456,9 @@ export class ApiService {
   }
 
   async savePlantProgress(boxId: string, payload: any): Promise<any> {
+    if (environment.allowOfflineLogin && boxId === 'dev-box-id') {
+      return { success: true };
+    }
     try {
       return await firstValueFrom(
         this.http.post<any>(`${this.base}/progress/${boxId}`, payload)
