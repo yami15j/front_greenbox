@@ -83,13 +83,27 @@ export class PlantPage implements OnInit {
   }
 
   async loadActivePlant() {
-    const boxId = localStorage.getItem('selectedBoxId');
+    // 1. Cargar desde localStorage como fallback inicial inmediato
+    const savedPlantId = localStorage.getItem('activePlantId');
+    if (savedPlantId) {
+      const savedPlant = this.plantProfiles.find(p => p.id === savedPlantId);
+      if (savedPlant) {
+        this.plantProfiles.forEach(p => p.isActive = false);
+        savedPlant.isActive = true;
+        this.selectedPlant = savedPlant;
+        this.activePlant = savedPlant;
+      }
+    }
 
+    // 2. Consulta al backend para sincronizar
+    const boxId = localStorage.getItem('selectedBoxId');
     if (boxId) {
       try {
         const boxInfo = await this.api.getBoxInfo(boxId);
-        if (boxInfo && boxInfo.plant) {
-          const plantId = boxInfo.plant.id || boxInfo.plantId;
+        const plantObj = (boxInfo && boxInfo.box) ? boxInfo.box.plant : (boxInfo ? boxInfo.plant : null);
+        
+        if (plantObj) {
+          const plantId = plantObj.id || (boxInfo.box ? boxInfo.box.plantId : boxInfo.plantId);
           if (plantId) {
             const savedPlant = this.plantProfiles.find(p => p.id === plantId);
             if (savedPlant) {
@@ -115,23 +129,6 @@ export class PlantPage implements OnInit {
         }
       } catch (err) {
         console.warn('Error loading active plant details from backend:', err);
-      }
-    }
-
-    const savedPlantId = localStorage.getItem('activePlantId');
-    if (savedPlantId) {
-      const savedPlant = this.plantProfiles.find(p => p.id === savedPlantId);
-      if (savedPlant) {
-        this.plantProfiles.forEach(p => p.isActive = false);
-        savedPlant.isActive = true;
-        this.selectedPlant = savedPlant;
-        this.activePlant = savedPlant;
-
-        // También intenta cargar progreso desde backend en modo local
-        if (boxId) {
-          await this.loadProgressTimeline(boxId);
-        }
-        return;
       }
     }
 

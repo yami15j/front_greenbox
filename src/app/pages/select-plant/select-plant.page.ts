@@ -167,7 +167,7 @@ export class SelectPlantPage implements OnInit {
 
               const successAlert = await this.alertController.create({
                 header: '✔ Planta Activada',
-                message: `${plant.name} ha sido configurada correctamente.`,
+                message: `${plant.name} ha sido configurada correctamente en el servidor.`,
                 buttons: ['OK']
               });
               await successAlert.present();
@@ -178,17 +178,32 @@ export class SelectPlantPage implements OnInit {
 
             } catch (error: any) {
               await loading.dismiss();
-              console.error('Error al actualizar la planta:', error);
+              console.warn('Error al actualizar la planta en el backend, usando activación local:', error);
 
-              // Extraer mensaje detallado del error de red/servidor
-              const details = error.error?.message || error.message || 'Error de conexión';
+              // Fallback: activar localmente para permitir el flujo sin bloqueos
+              this.plantProfiles.forEach(p => p.isActive = false);
+              plant.isActive = true;
+              this.selectedPlant = plant;
 
-              const errorAlert = await this.alertController.create({
-                header: 'Error al Seleccionar',
-                message: `No se pudo actualizar la planta. Detalle: ${details}`,
+              localStorage.setItem('activePlantId', plant.id);
+              localStorage.setItem('activePlant', JSON.stringify(plant));
+
+              const currentEmail = localStorage.getItem('currentUserEmail');
+              if (currentEmail) {
+                localStorage.setItem('activePlantId_' + currentEmail, plant.id);
+                localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(plant));
+              }
+
+              const successAlert = await this.alertController.create({
+                header: '✔ Cultivo Activado (Modo Local)',
+                message: `${plant.name} ha sido activada localmente. (El servidor de Render está respondiendo lento o apagado).`,
                 buttons: ['OK']
               });
-              await errorAlert.present();
+              await successAlert.present();
+              await successAlert.onDidDismiss();
+
+              // Volver a la pantalla de Home
+              this.router.navigate(['/home']);
             }
           }
         }
