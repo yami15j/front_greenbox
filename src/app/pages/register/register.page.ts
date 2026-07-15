@@ -135,13 +135,11 @@ export class RegisterPage {
       localStorage.removeItem('activePlantId');
 
       // Llamar al backend para generar su nueva caja y enviarle el código de acceso
-      const res = await this.api.generateAndSendBoxCode(this.email.trim(), this.fullName.trim());
+      await this.api.generateAndSendBoxCode(this.email.trim(), this.fullName.trim());
 
-      // Mostrar el código directamente en pantalla porque Render Free bloquea los correos
-      this.mensaje = 'Cuenta creada. TU CÓDIGO DE ACCESO ES: ' + (res.code || 'Ver correo');
+      this.mensaje = 'Cuenta creada exitosamente. Revisa tu correo.';
       this.isError = false;
-      // Ya no redirigimos tan rápido para que el usuario pueda copiar el código
-      // setTimeout(() => this.router.navigateByUrl('/login'), 1500);
+      setTimeout(() => this.router.navigateByUrl('/login'), 1500);
     } catch (err: any) {
       console.error('Error de registro en Firebase:', err);
       this.isError = true;
