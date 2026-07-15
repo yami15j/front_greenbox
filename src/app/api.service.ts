@@ -299,31 +299,49 @@ export class ApiService {
     try {
       // Intentar primero validación real contra el backend
       const res = await firstValueFrom(
-        this.http.post<{ valid: boolean; boxId?: string; boxName?: string; profileImage?: string; plant?: any }>(`${this.base}/auth/validate`, { code })
+        this.http.post<any>(`${this.base}/auth/validate`, { code })
       );
 
       // Si es válido y tiene boxId, guardarlo en localStorage
-      if (res.valid && res.boxId) {
-        localStorage.setItem('selectedBoxId', String(res.boxId));
-        if (res.boxName) {
-          localStorage.setItem('selectedBoxName', res.boxName);
-        }
-        if (res.profileImage) {
-          localStorage.setItem('profileImage', res.profileImage);
+      if (res && res.data && res.data.box) {
+        const box = res.data.box;
+        const userPlantId = res.data.userPlantId;
+        const plant = res.data.plant;
+
+        localStorage.setItem('selectedBoxId', String(box.id));
+        localStorage.setItem('selectedBoxName', box.locationName || `Caja ${box.code}`);
+        
+        if (box.profileImage) {
+          localStorage.setItem('profileImage', box.profileImage);
         } else {
           localStorage.removeItem('profileImage');
         }
-        if (res.plant) {
-          const mappedPlant = mapBackendPlantToProfile(res.plant);
+
+        if (userPlantId) {
+          localStorage.setItem('activeUserPlantId', String(userPlantId));
+        } else {
+          localStorage.removeItem('activeUserPlantId');
+        }
+
+        if (plant) {
+          const mappedPlant = mapBackendPlantToProfile(plant);
           localStorage.setItem('activePlant', JSON.stringify(mappedPlant));
           localStorage.setItem('activePlantId', String(mappedPlant.id));
         } else {
           localStorage.removeItem('activePlant');
           localStorage.removeItem('activePlantId');
         }
+
+        return {
+          valid: true,
+          boxId: String(box.id),
+          boxName: box.locationName || `Caja ${box.code}`,
+          profileImage: box.profileImage || undefined,
+          plant: plant,
+        };
       }
 
-      return res;
+      return { valid: false };
     } catch (err) {
       console.error('Error validando código en backend:', err);
       
@@ -344,6 +362,7 @@ export class ApiService {
           localStorage.removeItem('profileImage');
           localStorage.removeItem('activePlant');
           localStorage.removeItem('activePlantId');
+          localStorage.removeItem('activeUserPlantId');
         }
         return fakeRes;
       }

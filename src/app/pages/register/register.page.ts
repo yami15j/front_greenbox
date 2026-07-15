@@ -27,6 +27,7 @@ export class RegisterPage {
   password    = '';
   showPass    = false;
   mensaje     = '';
+  isError     = false;
   loading     = false;
 
   constructor(private router: Router, private api: ApiService) {
@@ -39,6 +40,7 @@ export class RegisterPage {
   async onGoogleLogin() {
     this.loading = true;
     this.mensaje = '';
+    this.isError = false;
 
     try {
       const auth = getAuth();
@@ -46,7 +48,8 @@ export class RegisterPage {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      this.mensaje = '✅ Registro y sesión iniciada con Google';
+      this.mensaje = 'Registro y sesión iniciada con Google';
+      this.isError = false;
       
       if (user.email) {
         // Guardar email del usuario actual y su nombre
@@ -94,10 +97,11 @@ export class RegisterPage {
       }, 800);
     } catch (err: any) {
       console.error('Error Google Sign-In:', err);
+      this.isError = true;
       if (err.code === 'auth/popup-closed-by-user') {
-        this.mensaje = '⚠️ Ventana de login cerrada';
+        this.mensaje = 'Ventana de login cerrada';
       } else {
-        this.mensaje = `❌ Error de Google: ${err.message}`;
+        this.mensaje = `Error de Google: ${err.message}`;
       }
     } finally {
       this.loading = false;
@@ -106,11 +110,13 @@ export class RegisterPage {
 
   async onRegister() {
     if (!this.fullName.trim() || !this.email.trim() || !this.password.trim()) {
-      this.mensaje = '⚠️ Completa todos los campos';
+      this.mensaje = 'Completa todos los campos';
+      this.isError = true;
       return;
     }
     this.loading = true;
     this.mensaje = '';
+    this.isError = false;
 
     try {
       const auth = getAuth();
@@ -131,19 +137,21 @@ export class RegisterPage {
       // Llamar al backend para generar su nueva caja y enviarle el código de acceso
       await this.api.generateAndSendBoxCode(this.email.trim(), this.fullName.trim());
 
-      this.mensaje = '✅ Cuenta creada exitosamente. Revisa tu correo.';
+      this.mensaje = 'Cuenta creada exitosamente. Revisa tu correo.';
+      this.isError = false;
       setTimeout(() => this.router.navigateByUrl('/login'), 1500);
     } catch (err: any) {
       console.error('Error de registro en Firebase:', err);
+      this.isError = true;
       // Traducir los errores más comunes de Firebase a español
       if (err.code === 'auth/email-already-in-use') {
-        this.mensaje = '❌ Este correo ya está registrado';
+        this.mensaje = 'Este correo ya está registrado';
       } else if (err.code === 'auth/invalid-email') {
-        this.mensaje = '❌ El correo ingresado no es válido';
+        this.mensaje = 'El correo ingresado no es válido';
       } else if (err.code === 'auth/weak-password') {
-        this.mensaje = '❌ La contraseña debe tener al menos 6 caracteres';
+        this.mensaje = 'La contraseña debe tener al menos 6 caracteres';
       } else {
-        this.mensaje = `❌ Error: ${err.message}`;
+        this.mensaje = `Error: ${err.message}`;
       }
     } finally {
       this.loading = false;

@@ -27,6 +27,7 @@ export class EmailLoginPage {
   password  = '';
   showPass  = false;
   mensaje   = '';
+  isError   = false;
   loading   = false;
 
   constructor(private router: Router, private api: ApiService) {
@@ -40,6 +41,7 @@ export class EmailLoginPage {
   async onGoogleLogin() {
     this.loading = true;
     this.mensaje = '';
+    this.isError = false;
 
     try {
       const auth = getAuth();
@@ -47,7 +49,8 @@ export class EmailLoginPage {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      this.mensaje = '✅ Sesión iniciada con Google';
+      this.mensaje = 'Sesión iniciada con Google';
+      this.isError = false;
       
       if (user.email) {
         // Guardar email del usuario actual y su nombre
@@ -95,10 +98,11 @@ export class EmailLoginPage {
       }, 800);
     } catch (err: any) {
       console.error('Error Google Sign-In:', err);
+      this.isError = true;
       if (err.code === 'auth/popup-closed-by-user') {
-        this.mensaje = '⚠️ Ventana de login cerrada';
+        this.mensaje = 'Ventana de login cerrada';
       } else {
-        this.mensaje = `❌ Error de Google: ${err.message}`;
+        this.mensaje = `Error de Google: ${err.message}`;
       }
     } finally {
       this.loading = false;
@@ -107,18 +111,21 @@ export class EmailLoginPage {
 
   async onLogin() {
     if (!this.email.trim() || !this.password.trim()) {
-      this.mensaje = '⚠️ Completa todos los campos';
+      this.mensaje = 'Completa todos los campos';
+      this.isError = true;
       return;
     }
     this.loading = true;
     this.mensaje = '';
+    this.isError = false;
 
     try {
       const auth = getAuth();
       const userCredential = await signInWithEmailAndPassword(auth, this.email.trim(), this.password);
       const user = userCredential.user;
 
-      this.mensaje = '✅ Sesión iniciada correctamente';
+      this.mensaje = 'Sesión iniciada correctamente';
+      this.isError = false;
       
       const email = this.email.trim().toLowerCase();
       localStorage.setItem('currentUserEmail', email);
@@ -160,16 +167,17 @@ export class EmailLoginPage {
       }, 800);
     } catch (err: any) {
       console.error('Error de login en Firebase:', err);
+      this.isError = true;
       if (
         err.code === 'auth/invalid-credential' || 
         err.code === 'auth/user-not-found' || 
         err.code === 'auth/wrong-password'
       ) {
-        this.mensaje = '❌ Correo o contraseña incorrectos';
+        this.mensaje = 'Correo o contraseña incorrectos';
       } else if (err.code === 'auth/invalid-email') {
-        this.mensaje = '❌ El formato del correo no es válido';
+        this.mensaje = 'El formato del correo no es válido';
       } else {
-        this.mensaje = `❌ Error: ${err.message}`;
+        this.mensaje = `Error: ${err.message}`;
       }
     } finally {
       this.loading = false;

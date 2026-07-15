@@ -43,8 +43,8 @@
 
       <!-- Mensaje -->
       <div *ngIf="mensaje" class="msg-box"
-        [class.error]="mensaje.includes('⚠️') || mensaje.includes('❌')"
-        [class.success]="mensaje.includes('✅')">
+        [class.error]="isError"
+        [class.success]="!isError">
         {{ mensaje }}
       </div>
 

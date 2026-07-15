@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, AlertController, ToastController, LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ApiService } from 'src/app/api.service';
+import { SocketService } from 'src/app/socket.service';
 import { PLANT_PROFILES, Plantprofile } from 'src/app/models/plants.data';
 import { addIcons } from 'ionicons';
 import {
@@ -40,7 +41,8 @@ export class SelectPlantPage implements OnInit {
     private alertController: AlertController,
     private toastController: ToastController,
     private loadingController: LoadingController,
-    private api: ApiService
+    private api: ApiService,
+    private socketService: SocketService
   ) {
     // Registrar iconos necesarios
     addIcons({
@@ -149,6 +151,15 @@ export class SelectPlantPage implements OnInit {
 
             try {
               const response = await this.api.updateBoxPlant(boxId, plant.id);
+
+              if (response && response.data && response.data.id) {
+                const oldUserPlantId = localStorage.getItem('activeUserPlantId');
+                if (oldUserPlantId) {
+                  this.socketService.leavePlant(Number(oldUserPlantId));
+                }
+                localStorage.setItem('activeUserPlantId', String(response.data.id));
+                this.socketService.joinPlant(response.data.id);
+              }
 
               this.plantProfiles.forEach(p => p.isActive = false);
               plant.isActive = true;

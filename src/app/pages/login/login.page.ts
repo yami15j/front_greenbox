@@ -47,6 +47,7 @@ export class LoginPage {
 
   code: string = '';
   mensaje: string = '';
+  isError: boolean = false;
   loading: boolean = false;
 
   constructor(private router: Router, private api: ApiService) {
@@ -62,23 +63,33 @@ export class LoginPage {
     });
   }
 
+  ionViewWillEnter() {
+    this.code = '';
+    this.mensaje = '';
+    this.isError = false;
+    this.loading = false;
+  }
+
   async onAccess() {
 
-    // 🟡 VALIDAR CAMPO VACÍO
+    // VALIDAR CAMPO VACÍO
     if (!this.code.trim()) {
-      this.mensaje = '⚠️ Por favor, ingresa un código de acceso';
+      this.mensaje = 'Por favor, ingresa un código de acceso';
+      this.isError = true;
       return;
     }
 
     this.loading = true;
     this.mensaje = '';
+    this.isError = false;
 
     try {
-      // 🔵 Llama al ApiService
+      // Llama al ApiService
       const response = await this.api.validateCode(this.code);
 
       if (response.valid) {
-        this.mensaje = '✅ Código correcto, bienvenido!';
+        this.mensaje = 'Código correcto, bienvenido';
+        this.isError = false;
         
         // Copiar a las llaves específicas del usuario logueado actualmente
         const currentEmail = localStorage.getItem('currentUserEmail');
@@ -104,13 +115,15 @@ export class LoginPage {
         setTimeout(() => this.router.navigateByUrl('/home'), 800);
 
       } else {
-        this.mensaje = '❌ Código inválido, intenta de nuevo';
+        this.mensaje = 'Código inválido, intenta de nuevo';
+        this.isError = true;
         this.code = '';
       }
 
     } catch (err) {
       console.error(err);
-      this.mensaje = '⚠️ Error de conexión. Verifica tu internet';
+      this.mensaje = 'Error de conexión. Verifica tu internet';
+      this.isError = true;
     } finally {
       this.loading = false;
     }

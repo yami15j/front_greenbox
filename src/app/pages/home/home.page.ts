@@ -72,6 +72,7 @@ export class HomePage implements OnInit, OnDestroy {
   weatherTime = '';
 
   private socketSub?: Subscription;
+  private commandSub?: Subscription;
 
   constructor(
     private navCtrl: NavController,
@@ -127,6 +128,9 @@ export class HomePage implements OnInit, OnDestroy {
     if (this.socketSub) {
       this.socketSub.unsubscribe();
     }
+    if (this.commandSub) {
+      this.commandSub.unsubscribe();
+    }
     this.socketService.disconnect();
   }
 
@@ -136,9 +140,10 @@ export class HomePage implements OnInit, OnDestroy {
       console.log('🔌 Conectando WebSocket a:', wsUrl);
       this.socketService.connect(wsUrl);
 
+      const boxId = localStorage.getItem('selectedBoxId');
+
       this.socketSub = this.socketService.getData().subscribe({
         next: (wsData) => {
-          const boxId = localStorage.getItem('selectedBoxId');
           // Verificar si recibimos datos válidos y corresponden al box actual
           if (wsData && wsData.boxId && String(wsData.boxId) === String(boxId)) {
             console.log('📡 Lectura recibida por WebSocket:', wsData);
@@ -152,10 +157,28 @@ export class HomePage implements OnInit, OnDestroy {
             };
             // Guardar en localStorage para consistencia offline
             localStorage.setItem('activePlantData', JSON.stringify(this.data));
+            this.cdr.detectChanges();
           }
         },
         error: (err) => {
           console.error('❌ Error en suscripción de WebSocket:', err);
+        }
+      });
+
+      this.commandSub = this.socketService.getCommands().subscribe({
+        next: (cmd) => {
+          if (cmd && String(cmd.boxId) === String(boxId)) {
+            console.log('📡 Comando de actuador recibido por WebSocket:', cmd);
+            this.actuatorStatus = {
+              boxId: Number(cmd.boxId),
+              boxName: this.userName,
+              led: cmd.light,
+              pump: cmd.pump,
+              wateringCount: this.actuatorStatus?.wateringCount ?? 0,
+              lastWateringDate: cmd.pump ? new Date().toISOString() : (this.actuatorStatus?.lastWateringDate || null)
+            };
+            this.cdr.detectChanges();
+          }
         }
       });
     } catch (e) {
@@ -237,37 +260,48 @@ export class HomePage implements OnInit, OnDestroy {
     if (plantData) {
       try {
         this.activePlant = JSON.parse(plantData);
-        return; // Ya tenemos la planta en caché, no necesitamos backend
       } catch {
         this.activePlant = null;
       }
     }
 
-    // 2. Si no hay datos locales, consultar el backend (para Vercel / sesión nueva)
+    // 2. Consultar el backend para actualizar y sincronizar userPlantId y datos en tiempo real
     const boxId = localStorage.getItem('selectedBoxId');
     if (!boxId) return;
 
     try {
       const boxInfo = await this.api.getBoxInfo(boxId);
-      if (boxInfo && boxInfo.box && boxInfo.box.plant) {
+      if (boxInfo && boxInfo.box) {
         const plant = boxInfo.box.plant;
         this.activePlant = plant;
         localStorage.setItem('activePlant', JSON.stringify(plant));
-        if (plant.id) {
+        if (plant && plant.id) {
           localStorage.setItem('activePlantId', String(plant.id));
+        }
+        
+        if (boxInfo.box.userPlantId) {
+          const oldUserPlantId = localStorage.getItem('activeUserPlantId');
+          localStorage.setItem('activeUserPlantId', String(boxInfo.box.userPlantId));
+          
+          // Unirse a la sala WebSocket si cambió de planta
+          if (oldUserPlantId !== String(boxInfo.box.userPlantId)) {
+            this.socketService.joinPlant(Number(boxInfo.box.userPlantId));
+          }
+        } else {
+          localStorage.removeItem('activeUserPlantId');
         }
 
         const currentEmail = localStorage.getItem('currentUserEmail');
         if (currentEmail) {
           localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(plant));
-          if (plant.id) {
+          if (plant && plant.id) {
             localStorage.setItem('activePlantId_' + currentEmail, String(plant.id));
           }
         }
+        this.cdr.detectChanges();
       }
     } catch (err) {
       console.warn('No se pudo obtener la planta activa del backend:', err);
-      this.activePlant = null;
     }
   }
 
@@ -490,12 +524,12 @@ export class HomePage implements OnInit, OnDestroy {
           this.fetchCityName(lat, lon);
         },
         (error) => {
-          console.warn('Geolocation failed, defaulting to Eindhoven');
-          this.fetchWeather(51.4416, 5.4697);
+          console.warn('Geolocation failed, defaulting to Bogotá');
+          this.fetchWeather(4.711, -74.0721);
         }
       );
     } else {
-      this.fetchWeather(51.4416, 5.4697);
+      this.fetchWeather(4.711, -74.0721);
     }
   }
 

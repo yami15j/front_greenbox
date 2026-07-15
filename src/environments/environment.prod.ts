@@ -2,7 +2,7 @@
 export const environment = {
   production: true,
   apiUrl: 'https://greenbox-qni2.onrender.com',  // ← URL de Render
-  allowOfflineLogin: true,   // Permite entrar aunque Render esté en cold start
+  allowOfflineLogin: false,  // Requiere backend activo para validar el código
   firebase: {
     apiKey: "AIzaSyCGA2vn1DZan29mH6Lz_XpmHPrUCRVhlrk",
     authDomain: "greenbox1.firebaseapp.com",

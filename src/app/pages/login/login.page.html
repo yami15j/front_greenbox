@@ -29,15 +29,17 @@
           <input type="text" class="custom-input padded-left"
             placeholder="Ingresa tu código"
             [(ngModel)]="code"
-            (keyup.enter)="onAccess()">
+            (keyup.enter)="onAccess()"
+            autocomplete="off"
+            name="accessCode">
         </div>
       </div>
 
       <!-- Mensaje de Error/Éxito -->
       <div *ngIf="mensaje" class="mensaje"
-        [class.error]="mensaje.includes('❌') || mensaje.includes('⚠️')"
-        [class.success]="mensaje.includes('✅')">
-        <ion-icon [name]="mensaje.includes('✅') ? 'checkmark-circle' : 'alert-circle'" class="mensaje-icon"></ion-icon>
+        [class.error]="isError"
+        [class.success]="!isError">
+        <ion-icon [name]="!isError ? 'checkmark-circle' : 'alert-circle'" class="mensaje-icon"></ion-icon>
         {{ mensaje }}
       </div>
 
