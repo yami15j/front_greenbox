@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, ToastController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ApiService } from 'src/app/api.service';
+import { getAuth } from 'firebase/auth';
 import { addIcons } from 'ionicons';
 import { chevronBackOutline, cameraOutline, checkmarkCircleOutline, linkOutline, personOutline, mailOutline, homeOutline, statsChartOutline, leafOutline, personAddOutline, imagesOutline, informationCircleOutline, logOutOutline, callOutline, globeOutline, timeOutline, swapHorizontalOutline } from 'ionicons/icons';
 
@@ -73,22 +74,46 @@ export class ProfilePage implements OnInit {
   }
 
   getUserDisplayName(rawDbName: string): string {
+    const isBoxCode = (str: string) => {
+      const clean = str.trim().toUpperCase();
+      return clean.startsWith('GREEN-') || 
+             clean.startsWith('BOX') || 
+             /^GB\d+$/.test(clean) || 
+             /^CAJA/i.test(clean);
+    };
+
     // 1. Prioridad 1: Nombre de usuario registrado en localStorage
     const localUser = localStorage.getItem('userName');
-    if (localUser && localUser.trim().length > 0 && !localUser.trim().startsWith('Green-')) {
+    if (localUser && localUser.trim().length > 0 && !isBoxCode(localUser)) {
       return localUser.trim();
     }
 
-    // 2. Prioridad 2: Limpiar el nombre de la DB si es un nombre real (no un código genérico)
+    // 2. Prioridad 2: Firebase Current User displayName o email prefix
+    try {
+      const firebaseUser = getAuth().currentUser;
+      if (firebaseUser) {
+        if (firebaseUser.displayName && firebaseUser.displayName.trim().length > 0 && !isBoxCode(firebaseUser.displayName)) {
+          return firebaseUser.displayName.trim();
+        }
+        if (firebaseUser.email) {
+          const prefix = firebaseUser.email.split('@')[0];
+          return prefix.charAt(0).toUpperCase() + prefix.slice(1);
+        }
+      }
+    } catch (e) {
+      console.warn('Firebase auth not initialized yet in profile page:', e);
+    }
+
+    // 3. Prioridad 3: Limpiar el nombre de la DB si es un nombre real
     if (rawDbName && rawDbName.trim().length > 0) {
       const parts = rawDbName.split(' | ');
       const cleanName = parts[0].replace(/^caja de\s+/i, '').trim();
-      if (cleanName && !cleanName.startsWith('Green-')) {
+      if (cleanName && !isBoxCode(cleanName)) {
         return cleanName;
       }
     }
 
-    // 3. Prioridad 3: Extraer del correo electrónico registrado
+    // 4. Prioridad 4: Extraer del correo electrónico registrado
     const email = localStorage.getItem('currentUserEmail');
     if (email && email.includes('@')) {
       const prefix = email.split('@')[0];
