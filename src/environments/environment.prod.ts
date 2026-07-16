@@ -1,7 +1,7 @@
 // Este archivo se usa cuando haces build para producción
 export const environment = {
   production: true,
-  apiUrl: 'https://greenbox0-1.onrender.com',  // ← URL de Render
+  apiUrl: 'https://greenbox01-production.up.railway.app',  // ← URL de Railway
   allowOfflineLogin: false,  // Requiere backend activo para validar el código
   firebase: {
     apiKey: "AIzaSyCGA2vn1DZan29mH6Lz_XpmHPrUCRVhlrk",
