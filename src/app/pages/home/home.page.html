@@ -9,14 +9,22 @@
   <div class="home-header">
     <div class="header-greet">
       <h1 class="greeting-title">
-        Hola, {{ userName }} <ion-icon name="leaf-outline" class="greet-leaf"></ion-icon>
+        Hola, {{ userName }}
       </h1>
-      <p class="greeting-subtitle">Bienvenido a tu Cultivo</p>
+      <p class="greeting-subtitle">Bienvenido a tu Cultivo <span style="font-size: 8px; color: #7ab39d; margin-left: 6px; font-weight: bold;">v1.3.0</span></p>
     </div>
-    <button class="notification-circle" (click)="goNotifications()">
-      <ion-icon name="notifications-outline"></ion-icon>
-      <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
-    </button>
+    <div class="header-actions">
+      <button class="notification-circle" (click)="goNotifications()">
+        <ion-icon name="notifications-outline"></ion-icon>
+        <span class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      </button>
+      <button class="profile-circle" (click)="goProfile()">
+        <img *ngIf="profileImage" [src]="profileImage" class="header-avatar">
+        <div *ngIf="!profileImage" class="header-avatar-initial">
+          {{ (userName || 'U').charAt(0).toUpperCase() }}
+        </div>
+      </button>
+    </div>
   </div>
 
   <!-- Loading -->
@@ -46,12 +54,6 @@
       <div class="plant-image-container">
         <img [src]="activePlant.imageUrl" [alt]="activePlant.name" class="plant-image"
           onerror="this.src='assets/plant/default-plant.jpg';">
-
-        <!-- Botón cambiar planta -->
-        <button class="change-plant-btn-overlay" (click)="goPlants()">
-          <ion-icon name="swap"></ion-icon>
-          Cambiar Planta
-        </button>
       </div>
     </div>
 
@@ -71,6 +73,43 @@
         </div>
         <div class="status-text" [ngClass]="getPlantHealthStatus()">
           {{ getPlantHealthText() }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Weather Widget Real-time -->
+    <div class="weather-widget-card" *ngIf="weatherData">
+      <div class="weather-header">
+        <div class="weather-title-container">
+          <span class="weather-section-title">Clima de Hoy</span>
+          <span class="weather-date">{{ todayDateString }}</span>
+        </div>
+        <div class="weather-loc-time">
+          <span class="weather-location">{{ weatherLocation }}</span>
+          <span class="weather-time">{{ weatherTime }}</span>
+        </div>
+      </div>
+      
+      <div class="weather-main">
+        <div class="weather-left">
+          <ion-icon [name]="getWeatherInfo(weatherData.code).icon" class="weather-main-icon"></ion-icon>
+          <div class="weather-desc-container">
+            <span class="weather-desc-text">{{ getWeatherInfo(weatherData.code).text }}</span>
+            <span class="weather-rain-chance" *ngIf="weatherData.rain > 0">Lluvia: {{ weatherData.rain }} mm</span>
+          </div>
+        </div>
+        <div class="weather-temp-large">
+          {{ weatherData.temp }}<span class="weather-degree">°</span>
+        </div>
+      </div>
+      
+      <div class="weather-forecast-divider"></div>
+      
+      <div class="weather-forecast-row">
+        <div class="forecast-item" *ngFor="let f of weatherData.hourly">
+          <span class="forecast-temp">{{ f.temp }}°</span>
+          <ion-icon [name]="getWeatherInfo(f.code).icon" class="forecast-icon"></ion-icon>
+          <span class="forecast-time">{{ f.time }}</span>
         </div>
       </div>
     </div>
@@ -124,60 +163,12 @@
 
     </div>
 
-    <!-- Control Automático (LED y Bomba) -->
-    <div class="actuators-section" *ngIf="activePlant && actuatorStatus">
-      <div class="section-header">
-        <ion-icon name="settings-outline" class="section-icon"></ion-icon>
-        <h3 class="section-title">Control Automático</h3>
-      </div>
-
-      <div class="actuators-grid">
-        <!-- LED Status -->
-        <div class="actuator-card" [class.active]="actuatorStatus.led">
-          <div class="actuator-icon-wrapper led">
-            <ion-icon name="bulb" class="actuator-icon"></ion-icon>
-            <div class="status-pulse" *ngIf="actuatorStatus.led"></div>
-          </div>
-          <div class="actuator-info">
-            <span class="actuator-label">Iluminación LED</span>
-            <span class="actuator-status" [class.on]="actuatorStatus.led">
-              {{ actuatorStatus.led ? 'Encendido' : 'Apagado' }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Pump Status -->
-        <div class="actuator-card" [class.active]="actuatorStatus.pump">
-          <div class="actuator-icon-wrapper pump">
-            <ion-icon name="water" class="actuator-icon"></ion-icon>
-            <div class="status-pulse" *ngIf="actuatorStatus.pump"></div>
-          </div>
-          <div class="actuator-info">
-            <span class="actuator-label">Bomba de Agua</span>
-            <span class="actuator-status" [class.on]="actuatorStatus.pump">
-              {{ actuatorStatus.pump ? 'Activa' : 'Inactiva' }}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Watering Info -->
-      <div class="watering-info-card">
-        <div class="watering-stat">
-          <ion-icon name="water-outline" class="stat-icon"></ion-icon>
-          <div class="stat-content">
-            <span class="stat-label">Riegos hoy</span>
-            <span class="stat-value">{{ actuatorStatus.wateringCount }}</span>
-          </div>
-        </div>
-        <div class="watering-stat" *ngIf="actuatorStatus.lastWateringDate">
-          <ion-icon name="time-outline" class="stat-icon"></ion-icon>
-          <div class="stat-content">
-            <span class="stat-label">Último riego</span>
-            <span class="stat-value">{{ actuatorStatus.lastWateringDate | date:'short' }}</span>
-          </div>
-        </div>
-      </div>
+    <!-- Botón Cambiar Planta al Final -->
+    <div class="change-plant-bottom-container" *ngIf="activePlant">
+      <button class="change-plant-btn-bottom" (click)="goPlants()">
+        <ion-icon name="swap-horizontal-outline"></ion-icon>
+        Cambiar Planta
+      </button>
     </div>
 
   </div>
@@ -197,11 +188,6 @@
     <button class="nav-tab" (click)="goMyPlant()">
       <ion-icon name="leaf-outline"></ion-icon>
       <span class="nav-label">Plantas</span>
-    </button>
-    <button class="nav-tab" (click)="goNotifications()">
-      <ion-icon name="time-outline"></ion-icon>
-      <span class="nav-label">Historial</span>
-      <span class="tab-badge-bubble" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
     </button>
   </div>
 </ion-footer>

@@ -1,0 +1,183 @@
+<ion-content class="profile-content" [fullscreen]="true">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Guardando cambios...</p>
+  </div>
+
+  <!-- Top Banner (Green Gradient Header) -->
+  <div class="profile-top-banner">
+    <!-- Back Button -->
+    <button class="back-btn" (click)="goBack()">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+    </button>
+
+
+    <!-- Hidden file input for camera/gallery upload -->
+    <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+
+    <!-- Avatar Preview (Clickable to trigger file upload/camera) -->
+    <div class="avatar-preview-container" (click)="triggerFilePicker()">
+      <div class="avatar-container">
+        <img *ngIf="profileImage" [src]="profileImage" alt="Avatar" class="user-avatar">
+        <div *ngIf="!profileImage" class="user-avatar-initial">
+          {{ (userName || 'U').charAt(0).toUpperCase() }}
+        </div>
+        <div class="avatar-icon-badge">
+          <ion-icon name="camera-outline"></ion-icon>
+        </div>
+      </div>
+      <h2 class="user-display-name">{{ userName || 'Usuario' }}</h2>
+      <p class="user-display-email">{{ userEmail || 'Sin correo asociado' }}</p>
+    </div>
+  </div>
+
+  <div class="profile-wrapper">
+    <!-- Edit Profile Card -->
+    <div class="edit-card">
+      <div class="card-header-row">
+        <h3 class="card-section-title">Datos Personales</h3>
+        <button class="save-inline-btn" (click)="saveChanges()" [disabled]="isLoading">
+          Guardar
+        </button>
+      </div>
+
+      <!-- Input Nombre -->
+      <div class="input-group">
+        <label class="input-label">Nombre de Usuario</label>
+        <div class="input-wrapper">
+          <ion-icon name="person-outline" class="input-icon"></ion-icon>
+          <input type="text" [(ngModel)]="userName" placeholder="Escribe tu nombre" class="custom-input">
+        </div>
+      </div>
+
+      <!-- Input Correo -->
+      <div class="input-group">
+        <label class="input-label">Correo Electrónico</label>
+        <div class="input-wrapper">
+          <ion-icon name="mail-outline" class="input-icon"></ion-icon>
+          <input type="email" [(ngModel)]="userEmail" placeholder="correo@ejemplo.com" class="custom-input">
+        </div>
+      </div>
+    </div>
+
+    <!-- Action List Card -->
+    <div class="actions-list-container">
+      <!-- Agregar Cuenta -->
+      <button class="action-list-item" (click)="addAccount()">
+        <div class="action-item-content">
+          <ion-icon name="person-add-outline" class="action-icon-left"></ion-icon>
+          <span class="action-text">Agregar Cuenta</span>
+        </div>
+      </button>
+
+      <!-- Cambiar Cuenta -->
+      <button class="action-list-item" (click)="changeAccount()">
+        <div class="action-item-content">
+          <ion-icon name="swap-horizontal-outline" class="action-icon-left"></ion-icon>
+          <span class="action-text">Cambiar Cuenta</span>
+        </div>
+      </button>
+
+      <!-- Cerrar Sesión -->
+      <button class="action-list-item logout-item" (click)="logout()">
+        <div class="action-item-content">
+          <ion-icon name="log-out-outline" class="action-icon-left"></ion-icon>
+          <span class="action-text">Cerrar Sesión</span>
+        </div>
+      </button>
+    </div>
+
+
+  </div>
+
+  <!-- Modal de Ajuste/Recorte de Imagen -->
+  <div class="crop-modal-overlay" *ngIf="showCropModal">
+    <div class="crop-modal-card">
+      <div class="crop-modal-header">
+        <h3>Ajustar Imagen</h3>
+        <p>Arrastra la imagen o usa los controles para encuadrarla</p>
+      </div>
+
+      <!-- Crop Area Container -->
+      <div class="crop-view-container">
+        <div class="crop-circle-mask"
+          (mousedown)="onDragStart($event)"
+          (mousemove)="onDragMove($event)"
+          (mouseup)="onDragEnd()"
+          (mouseleave)="onDragEnd()"
+          (touchstart)="onDragStart($event)"
+          (touchmove)="onDragMove($event)"
+          (touchend)="onDragEnd()">
+          <img 
+            [src]="cropImageUrl" 
+            [style.transform]="'translate(' + posX + 'px, ' + posY + 'px) scale(' + zoom + ') rotate(' + rotation + 'deg)'"
+            class="crop-preview-img">
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="crop-controls">
+        <!-- Zoom -->
+        <div class="control-group">
+          <div class="control-label">
+            <span>Zoom</span>
+            <span>{{ (zoom * 100) | number:'1.0-0' }}%</span>
+          </div>
+          <input type="range" min="1" max="4" step="0.05" [(ngModel)]="zoom" class="range-slider">
+        </div>
+
+        <!-- Mover X -->
+        <div class="control-group">
+          <div class="control-label">
+            <span>Mover Horizontal</span>
+            <span>{{ posX }}px</span>
+          </div>
+          <input type="range" min="-150" max="150" step="1" [(ngModel)]="posX" class="range-slider">
+        </div>
+
+        <!-- Mover Y -->
+        <div class="control-group">
+          <div class="control-label">
+            <span>Mover Vertical</span>
+            <span>{{ posY }}px</span>
+          </div>
+          <input type="range" min="-150" max="150" step="1" [(ngModel)]="posY" class="range-slider">
+        </div>
+
+        <!-- Rotar -->
+        <div class="control-group">
+          <div class="control-label">
+            <span>Rotación</span>
+            <span>{{ rotation }}°</span>
+          </div>
+          <input type="range" min="-180" max="180" step="1" [(ngModel)]="rotation" class="range-slider">
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="crop-modal-actions">
+        <button class="crop-btn cancel" (click)="closeCropModal()">Cancelar</button>
+        <button class="crop-btn apply" (click)="applyCrop()">Aplicar</button>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- BOTTOM TABS FOOTER -->
+<ion-footer class="ion-no-border stats-footer">
+  <div class="custom-tabs-nav">
+    <button class="nav-tab" (click)="goHome()">
+      <ion-icon name="home-outline"></ion-icon>
+      <span class="nav-label">Inicio</span>
+    </button>
+    <button class="nav-tab" (click)="goStats()">
+      <ion-icon name="stats-chart-outline"></ion-icon>
+      <span class="nav-label">Estadística</span>
+    </button>
+    <button class="nav-tab" (click)="goMyPlant()">
+      <ion-icon name="leaf-outline"></ion-icon>
+      <span class="nav-label">Plantas</span>
+    </button>
+  </div>
+</ion-footer>

@@ -115,7 +115,12 @@
           <div class="timeline-info">
             <div class="timeline-caption-header">
               <h4 class="timeline-date">{{ ev.date }}</h4>
-              <span class="timeline-card-percent" *ngIf="ev.progress">{{ ev.progress }}%</span>
+              <div class="timeline-header-right">
+                <span class="timeline-card-percent" *ngIf="ev.progress">{{ ev.progress }}%</span>
+                <button class="delete-progress-btn" *ngIf="ev.id" (click)="deleteProgress(ev.id, $event)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </button>
+              </div>
             </div>
             <p class="timeline-desc">{{ ev.description }}</p>
           </div>
@@ -127,155 +132,6 @@
         <ion-icon name="camera-outline"></ion-icon>
         Tomar nueva foto
       </button>
-    </div>
-  </div>
-
-  <!-- ====================
-       VISTA 2: SELECCIONAR CULTIVO (LISTA DE PLANTAS)
-       ==================== -->
-  <div class="plant-select-container" *ngIf="viewMode === 'select'">
-    <!-- Hero / Header Area -->
-    <div class="plants-hero" [class.no-active]="!selectedPlant" [style.background-image]="(selectedPlant && selectedPlant.imageUrl) ? 'url(' + selectedPlant.imageUrl + ')' : null">
-      <div class="hero-overlay"></div>
-      
-      <ion-button fill="clear" class="back-button" (click)="goBack()">
-        <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-      
-      <div class="hero-content" *ngIf="selectedPlant">
-        <span class="hero-subtitle">MIS PLANTAS</span>
-        <div class="hero-badge">
-          <ion-icon name="checkmark-circle"></ion-icon>
-          <span>Cultivo Activo</span>
-        </div>
-        <h1 class="hero-title">{{ selectedPlant.name }}</h1>
-        <div class="hero-stats">
-          <div class="hero-stat-pill">
-            <ion-icon name="thermometer-outline"></ion-icon>
-            <span>{{ selectedPlant.optimalConditions.tempMax }}°C máx</span>
-          </div>
-          <div class="hero-stat-pill">
-            <ion-icon name="water-outline"></ion-icon>
-            <span>{{ selectedPlant.optimalConditions.humMax }}% hum</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="hero-content" *ngIf="!selectedPlant">
-        <span class="hero-subtitle">MIS PLANTAS</span>
-        <div class="hero-badge inactive">
-          <ion-icon name="alert-circle-outline"></ion-icon>
-          <span>Sin Cultivo Activo</span>
-        </div>
-        <h1 class="hero-title">Selecciona un Cultivo</h1>
-        <p class="hero-desc">Elige una de las plantas de abajo para iniciar el monitoreo de GREENBOX.</p>
-      </div>
-    </div>
-
-    <!-- Plants list body -->
-    <div class="plants-list-container">
-      <div class="list-header">
-        <span class="available-count">{{ filteredPlants.length }} plantas disponibles</span>
-      </div>
-
-      <!-- FILTROS -->
-      <div class="filter-section">
-        <div class="filter-chips">
-          <ion-chip [class.active]="filterType === 'all'" (click)="applyFilter('all')">
-            <ion-label>Todos</ion-label>
-          </ion-chip>
-          <ion-chip [class.active]="filterType === 'Hoja Verde'" (click)="applyFilter('Hoja Verde')">
-            <ion-label>Hojas Verdes</ion-label>
-          </ion-chip>
-          <ion-chip [class.active]="filterType === 'Fruto'" (click)="applyFilter('Fruto')">
-            <ion-label>Frutos</ion-label>
-          </ion-chip>
-          <ion-chip [class.active]="filterType === 'Hierba Aromática'" (click)="applyFilter('Hierba Aromática')">
-            <ion-label>Hierbas</ion-label>
-          </ion-chip>
-        </div>
-      </div>
-
-      <!-- GRID -->
-      <div class="plants-grid">
-        <div
-          class="plant-card"
-          *ngFor="let plant of filteredPlants"
-          [class.active]="plant.isActive"
-          (click)="selectPlant(plant)">
-          
-          <div class="plant-card-image-wrapper">
-            <div
-              class="plant-image"
-              [style.background-image]="'url(' + plant.imageUrl + ')'">
-            </div>
-            
-            <!-- Dificultad Badge (Top Right) -->
-            <span class="difficulty-badge" [class.facil]="plant.difficulty === 'Fácil'" [class.intermedio]="plant.difficulty === 'Intermedio'" [class.avanzado]="plant.difficulty === 'Avanzado'">
-              {{ plant.difficulty }}
-            </span>
-
-            <!-- Active Badge (Top Left) -->
-            <div class="card-active-check" *ngIf="plant.isActive">
-              <ion-icon name="checkmark-circle"></ion-icon>
-            </div>
-          </div>
-
-          <div class="plant-card-body">
-            <h3 class="plant-name">{{ plant.name }}</h3>
-            
-            <div class="plant-conditions-row">
-              <div class="condition-badge">
-                <ion-icon name="thermometer-outline" class="cond-icon temp"></ion-icon>
-                <span>{{ plant.optimalConditions.tempMax }}°C</span>
-              </div>
-              <div class="condition-badge">
-                <ion-icon name="water-outline" class="cond-icon hum"></ion-icon>
-                <span>{{ plant.optimalConditions.humMax }}%</span>
-              </div>
-            </div>
-
-            <div class="benefits-section">
-              <ng-container *ngIf="plant.benefits && plant.benefits.length > 0 && plant.benefits[0] !== ''; else defaultTags">
-                <span class="benefit-tag" *ngFor="let benefit of plant.benefits.slice(0, 2)">
-                  {{ benefit | uppercase }}
-                </span>
-              </ng-container>
-              <ng-template #defaultTags>
-                <span class="benefit-tag">SALUDABLE</span>
-                <span class="benefit-tag">ORGÁNICO</span>
-              </ng-template>
-            </div>
-          </div>
-
-          <div class="plant-card-footer">
-            <ion-button
-              expand="block"
-              shape="round"
-              [fill]="plant.isActive ? 'solid' : 'outline'"
-              [class.active-btn]="plant.isActive"
-              [class.inactive-btn]="!plant.isActive"
-              class="select-button">
-              <ion-icon
-                [name]="plant.isActive ? 'checkmark-circle' : 'add-circle-outline'"
-                slot="start">
-              </ion-icon>
-              {{ plant.isActive ? 'Activa' : 'Seleccionar' }}
-            </ion-button>
-          </div>
-        </div>
-      </div>
-
-      <!-- CONSEJO / CÓMO FUNCIONA -->
-      <div class="how-it-works-card">
-        <div class="card-icon">💡</div>
-        <div class="card-text-content">
-          <h3 class="card-title">¿Cómo funciona?</h3>
-          <p class="card-description">
-            Al seleccionar una planta, GREENBOX ajusta automáticamente los umbrales de temperatura, humedad y alertas para ese cultivo.
-          </p>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -404,10 +260,6 @@
     <button class="nav-tab active">
       <ion-icon name="leaf-outline"></ion-icon>
       <span class="nav-label">Plantas</span>
-    </button>
-    <button class="nav-tab" (click)="goHistory()">
-      <ion-icon name="time-outline"></ion-icon>
-      <span class="nav-label">Historial</span>
     </button>
   </div>
 </ion-footer>

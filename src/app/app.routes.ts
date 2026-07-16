@@ -31,6 +31,10 @@ export const routes: Routes = [
     path: 'plant',
     loadComponent: () => import('./pages/plant/plant.page').then( m => m.PlantPage)
   },
+  {
+    path: 'select-plant',
+    loadComponent: () => import('./pages/select-plant/select-plant.page').then(m => m.SelectPlantPage)
+  },
 
   {
     path: 'guide',
@@ -40,6 +44,14 @@ export const routes: Routes = [
   {
     path: 'notification',
     loadComponent: () => import('./pages/notification/notification.page').then( m => m.NotificationPage)
+  },
+  {
+    path: 'perfil',
+    loadComponent: () => import('./pages/profile/profile.page').then(m => m.ProfilePage)
+  },
+  {
+    path: 'select',
+    loadComponent: () => import('./pages/select/select.page').then(m => m.SelectPage)
   },
   {
     path: 'camera',

@@ -47,6 +47,7 @@ export class LoginPage {
 
   code: string = '';
   mensaje: string = '';
+  isError: boolean = false;
   loading: boolean = false;
 
   constructor(private router: Router, private api: ApiService) {
@@ -62,34 +63,67 @@ export class LoginPage {
     });
   }
 
+  ionViewWillEnter() {
+    this.code = '';
+    this.mensaje = '';
+    this.isError = false;
+    this.loading = false;
+  }
+
   async onAccess() {
 
-    // 🟡 VALIDAR CAMPO VACÍO
+    // VALIDAR CAMPO VACÍO
     if (!this.code.trim()) {
-      this.mensaje = '⚠️ Por favor, ingresa un código de acceso';
+      this.mensaje = 'Por favor, ingresa un código de acceso';
+      this.isError = true;
       return;
     }
 
     this.loading = true;
     this.mensaje = '';
+    this.isError = false;
 
     try {
-      // 🔵 Llama al ApiService
+      // Llama al ApiService
       const response = await this.api.validateCode(this.code);
 
       if (response.valid) {
-        this.mensaje = '✅ Código correcto, bienvenido!';
-        // El boxId ya fue guardado en localStorage por el ApiService
-        setTimeout(() => this.router.navigateByUrl('/home'), 800);
+        this.mensaje = 'Código correcto, bienvenido';
+        this.isError = false;
+        
+        // Copiar a las llaves específicas del usuario logueado actualmente
+        const currentEmail = localStorage.getItem('currentUserEmail');
+        if (currentEmail) {
+          const boxId = localStorage.getItem('selectedBoxId');
+          if (boxId) {
+            localStorage.setItem('selectedBoxId_' + currentEmail, boxId);
+          }
+          const activePlant = localStorage.getItem('activePlant');
+          if (activePlant) {
+            localStorage.setItem('activePlant_' + currentEmail, activePlant);
+          } else {
+            localStorage.removeItem('activePlant_' + currentEmail);
+          }
+          const activePlantId = localStorage.getItem('activePlantId');
+          if (activePlantId) {
+            localStorage.setItem('activePlantId_' + currentEmail, activePlantId);
+          } else {
+            localStorage.removeItem('activePlantId_' + currentEmail);
+          }
+        }
+
+        setTimeout(() => this.router.navigateByUrl('/select'), 800);
 
       } else {
-        this.mensaje = '❌ Código inválido, intenta de nuevo';
+        this.mensaje = 'Código inválido, intenta de nuevo';
+        this.isError = true;
         this.code = '';
       }
 
     } catch (err) {
       console.error(err);
-      this.mensaje = '⚠️ Error de conexión. Verifica tu internet';
+      this.mensaje = 'Error de conexión. Verifica tu internet';
+      this.isError = true;
     } finally {
       this.loading = false;
     }
@@ -106,6 +140,7 @@ export class LoginPage {
     localStorage.removeItem('selectedBoxId');
     localStorage.removeItem('activePlant');
     localStorage.removeItem('activePlantId');
+    localStorage.removeItem('currentUserEmail');
     this.router.navigateByUrl('/login');
   }
 }
