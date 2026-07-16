@@ -50,6 +50,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/profile/profile.page').then(m => m.ProfilePage)
   },
   {
+    path: 'select',
+    loadComponent: () => import('./pages/select/select.page').then(m => m.SelectPage)
+  },
+  {
     path: 'camera',
     loadComponent: () => import('./pages/camera/camera.page').then( m => m.CameraPage)
   },

@@ -1,0 +1,141 @@
+<ion-content class="select-content" [fullscreen]="true">
+  
+
+  <div class="page-wrapper">
+    <div class="hero-section">
+      <!-- CABECERA COMPACTA -->
+      <div class="top-bar">
+        <button class="back-btn" (click)="goHome()">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+        </button>
+
+        <div class="action-buttons">
+          <button class="header-action-btn notification-btn" (click)="goNotifications()">
+            <ion-icon name="notifications-outline"></ion-icon>
+            <span class="noti-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+          </button>
+          <button class="header-action-btn avatar-btn" (click)="goProfile()">
+            <img *ngIf="profileImage" [src]="profileImage" alt="Avatar" class="avatar-image">
+            <div *ngIf="!profileImage" class="avatar-fallback">
+              {{ (userName || 'U').charAt(0).toUpperCase() }}
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- HERO PRINCIPAL VERDE -->
+        <div class="hero-text">
+          <h2 class="hero-title">Tipo de planta</h2>
+          <p class="hero-question">¿Qué tipo de planta quieres explorar hoy?</p>
+          <p class="hero-caption">Elige una categoría y descubre plantas medicinales, frutales, hortícolas y vegetales.</p>
+        </div>
+      </div>
+
+    <!-- CONTENEDOR BLANCO PRINCIPAL -->
+    <div class="categories-container">
+      <div class="section-title-wrapper">
+        <div class="title-row">
+          <h2 class="section-title">Tipos de plantas</h2>
+          <ion-icon name="leaf-outline" class="leaf-title-icon"></ion-icon>
+        </div>
+        <p class="section-subtitle">Selecciona el tipo de planta que deseas explorar</p>
+      </div>
+
+      <!-- LISTA DE CATEGORÍAS -->
+      <div class="categories-list">
+        
+        <!-- CARD MEDICINALES -->
+        <div class="category-card medicinal-card" (click)="selectCategory('medicinal')">
+          <div class="category-icon medicinal-bg">
+            <img src="assets/medicinal_plant_3d.png" alt="Medicinal" class="category-image">
+          </div>
+          <div class="card-info">
+            <h3 class="category-name">Medicinales</h3>
+            <p class="category-description">Plantas con propiedades curativas y beneficios para la salud.</p>
+          </div>
+          <button class="chevron-action-btn">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
+
+        <!-- CARD FRUTALES -->
+        <div class="category-card fruit-card" (click)="selectCategory('frutal')">
+          <div class="category-icon fruit-bg">
+            <img src="assets/strawberry_3d.png" alt="Frutales" class="category-image">
+          </div>
+          <div class="card-info">
+            <h3 class="category-name">Frutales</h3>
+            <p class="category-description">Plantas que producen frutas deliciosas y nutritivas.</p>
+          </div>
+          <button class="chevron-action-btn">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
+
+        <!-- CARD HORTALIZAS -->
+        <div class="category-card vegetable-card" (click)="selectCategory('hortaliza')">
+          <div class="category-icon vegetable-bg">
+            <img src="assets/lettuce_3d.png" alt="Hortalizas" class="category-image">
+          </div>
+          <div class="card-info">
+            <h3 class="category-name">Hortalizas</h3>
+            <p class="category-description">Plantas ideales para tu huerto y alimentación saludable.</p>
+          </div>
+          <button class="chevron-action-btn">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
+
+        <!-- CARD VEGETALES -->
+        <div class="category-card greens-card" (click)="selectCategory('vegetal')">
+          <div class="category-icon greens-bg">
+            <img src="assets/sprout_3d.png" alt="Vegetales" class="category-image">
+          </div>
+          <div class="card-info">
+            <h3 class="category-name">Vegetales</h3>
+            <p class="category-description">Plantas comestibles ricas en nutrientes y sabor.</p>
+          </div>
+          <button class="chevron-action-btn">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- SECCIÓN DE AYUDA (Caja inferior) -->
+      <div class="help-box-banner">
+        <div class="help-icon-wrapper">
+          <ion-icon name="leaf-outline" class="help-sprout-icon"></ion-icon>
+        </div>
+        <div class="help-text-content">
+          <h4 class="help-title">¿No sabes cuál elegir?</h4>
+          <p class="help-subtitle">Te ayudamos a encontrar la planta ideal según tus necesidades.</p>
+        </div>
+        <button class="help-action-btn" (click)="goHelp()">
+          Ayudarme
+          <ion-icon name="sparkles-outline" class="btn-sparkle-icon"></ion-icon>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</ion-content>
+
+<!-- BOTTOM TABS FOOTER (3 ICONOS CON ESTILO CONSISTENTE) -->
+<ion-footer class="ion-no-border stats-footer">
+  <div class="custom-tabs-nav">
+    <button class="nav-tab" (click)="goHome()">
+      <ion-icon name="home-outline"></ion-icon>
+      <span class="nav-label">Inicio</span>
+    </button>
+    <button class="nav-tab" (click)="goStats()">
+      <ion-icon name="stats-chart-outline"></ion-icon>
+      <span class="nav-label">Estadística</span>
+    </button>
+    <button class="nav-tab active" (click)="goMyPlant()">
+      <ion-icon name="leaf-outline"></ion-icon>
+      <span class="nav-label">Plantas</span>
+    </button>
+  </div>
+</ion-footer>
