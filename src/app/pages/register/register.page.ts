@@ -81,7 +81,10 @@ export class RegisterPage {
 
         // Crear su caja en la base de datos si es primera vez
         try {
-          await this.api.generateAndSendBoxCode(user.email, user.displayName || 'Usuario Google');
+          const res = await this.api.generateAndSendBoxCode(user.email, user.displayName || 'Usuario Google');
+          if (res && res.code) {
+            alert(`¡Tu código de acceso es: ${res.code}! (Cópialo para continuar)`);
+          }
         } catch (dbErr) {
           console.warn('La caja para este correo ya existía o hubo un error al crearla:', dbErr);
         }
@@ -135,11 +138,12 @@ export class RegisterPage {
       localStorage.removeItem('activePlantId');
 
       // Llamar al backend para generar su nueva caja y enviarle el código de acceso
-      await this.api.generateAndSendBoxCode(this.email.trim(), this.fullName.trim());
+      const res = await this.api.generateAndSendBoxCode(this.email.trim(), this.fullName.trim());
 
-      this.mensaje = 'Cuenta creada exitosamente. Revisa tu correo.';
+      this.mensaje = `Cuenta creada. Tu código es: ${res?.code}`;
       this.isError = false;
-      setTimeout(() => this.router.navigateByUrl('/login'), 1500);
+      alert(`¡Tu código de acceso es: ${res?.code}! Cópialo para poder vincular tu caja.`);
+      setTimeout(() => this.router.navigateByUrl('/login'), 3000);
     } catch (err: any) {
       console.error('Error de registro en Firebase:', err);
       this.isError = true;
