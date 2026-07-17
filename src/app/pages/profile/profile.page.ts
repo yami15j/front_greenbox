@@ -220,8 +220,24 @@ export class ProfilePage implements OnInit {
         ctx.rotate(this.rotation * Math.PI / 180);
         ctx.scale(this.zoom, this.zoom);
 
-        // Draw image centered around original origin
-        ctx.drawImage(img, -150, -150, 300, 300);
+        // Calcular dimensiones para mantener la relación de aspecto original (contain)
+        let drawWidth = 300;
+        let drawHeight = 300;
+        let drawX = -150;
+        let drawY = -150;
+
+        if (img.width > img.height) {
+          // Horizontal (Landscape)
+          drawHeight = 300 * (img.height / img.width);
+          drawY = -drawHeight / 2;
+        } else if (img.height > img.width) {
+          // Vertical (Portrait)
+          drawWidth = 300 * (img.width / img.height);
+          drawX = -drawWidth / 2;
+        }
+
+        // Dibujar imagen centrada con su relación de aspecto correcta
+        ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
 
         // Get base64 representation
         this.profileImage = canvas.toDataURL('image/jpeg', 0.85);
