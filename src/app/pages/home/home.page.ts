@@ -70,7 +70,7 @@ export class HomePage implements OnInit, OnDestroy {
 
   // Variables para el Clima Real
   weatherData: any = null;
-  weatherLocation = 'Eindhoven, Países Bajos';
+  weatherLocation = 'Cuenca, Ecuador';
   weatherTime = '';
 
   private socketSub?: Subscription;
@@ -571,12 +571,14 @@ export class HomePage implements OnInit, OnDestroy {
           this.fetchCityName(lat, lon);
         },
         (error) => {
-          console.warn('Geolocation failed, defaulting to Bogotá');
-          this.fetchWeather(4.711, -74.0721);
+          console.warn('Geolocation failed, defaulting to Cuenca');
+          this.weatherLocation = 'Cuenca, Ecuador';
+          this.fetchWeather(-2.9001, -79.0059);
         }
       );
     } else {
-      this.fetchWeather(4.711, -74.0721);
+      this.weatherLocation = 'Cuenca, Ecuador';
+      this.fetchWeather(-2.9001, -79.0059);
     }
   }
 
