@@ -40,7 +40,14 @@ export class SelectPage implements OnInit {
   }
 
   ngOnInit() {
-    // Cargar datos locales de usuario si están disponibles
+    this.loadLocalData();
+  }
+
+  ionViewWillEnter() {
+    this.loadLocalData();
+  }
+
+  private loadLocalData() {
     const savedName = localStorage.getItem('userName');
     if (savedName) {
       this.userName = this.getUserDisplayName(savedName);
