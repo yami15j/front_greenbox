@@ -412,9 +412,19 @@ export class ApiService {
   /** Validar código de acceso (login) */
   async validateCode(code: string): Promise<{ valid: boolean; boxId?: string; boxName?: string; profileImage?: string; plant?: any }> {
     try {
+      // Obtener el usuario autenticado actualmente en Firebase (si lo hay) para vincular la caja
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+      
+      const payload: any = { code };
+      if (currentUser) {
+        payload.firebaseUid = currentUser.uid;
+        payload.email = currentUser.email;
+      }
+
       // Intentar validación real contra el backend de login por código (público)
       const res = await firstValueFrom(
-        this.http.post<any>(`${this.base}/auth/validate-code-login`, { code })
+        this.http.post<any>(`${this.base}/auth/validate-code-login`, payload)
       );
 
       // Si es válido, guardarlo en localStorage y autenticar en Firebase
