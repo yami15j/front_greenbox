@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, AlertController, ToastController, LoadingController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ApiService } from 'src/app/api.service';
+import { restoreUserScopedStorageFromFirebase } from 'src/app/firebase-auth.utils';
 import { SocketService } from 'src/app/socket.service';
 import { PLANT_PROFILES, Plantprofile } from 'src/app/models/plants.data';
 import { addIcons } from 'ionicons';
@@ -63,14 +64,34 @@ export class SelectPlantPage implements OnInit {
   async ngOnInit() {
     this.plantProfiles = JSON.parse(JSON.stringify(PLANT_PROFILES));
     this.applyFilter('all');
-    await this.loadActivePlant();
+    await this.initializePage();
   }
 
   async ionViewWillEnter() {
+    await this.refreshPageState();
+  }
+
+  private async initializePage() {
+    await restoreUserScopedStorageFromFirebase();
+    await this.loadActivePlant();
+  }
+
+  private async refreshPageState() {
+    await restoreUserScopedStorageFromFirebase();
     await this.loadActivePlant();
   }
 
   async loadActivePlant() {
+    const savedPlantId = localStorage.getItem('activePlantId');
+    if (savedPlantId) {
+      const savedPlant = this.plantProfiles.find(p => p.id === savedPlantId);
+      if (savedPlant) {
+        this.plantProfiles.forEach(p => p.isActive = false);
+        savedPlant.isActive = true;
+        this.selectedPlant = savedPlant;
+      }
+    }
+
     const boxId = localStorage.getItem('selectedBoxId');
     if (boxId) {
       try {
@@ -93,15 +114,7 @@ export class SelectPlantPage implements OnInit {
       }
     }
 
-    const savedPlantId = localStorage.getItem('activePlantId');
-    if (savedPlantId) {
-      const savedPlant = this.plantProfiles.find(p => p.id === savedPlantId);
-      if (savedPlant) {
-        this.plantProfiles.forEach(p => p.isActive = false);
-        savedPlant.isActive = true;
-        this.selectedPlant = savedPlant;
-      }
-    } else {
+    if (!savedPlantId) {
       this.selectedPlant = null;
     }
   }
@@ -115,7 +128,33 @@ export class SelectPlantPage implements OnInit {
     }
   }
 
+  private applyPlantSelectionLocally(plant: Plantprofile) {
+    this.plantProfiles.forEach(p => p.isActive = false);
+    plant.isActive = true;
+    this.selectedPlant = plant;
+
+    localStorage.setItem('activePlantId', plant.id);
+    localStorage.setItem('activePlant', JSON.stringify(plant));
+
+    const currentEmail = localStorage.getItem('currentUserEmail');
+    if (currentEmail) {
+      localStorage.setItem('activePlantId_' + currentEmail, plant.id);
+      localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(plant));
+    }
+  }
+
+  private async updatePlantWithTimeout(boxId: string, plantId: string, timeoutMs: number = 6000) {
+    return await Promise.race([
+      this.api.updateBoxPlant(boxId, plantId),
+      new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('timeout')), timeoutMs);
+      }),
+    ]);
+  }
+
   async selectPlant(plant: Plantprofile) {
+    await restoreUserScopedStorageFromFirebase();
+
     const boxId = localStorage.getItem('selectedBoxId');
 
     if (!boxId) {
@@ -150,7 +189,8 @@ export class SelectPlantPage implements OnInit {
             await loading.present();
 
             try {
-              const response = await this.api.updateBoxPlant(boxId, plant.id);
+              this.applyPlantSelectionLocally(plant);
+              const response: any = await this.updatePlantWithTimeout(boxId, plant.id);
 
               if (response && response.data && response.data.id) {
                 const oldUserPlantId = localStorage.getItem('activeUserPlantId');
@@ -161,17 +201,12 @@ export class SelectPlantPage implements OnInit {
                 this.socketService.joinPlant(response.data.id);
               }
 
-              this.plantProfiles.forEach(p => p.isActive = false);
-              plant.isActive = true;
-              this.selectedPlant = plant;
-
-              localStorage.setItem('activePlantId', plant.id);
-              localStorage.setItem('activePlant', JSON.stringify(plant));
-
-              const currentEmail = localStorage.getItem('currentUserEmail');
-              if (currentEmail) {
-                localStorage.setItem('activePlantId_' + currentEmail, plant.id);
-                localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(plant));
+              if (response?.data?.plant) {
+                localStorage.setItem('activePlant', JSON.stringify(response.data.plant));
+                const currentEmail = localStorage.getItem('currentUserEmail');
+                if (currentEmail) {
+                  localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(response.data.plant));
+                }
               }
 
               await loading.dismiss();
@@ -191,19 +226,8 @@ export class SelectPlantPage implements OnInit {
               await loading.dismiss();
               console.warn('Error al actualizar la planta en el backend, usando activación local:', error);
 
-              // Fallback: activar localmente para permitir el flujo sin bloqueos
-              this.plantProfiles.forEach(p => p.isActive = false);
-              plant.isActive = true;
-              this.selectedPlant = plant;
-
-              localStorage.setItem('activePlantId', plant.id);
-              localStorage.setItem('activePlant', JSON.stringify(plant));
-
-              const currentEmail = localStorage.getItem('currentUserEmail');
-              if (currentEmail) {
-                localStorage.setItem('activePlantId_' + currentEmail, plant.id);
-                localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(plant));
-              }
+              // Fallback: mantener activación local para no bloquear el flujo
+              this.applyPlantSelectionLocally(plant);
 
               const successAlert = await this.alertController.create({
                 header: '✔ Cultivo Activado (Modo Local)',

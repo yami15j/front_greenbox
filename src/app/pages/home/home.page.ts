@@ -4,6 +4,7 @@ import { IonicModule, NavController, MenuController, ActionSheetController } fro
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ApiService, SensorData } from 'src/app/api.service';
+import { restoreUserScopedStorageFromFirebase } from 'src/app/firebase-auth.utils';
 import { SocketService } from 'src/app/socket.service';
 import { ActuatorStatus } from 'src/app/models/api.models';
 import { environment } from 'src/environments/environment';
@@ -108,21 +109,11 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.loadActivePlant();
-    this.loadSensorData();
-    this.loadActuatorStatus();
-    this.loadUnreadCount();
-    this.loadUserName();
-    this.setupWebSocket();
-    this.loadWeather();
+    void this.initializePage();
   }
 
   ionViewWillEnter() {
-    this.loadActivePlant();
-    this.loadSensorData();
-    this.loadActuatorStatus();
-    this.loadUnreadCount();
-    this.loadUserName();
+    void this.refreshPageState();
   }
 
   ngOnDestroy() {
@@ -133,6 +124,26 @@ export class HomePage implements OnInit, OnDestroy {
       this.commandSub.unsubscribe();
     }
     this.socketService.disconnect();
+  }
+
+  private async initializePage() {
+    await restoreUserScopedStorageFromFirebase();
+    this.loadActivePlant();
+    this.loadSensorData();
+    this.loadActuatorStatus();
+    this.loadUnreadCount();
+    this.loadUserName();
+    this.setupWebSocket();
+    this.loadWeather();
+  }
+
+  private async refreshPageState() {
+    await restoreUserScopedStorageFromFirebase();
+    this.loadActivePlant();
+    this.loadSensorData();
+    this.loadActuatorStatus();
+    this.loadUnreadCount();
+    this.loadUserName();
   }
 
   setupWebSocket() {
@@ -298,9 +309,14 @@ export class HomePage implements OnInit, OnDestroy {
       const boxInfo = await this.api.getBoxInfo(boxId);
       if (boxInfo && boxInfo.box) {
         const plant = boxInfo.box.plant;
+        if (!plant) {
+          this.cdr.detectChanges();
+          return;
+        }
+
         this.activePlant = plant;
         localStorage.setItem('activePlant', JSON.stringify(plant));
-        if (plant && plant.id) {
+        if (plant.id) {
           localStorage.setItem('activePlantId', String(plant.id));
         }
         
@@ -312,14 +328,14 @@ export class HomePage implements OnInit, OnDestroy {
           if (oldUserPlantId !== String(boxInfo.box.userPlantId)) {
             this.socketService.joinPlant(Number(boxInfo.box.userPlantId));
           }
-        } else {
+        } else if (!localStorage.getItem('activeUserPlantId')) {
           localStorage.removeItem('activeUserPlantId');
         }
 
         const currentEmail = localStorage.getItem('currentUserEmail');
         if (currentEmail) {
           localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(plant));
-          if (plant && plant.id) {
+          if (plant.id) {
             localStorage.setItem('activePlantId_' + currentEmail, String(plant.id));
           }
         }

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../environments/environment';
 import { SensorData, SensorReading, ActuatorStatus } from './models/api.models';
+import { getFirebaseIdToken } from './firebase-auth.utils';
 
 // Re-export for backward compatibility
 export { SensorData, SensorReading };
@@ -215,6 +216,69 @@ export class ApiService {
 
   constructor(private http: HttpClient) { }
 
+  private readStoredJson<T>(key: string): T | null {
+    const rawValue = localStorage.getItem(key);
+    if (!rawValue) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(rawValue) as T;
+    } catch {
+      return null;
+    }
+  }
+
+  private getCachedBoxInfo(boxId: string): any {
+    const numericBoxId = parseInt(boxId, 10);
+    const cachedPlant = this.readStoredJson<any>('activePlant');
+    const cachedPlantId = cachedPlant?.id ?? localStorage.getItem('activePlantId');
+    const cachedUserPlantId = localStorage.getItem('activeUserPlantId');
+
+    return {
+      box: {
+        id: Number.isFinite(numericBoxId) ? numericBoxId : boxId,
+        name: localStorage.getItem('selectedBoxName') || '',
+        profileImage: localStorage.getItem('profileImage') || null,
+        plant: cachedPlant,
+        plantId: cachedPlantId ?? null,
+        userPlantId: cachedUserPlantId ? Number(cachedUserPlantId) : null,
+      },
+      userPlant: cachedPlant
+        ? {
+            id: cachedUserPlantId ? Number(cachedUserPlantId) : null,
+            boxId: Number.isFinite(numericBoxId) ? numericBoxId : boxId,
+            plant: cachedPlant,
+          }
+        : null,
+    };
+  }
+
+  private async getAuthRequestOptions(): Promise<{ headers: HttpHeaders } | null> {
+    const token = await getFirebaseIdToken();
+    if (!token) {
+      return null;
+    }
+
+    try {
+      return {
+        headers: new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        }),
+      };
+    } catch (err) {
+      console.warn('No se pudo obtener el token de Firebase para la API:', err);
+      return null;
+    }
+  }
+
+  private unwrapData<T>(response: any): T {
+    if (response && typeof response === 'object' && 'data' in response) {
+      return response.data as T;
+    }
+    return response as T;
+  }
+
   /* ========== SENSOR DATA ENDPOINTS ========== */
 
   /** Datos más recientes de un box (dispositivo físico) */
@@ -402,9 +466,33 @@ export class ApiService {
       };
       
       const mappedPlantId = idMapping[plantId] || parseInt(plantId, 10) || 1;
+      const numericBoxId = parseInt(boxId, 10);
+      const requestOptions = await this.getAuthRequestOptions();
+
+      if (!requestOptions) {
+        throw new Error('No hay sesiÃ³n autenticada lista para actualizar la planta.');
+      }
+
+      if (Number.isFinite(numericBoxId)) {
+        try {
+          return await firstValueFrom(
+            this.http.post(
+              `${this.base}/user-plant`,
+              { boxId: numericBoxId, plantId: mappedPlantId },
+              requestOptions,
+            )
+          );
+        } catch (currentApiErr) {
+          console.warn('No se pudo actualizar la planta con el contrato actual, probando fallback legado.', currentApiErr);
+        }
+      }
 
       return await firstValueFrom(
-        this.http.patch(`${this.base}/box/${boxId}`, { plantId: mappedPlantId })
+        this.http.patch(
+          `${this.base}/box/${boxId}`,
+          { plantId: mappedPlantId },
+          requestOptions,
+        )
       );
     } catch (err) {
       console.error('Error actualizando planta del box:', err);
@@ -418,25 +506,90 @@ export class ApiService {
 
   /** Obtener información completa del box */
   async getBoxInfo(boxId: string): Promise<any> {
+    const cachedBoxInfo = this.getCachedBoxInfo(boxId);
+
     try {
       if (environment.allowOfflineLogin && boxId === 'dev-box-id') {
         console.warn('Modo offline: simulando obtención de información del box.');
         return { id: 'dev-box-id', plant: null };
       }
-      const res: any = await firstValueFrom(
-        this.http.get(`${this.base}/box/${boxId}`)
-      );
-      if (res && res.box && res.box.plant) {
-        res.box.plant = mapBackendPlantToProfile(res.box.plant);
+
+      const requestOptions = await this.getAuthRequestOptions();
+      const numericBoxId = parseInt(boxId, 10);
+
+      if (!requestOptions) {
+        return cachedBoxInfo;
       }
-      return res;
+
+      if (Number.isFinite(numericBoxId)) {
+        try {
+          const [boxesResponse, userPlantsResponse] = await Promise.all([
+            firstValueFrom(this.http.get(`${this.base}/box`, requestOptions)),
+            firstValueFrom(this.http.get(`${this.base}/user-plant`, requestOptions)),
+          ]);
+
+          const boxes = this.unwrapData<any[]>(boxesResponse);
+          const userPlants = this.unwrapData<any[]>(userPlantsResponse);
+
+          const box = Array.isArray(boxes)
+            ? boxes.find(item => String(item.id) === String(numericBoxId))
+            : null;
+
+          const userPlant = Array.isArray(userPlants)
+            ? userPlants.find(item => String(item.boxId) === String(numericBoxId) && item.archivedAt == null)
+            : null;
+
+          if (box || userPlant || cachedBoxInfo.box.plant) {
+            const mappedPlant = userPlant?.plant
+              ? mapBackendPlantToProfile(userPlant.plant)
+              : cachedBoxInfo.box.plant;
+            return {
+              box: {
+                ...(cachedBoxInfo.box ?? {}),
+                ...(box ?? {}),
+                id: box?.id ?? numericBoxId,
+                name: box?.locationName ?? box?.name ?? localStorage.getItem('selectedBoxName') ?? '',
+                profileImage: box?.profileImage ?? (localStorage.getItem('profileImage') || null),
+                plant: mappedPlant,
+                plantId: mappedPlant?.id ?? cachedBoxInfo.box.plantId ?? null,
+                userPlantId: userPlant?.id ?? cachedBoxInfo.box.userPlantId ?? null,
+              },
+              userPlant: userPlant ?? cachedBoxInfo.userPlant,
+            };
+          }
+        } catch (currentApiErr) {
+          console.warn('No se pudo obtener la info del box con el contrato actual, probando fallback legado.', currentApiErr);
+        }
+      }
+
+      const res: any = await firstValueFrom(
+        this.http.get(`${this.base}/box/${boxId}`, requestOptions)
+      );
+      const mappedPlant = res?.box?.plant
+        ? mapBackendPlantToProfile(res.box.plant)
+        : cachedBoxInfo.box.plant;
+
+      return {
+        ...res,
+        box: {
+          ...(cachedBoxInfo.box ?? {}),
+          ...(res?.box ?? {}),
+          id: res?.box?.id ?? cachedBoxInfo.box.id,
+          name: res?.box?.locationName ?? res?.box?.name ?? cachedBoxInfo.box.name,
+          profileImage: res?.box?.profileImage ?? cachedBoxInfo.box.profileImage ?? null,
+          plant: mappedPlant,
+          plantId: res?.box?.plantId ?? mappedPlant?.id ?? cachedBoxInfo.box.plantId ?? null,
+          userPlantId: res?.box?.userPlantId ?? cachedBoxInfo.box.userPlantId ?? null,
+        },
+        userPlant: res?.userPlant ?? cachedBoxInfo.userPlant,
+      };
     } catch (err) {
       console.error('Error obteniendo información del box:', err);
       if (environment.allowOfflineLogin) {
         console.warn('Modo offline: ignorando error de obtención de info del box.');
         return { id: boxId, plant: null };
       }
-      throw err;
+      return cachedBoxInfo;
     }
   }
 

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController, AlertController, ToastController } from '@ionic/angular';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from 'src/app/api.service';
+import { restoreUserScopedStorageFromFirebase } from 'src/app/firebase-auth.utils';
 import { PLANT_PROFILES, Plantprofile, TimelineEvent } from 'src/app/models/plants.data';
 import { addIcons } from 'ionicons';
 import {
@@ -70,7 +71,7 @@ export class PlantPage implements OnInit {
 
   async ngOnInit() {
     this.plantProfiles = JSON.parse(JSON.stringify(PLANT_PROFILES));
-    await this.loadActivePlant();
+    await this.initializePage();
 
     // Si no hay planta activa, redirigir directamente a la pantalla de selección
     if (!this.activePlant) {
@@ -79,6 +80,16 @@ export class PlantPage implements OnInit {
   }
 
   async ionViewWillEnter() {
+    await this.refreshPageState();
+  }
+
+  private async initializePage() {
+    await restoreUserScopedStorageFromFirebase();
+    await this.loadActivePlant();
+  }
+
+  private async refreshPageState() {
+    await restoreUserScopedStorageFromFirebase();
     await this.loadActivePlant();
   }
 

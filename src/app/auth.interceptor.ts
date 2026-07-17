@@ -1,21 +1,25 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { getAuth } from 'firebase/auth';
 import { from, switchMap } from 'rxjs';
 import { environment } from '../environments/environment';
+import { getFirebaseIdToken } from './firebase-auth.utils';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const auth = getAuth();
-  const user = auth.currentUser;
-
-  if (user && req.url.startsWith(environment.apiUrl)) {
-    return from(user.getIdToken()).pipe(
-      switchMap(token => {
-        const authReq = req.clone({
-          headers: req.headers.set('Authorization', `Bearer ${token}`)
-        });
-        return next(authReq);
-      })
-    );
+  if (!req.url.startsWith(environment.apiUrl)) {
+    return next(req);
   }
-  return next(req);
+
+  return from(getFirebaseIdToken()).pipe(
+    switchMap(token => {
+      if (!token) {
+        return next(req);
+      }
+
+      const authReq = req.clone({
+        setHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return next(authReq);
+    })
+  );
 };
