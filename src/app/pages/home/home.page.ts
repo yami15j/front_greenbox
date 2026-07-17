@@ -452,7 +452,13 @@ export class HomePage implements OnInit, OnDestroy {
     await actionSheet.present();
   }
 
-  logout() {
+  async logout() {
+    try {
+      const auth = getAuth();
+      await auth.signOut();
+    } catch (e) {
+      console.error('Error al cerrar sesión en Firebase:', e);
+    }
     localStorage.removeItem('selectedBoxId');
     localStorage.removeItem('selectedBoxName');
     localStorage.removeItem('userName');

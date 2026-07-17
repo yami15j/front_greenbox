@@ -5,7 +5,7 @@
 // Este archivo se usa cuando ejecutas: ionic serve o ng serve
 export const environment = {
   production: false,
-  apiUrl: 'https://greenbox01-production.up.railway.app',  // ← Railway backend
+  apiUrl: 'http://localhost:3000',  // ← Local backend (NestJS)
   allowOfflineLogin: false,  // Desactivado para consumir datos reales del backend
   firebase: {
     apiKey: "AIzaSyCGA2vn1DZan29mH6Lz_XpmHPrUCRVhlrk",

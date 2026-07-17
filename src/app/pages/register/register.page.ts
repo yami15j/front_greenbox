@@ -81,7 +81,7 @@ export class RegisterPage {
 
         // Crear su caja en la base de datos si es primera vez
         try {
-          const res = await this.api.generateAndSendBoxCode(user.email, user.displayName || 'Usuario Google');
+          const res = await this.api.generateAndSendBoxCode(user.email, user.displayName || 'Usuario Google', user.uid);
           if (res && res.code) {
             alert(`¡Tu código de acceso es: ${res.code}! (Cópialo para continuar)`);
           }
@@ -138,7 +138,7 @@ export class RegisterPage {
       localStorage.removeItem('activePlantId');
 
       // Llamar al backend para generar su nueva caja y enviarle el código de acceso
-      const res = await this.api.generateAndSendBoxCode(this.email.trim(), this.fullName.trim());
+      const res = await this.api.generateAndSendBoxCode(this.email.trim(), this.fullName.trim(), userCredential.user.uid);
 
       this.mensaje = `Cuenta creada. Tu código es: ${res?.code}`;
       this.isError = false;

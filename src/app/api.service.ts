@@ -703,10 +703,10 @@ export class ApiService {
   }
 
   /** Generar y enviar código de acceso a la caja por correo electrónico */
-  async generateAndSendBoxCode(email: string, name: string): Promise<any> {
+  async generateAndSendBoxCode(email: string, name: string, firebaseUid?: string): Promise<any> {
     try {
       return await firstValueFrom(
-        this.http.post<any>(`${this.base}/auth/register-send-code`, { email, name })
+        this.http.post<any>(`${this.base}/auth/register-send-code`, { email, name, firebaseUid })
       );
     } catch (err) {
       console.error('Error al generar y enviar código de caja:', err);

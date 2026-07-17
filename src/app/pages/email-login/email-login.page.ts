@@ -82,7 +82,7 @@ export class EmailLoginPage {
 
         // Crear su caja en la base de datos si es primera vez
         try {
-          const res = await this.api.generateAndSendBoxCode(user.email, user.displayName || 'Usuario Google');
+          const res = await this.api.generateAndSendBoxCode(user.email, user.displayName || 'Usuario Google', user.uid);
           if (res && res.code) {
             alert(`¡Tu código de acceso es: ${res.code}! (Cópialo para continuar)`);
           }
@@ -91,7 +91,16 @@ export class EmailLoginPage {
         }
       }
 
-      const boxId = localStorage.getItem('selectedBoxId');
+      // Intentar recuperar caja activa si no está cargada
+      let boxId = localStorage.getItem('selectedBoxId');
+      if (!boxId) {
+        try {
+          boxId = await this.api.ensureSelectedBox();
+        } catch (dbErr) {
+          console.warn('No se pudo recuperar la caja desde el backend en Google login:', dbErr);
+        }
+      }
+
       setTimeout(() => {
         if (boxId) {
           this.router.navigateByUrl('/home');
@@ -138,9 +147,9 @@ export class EmailLoginPage {
       localStorage.setItem('userName', displayName.charAt(0).toUpperCase() + displayName.slice(1));
 
       // Cargar boxId guardado para este correo
-      const savedBoxId = localStorage.getItem('selectedBoxId_' + email);
-      if (savedBoxId) {
-        localStorage.setItem('selectedBoxId', savedBoxId);
+      let boxId = localStorage.getItem('selectedBoxId_' + email);
+      if (boxId) {
+        localStorage.setItem('selectedBoxId', boxId);
       } else {
         localStorage.removeItem('selectedBoxId');
       }
@@ -160,7 +169,15 @@ export class EmailLoginPage {
         localStorage.removeItem('activePlantId');
       }
 
-      const boxId = localStorage.getItem('selectedBoxId');
+      // Si no tenemos boxId en localStorage, intentar recuperarla desde el backend de inmediato
+      if (!boxId) {
+        try {
+          boxId = await this.api.ensureSelectedBox();
+        } catch (dbErr) {
+          console.warn('No se pudo recuperar la caja desde el backend al iniciar sesión:', dbErr);
+        }
+      }
+
       setTimeout(() => {
         if (boxId) {
           this.router.navigateByUrl('/home');

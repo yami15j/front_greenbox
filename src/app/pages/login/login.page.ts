@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { getAuth } from 'firebase/auth';
 
 import {
   IonContent,
@@ -63,11 +64,29 @@ export class LoginPage {
     });
   }
 
-  ionViewWillEnter() {
+  async ionViewWillEnter() {
     this.code = '';
     this.mensaje = '';
     this.isError = false;
     this.loading = false;
+
+    // Si ya existe una caja seleccionada en localStorage, ir a home directamente
+    const savedBoxId = localStorage.getItem('selectedBoxId');
+    if (savedBoxId) {
+      this.router.navigateByUrl('/home');
+      return;
+    }
+
+    // Si no hay caja guardada localmente, pero el usuario está autenticado en Firebase,
+    // intentar recuperar su caja desde el backend de manera transparente.
+    try {
+      const boxId = await this.api.ensureSelectedBox();
+      if (boxId) {
+        this.router.navigateByUrl('/home');
+      }
+    } catch (e) {
+      console.warn('Error al verificar caja activa en ionViewWillEnter:', e);
+    }
   }
 
   async onAccess() {
@@ -136,8 +155,17 @@ export class LoginPage {
   goEmailLogin() { this.router.navigateByUrl('/email-login'); }
   goRegister()    { this.router.navigateByUrl('/register'); }
 
-  logout() {
+  async logout() {
+    try {
+      const auth = getAuth();
+      await auth.signOut();
+    } catch (e) {
+      console.error('Error al cerrar sesión en Firebase:', e);
+    }
     localStorage.removeItem('selectedBoxId');
+    localStorage.removeItem('selectedBoxName');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('profileImage');
     localStorage.removeItem('activePlant');
     localStorage.removeItem('activePlantId');
     localStorage.removeItem('currentUserEmail');
