@@ -1,13 +1,12 @@
 <ion-content class="plants-content" [scrollEvents]="true" [fullscreen]="true">
 
-  <!-- Hero / Header Area -->
   <div class="plants-hero" [class.no-active]="!selectedPlant" [style.background-image]="(selectedPlant && selectedPlant.imageUrl) ? 'url(\'' + selectedPlant.imageUrl + '\')' : null">
     <div class="hero-overlay"></div>
-    
+
     <ion-button fill="clear" class="back-button" (click)="goBack()">
       <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
     </ion-button>
-    
+
     <div class="hero-content" *ngIf="selectedPlant">
       <span class="hero-subtitle">MIS PLANTAS</span>
       <div class="hero-badge">
@@ -18,7 +17,7 @@
       <div class="hero-stats">
         <div class="hero-stat-pill">
           <ion-icon name="thermometer-outline"></ion-icon>
-          <span>{{ selectedPlant.optimalConditions.tempMax }}°C máx</span>
+          <span>{{ selectedPlant.optimalConditions.tempMax }} C max</span>
         </div>
         <div class="hero-stat-pill">
           <ion-icon name="water-outline"></ion-icon>
@@ -38,50 +37,42 @@
     </div>
   </div>
 
-  <!-- Plants list body -->
   <div class="plants-list-container">
     <div class="list-header">
       <span class="available-count">{{ filteredPlants.length }} plantas disponibles</span>
     </div>
 
-    <!-- FILTROS -->
+    <div class="selection-message" *ngIf="selectionMessage">
+      {{ selectionMessage }}
+    </div>
+
     <div class="filter-section">
       <div class="filter-chips">
-        <button class="filter-chip" [class.active]="filterType === 'all'" (click)="applyFilter('all')">
+        <button type="button" class="filter-chip" [class.active]="filterType === 'all'" (click)="applyFilter('all')">
           <span>Todos</span>
         </button>
-        <button class="filter-chip" [class.active]="filterType === 'Hoja Verde'" (click)="applyFilter('Hoja Verde')">
+        <button type="button" class="filter-chip" [class.active]="filterType === 'Hoja Verde'" (click)="applyFilter('Hoja Verde')">
           <span>Hojas Verdes</span>
         </button>
-        <button class="filter-chip" [class.active]="filterType === 'Fruto'" (click)="applyFilter('Fruto')">
+        <button type="button" class="filter-chip" [class.active]="filterType === 'Fruto'" (click)="applyFilter('Fruto')">
           <span>Frutos</span>
         </button>
-        <button class="filter-chip" [class.active]="filterType === 'Hierba Aromática'" (click)="applyFilter('Hierba Aromática')">
+        <button type="button" class="filter-chip" [class.active]="filterType === 'Hierba Aromatica'" (click)="applyFilter('Hierba Aromatica')">
           <span>Hierbas</span>
         </button>
       </div>
     </div>
 
-    <!-- GRID -->
     <div class="plants-grid">
-      <div
-        class="plant-card"
-        *ngFor="let plant of filteredPlants"
-        [class.active]="plant.isActive"
-        (click)="selectPlant(plant)">
-        
+      <div class="plant-card" *ngFor="let plant of filteredPlants" [class.active]="plant.isActive">
+
         <div class="plant-card-image-wrapper">
-          <div
-            class="plant-image"
-            [style.background-image]="'url(' + plant.imageUrl + ')'">
-          </div>
-          
-          <!-- Dificultad Badge (Top Right) -->
-          <span class="difficulty-badge" [class.facil]="plant.difficulty === 'Fácil'" [class.intermedio]="plant.difficulty === 'Intermedio'" [class.avanzado]="plant.difficulty === 'Avanzado'">
+          <div class="plant-image" [style.background-image]="'url(' + plant.imageUrl + ')'"></div>
+
+          <span class="difficulty-badge" [class.facil]="plant.difficulty.startsWith('F')" [class.intermedio]="plant.difficulty === 'Intermedio'" [class.avanzado]="plant.difficulty === 'Avanzado'">
             {{ plant.difficulty }}
           </span>
 
-          <!-- Active Badge (Top Left) -->
           <div class="card-active-check" *ngIf="plant.isActive">
             <ion-icon name="checkmark-circle"></ion-icon>
           </div>
@@ -89,11 +80,11 @@
 
         <div class="plant-card-body">
           <h3 class="plant-name">{{ plant.name }}</h3>
-          
+
           <div class="plant-conditions-row">
             <div class="condition-badge">
               <ion-icon name="thermometer-outline" class="cond-icon temp"></ion-icon>
-              <span>{{ plant.optimalConditions.tempMax }}°C</span>
+              <span>{{ plant.optimalConditions.tempMax }} C</span>
             </div>
             <div class="condition-badge">
               <ion-icon name="water-outline" class="cond-icon hum"></ion-icon>
@@ -109,33 +100,32 @@
             </ng-container>
             <ng-template #defaultTags>
               <span class="benefit-tag">SALUDABLE</span>
-              <span class="benefit-tag">ORGÁNICO</span>
+              <span class="benefit-tag">ORGANICO</span>
             </ng-template>
           </div>
         </div>
 
         <div class="plant-card-footer">
           <button
+            type="button"
             [class.active-btn]="plant.isActive"
             [class.inactive-btn]="!plant.isActive"
             class="select-btn-custom"
-            (click)="selectPlant(plant); $event.stopPropagation()">
-            <ion-icon
-              [name]="plant.isActive ? 'checkmark-circle' : 'add-circle-outline'">
-            </ion-icon>
-            <span>{{ plant.isActive ? 'Activa' : 'Seleccionar' }}</span>
+            [disabled]="activatingPlantId === plant.id"
+            (click)="selectPlant(plant)">
+            <ion-icon [name]="activatingPlantId === plant.id ? 'time-outline' : (plant.isActive ? 'checkmark-circle' : 'add-circle-outline')"></ion-icon>
+            <span>{{ activatingPlantId === plant.id ? 'Activando...' : (plant.isActive ? 'Activa' : 'Seleccionar') }}</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- CONSEJO / CÓMO FUNCIONA -->
     <div class="how-it-works-card">
-      <div class="card-icon">💡</div>
+      <div class="card-icon">i</div>
       <div class="card-text-content">
-        <h3 class="card-title">¿Cómo funciona?</h3>
+        <h3 class="card-title">Como funciona?</h3>
         <p class="card-description">
-          Al seleccionar una planta, GREENBOX ajusta automáticamente los umbrales de temperatura, humedad y alertas para ese cultivo.
+          Al seleccionar una planta, GREENBOX ajusta automaticamente los umbrales de temperatura, humedad y alertas para ese cultivo.
         </p>
       </div>
     </div>
@@ -143,18 +133,17 @@
 
 </ion-content>
 
-<!-- BOTTOM TABS FOOTER -->
 <ion-footer class="ion-no-border stats-footer">
   <div class="custom-tabs-nav">
-    <button class="nav-tab" (click)="goHome()">
+    <button type="button" class="nav-tab" (click)="goHome()">
       <ion-icon name="home-outline"></ion-icon>
       <span class="nav-label">Inicio</span>
     </button>
-    <button class="nav-tab" (click)="goStats()">
+    <button type="button" class="nav-tab" (click)="goStats()">
       <ion-icon name="stats-chart-outline"></ion-icon>
-      <span class="nav-label">Estadística</span>
+      <span class="nav-label">Estadistica</span>
     </button>
-    <button class="nav-tab active">
+    <button type="button" class="nav-tab active">
       <ion-icon name="leaf-outline"></ion-icon>
       <span class="nav-label">Plantas</span>
     </button>

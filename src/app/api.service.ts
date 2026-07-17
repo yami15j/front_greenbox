@@ -254,6 +254,29 @@ export class ApiService {
     };
   }
 
+  private persistSelectedBox(box: any): string | null {
+    if (!box?.id) {
+      return null;
+    }
+
+    const boxId = String(box.id);
+    const boxName = box.locationName || box.name || box.displayName || `Caja ${box.code ?? box.id}`;
+
+    localStorage.setItem('selectedBoxId', boxId);
+    localStorage.setItem('selectedBoxName', boxName);
+
+    if (box.profileImage) {
+      localStorage.setItem('profileImage', box.profileImage);
+    }
+
+    const currentEmail = localStorage.getItem('currentUserEmail');
+    if (currentEmail) {
+      localStorage.setItem(`selectedBoxId_${currentEmail}`, boxId);
+    }
+
+    return boxId;
+  }
+
   private async getAuthRequestOptions(): Promise<{ headers: HttpHeaders } | null> {
     const token = await getFirebaseIdToken();
     if (!token) {
@@ -277,6 +300,33 @@ export class ApiService {
       return response.data as T;
     }
     return response as T;
+  }
+
+  async ensureSelectedBox(): Promise<string | null> {
+    const savedBoxId = localStorage.getItem('selectedBoxId');
+    if (savedBoxId) {
+      return savedBoxId;
+    }
+
+    const requestOptions = await this.getAuthRequestOptions();
+    if (!requestOptions) {
+      return null;
+    }
+
+    try {
+      const boxesResponse = await firstValueFrom(
+        this.http.get(`${this.base}/box`, requestOptions)
+      );
+      const boxes = this.unwrapData<any[]>(boxesResponse);
+      if (!Array.isArray(boxes) || boxes.length === 0) {
+        return null;
+      }
+
+      return this.persistSelectedBox(boxes[0]);
+    } catch (err) {
+      console.warn('No se pudo recuperar automÃ¡ticamente la caja activa del usuario:', err);
+      return null;
+    }
   }
 
   /* ========== SENSOR DATA ENDPOINTS ========== */

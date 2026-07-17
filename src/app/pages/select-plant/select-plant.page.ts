@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule, NavController, AlertController, ToastController, LoadingController } from '@ionic/angular';
+import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ApiService } from 'src/app/api.service';
 import { restoreUserScopedStorageFromFirebase } from 'src/app/firebase-auth.utils';
@@ -35,17 +35,14 @@ export class SelectPlantPage implements OnInit {
   filteredPlants: Plantprofile[] = [];
   selectedPlant: Plantprofile | null = null;
   filterType: string = 'all';
+  activatingPlantId: string | null = null;
+  selectionMessage = '';
 
   constructor(
-    private navCtrl: NavController,
     private router: Router,
-    private alertController: AlertController,
-    private toastController: ToastController,
-    private loadingController: LoadingController,
     private api: ApiService,
     private socketService: SocketService
   ) {
-    // Registrar iconos necesarios
     addIcons({
       chevronBackOutline,
       checkmarkCircle,
@@ -73,11 +70,13 @@ export class SelectPlantPage implements OnInit {
 
   private async initializePage() {
     await restoreUserScopedStorageFromFirebase();
+    await this.api.ensureSelectedBox();
     await this.loadActivePlant();
   }
 
   private async refreshPageState() {
     await restoreUserScopedStorageFromFirebase();
+    await this.api.ensureSelectedBox();
     await this.loadActivePlant();
   }
 
@@ -92,14 +91,13 @@ export class SelectPlantPage implements OnInit {
       }
     }
 
-    const boxId = localStorage.getItem('selectedBoxId');
+    const boxId = await this.api.ensureSelectedBox();
     if (boxId) {
       try {
         const boxInfo = await this.api.getBoxInfo(boxId);
-        if (boxInfo && boxInfo.box && boxInfo.box.plant) {
+        if (boxInfo?.box?.plant) {
           const plantId = boxInfo.box.plant.id;
           if (plantId) {
-            // Encontrar perfil de planta
             const savedPlant = this.plantProfiles.find(p => p.id === plantId || String(p.id) === String(plantId));
             if (savedPlant) {
               this.plantProfiles.forEach(p => p.isActive = false);
@@ -124,8 +122,17 @@ export class SelectPlantPage implements OnInit {
     if (type === 'all') {
       this.filteredPlants = this.plantProfiles;
     } else {
-      this.filteredPlants = this.plantProfiles.filter(p => p.type === type);
+      this.filteredPlants = this.plantProfiles.filter(
+        p => this.normalizeText(p.type) === this.normalizeText(type)
+      );
     }
+  }
+
+  private normalizeText(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
   }
 
   private applyPlantSelectionLocally(plant: Plantprofile) {
@@ -153,98 +160,51 @@ export class SelectPlantPage implements OnInit {
   }
 
   async selectPlant(plant: Plantprofile) {
-    await restoreUserScopedStorageFromFirebase();
-
-    const boxId = localStorage.getItem('selectedBoxId');
-
-    if (!boxId) {
-      const errorAlert = await this.alertController.create({
-        header: 'Error de Sesión',
-        message: 'Debes iniciar sesión primero para seleccionar una planta.',
-        buttons: [
-          {
-            text: 'Ir a Login',
-            handler: () => {
-              this.router.navigate(['/login']);
-            }
-          }
-        ]
-      });
-      await errorAlert.present();
+    if (this.activatingPlantId) {
       return;
     }
 
-    const confirmAlert = await this.alertController.create({
-      header: '¿Activar planta?',
-      message: `¿Deseas activar ${plant.name} como tu cultivo actual?`,
-      buttons: [
-        { text: 'Cancelar', role: 'cancel' },
-        {
-          text: 'OK',
-          handler: async () => {
-            const loading = await this.loadingController.create({
-              message: 'Actualizando cultivo en GreenBox (despertando servidor)...',
-              spinner: 'crescent'
-            });
-            await loading.present();
+    this.selectionMessage = '';
+    this.activatingPlantId = plant.id;
 
-            try {
-              this.applyPlantSelectionLocally(plant);
-              const response: any = await this.updatePlantWithTimeout(boxId, plant.id);
+    await restoreUserScopedStorageFromFirebase();
 
-              if (response && response.data && response.data.id) {
-                const oldUserPlantId = localStorage.getItem('activeUserPlantId');
-                if (oldUserPlantId) {
-                  this.socketService.leavePlant(Number(oldUserPlantId));
-                }
-                localStorage.setItem('activeUserPlantId', String(response.data.id));
-                this.socketService.joinPlant(response.data.id);
-              }
+    const boxId = await this.api.ensureSelectedBox();
+    if (!boxId) {
+      this.selectionMessage = 'No pudimos identificar tu GreenBox. Ingresa nuevamente con tu codigo.';
+      this.activatingPlantId = null;
+      return;
+    }
 
-              if (response?.data?.plant) {
-                localStorage.setItem('activePlant', JSON.stringify(response.data.plant));
-                const currentEmail = localStorage.getItem('currentUserEmail');
-                if (currentEmail) {
-                  localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(response.data.plant));
-                }
-              }
+    try {
+      this.applyPlantSelectionLocally(plant);
+      const response: any = await this.updatePlantWithTimeout(boxId, plant.id);
 
-              await loading.dismiss();
-
-              const successAlert = await this.alertController.create({
-                header: '✔ Planta Activada',
-                message: `${plant.name} ha sido configurada correctamente en el servidor.`,
-                buttons: ['OK']
-              });
-              await successAlert.present();
-              await successAlert.onDidDismiss();
-              
-              // Volver a la pantalla de Home
-              this.router.navigate(['/home']);
-
-            } catch (error: any) {
-              await loading.dismiss();
-              console.warn('Error al actualizar la planta en el backend, usando activación local:', error);
-
-              // Fallback: mantener activación local para no bloquear el flujo
-              this.applyPlantSelectionLocally(plant);
-
-              const successAlert = await this.alertController.create({
-                header: '✔ Cultivo Activado (Modo Local)',
-                message: `${plant.name} ha sido activada localmente. (El servidor de Render está respondiendo lento o apagado).`,
-                buttons: ['OK']
-              });
-              await successAlert.present();
-              await successAlert.onDidDismiss();
-
-              // Volver a la pantalla de Home
-              this.router.navigate(['/home']);
-            }
-          }
+      if (response?.data?.id) {
+        const oldUserPlantId = localStorage.getItem('activeUserPlantId');
+        if (oldUserPlantId) {
+          this.socketService.leavePlant(Number(oldUserPlantId));
         }
-      ]
-    });
-    await confirmAlert.present();
+        localStorage.setItem('activeUserPlantId', String(response.data.id));
+        this.socketService.joinPlant(response.data.id);
+      }
+
+      if (response?.data?.plant) {
+        localStorage.setItem('activePlant', JSON.stringify(response.data.plant));
+        const currentEmail = localStorage.getItem('currentUserEmail');
+        if (currentEmail) {
+          localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(response.data.plant));
+        }
+      }
+    } catch (error: any) {
+      console.warn('Error al actualizar la planta en el backend, usando activacion local:', error);
+      this.applyPlantSelectionLocally(plant);
+      this.selectionMessage = 'Se activo la planta localmente mientras responde el servidor.';
+    } finally {
+      this.activatingPlantId = null;
+    }
+
+    this.router.navigate(['/home']);
   }
 
   goBack() {
