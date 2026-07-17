@@ -39,8 +39,8 @@ export class SplashPage implements OnInit {
         }
       }
     } else {
-      // Si no está logueado en Firebase, enviarlo a la pantalla de código (para que pueda acceder directo con su código)
-      this.router.navigateByUrl('/login');
+      // Si no está logueado en Firebase, enviarlo a iniciar sesión por correo/contraseña
+      this.router.navigateByUrl('/email-login');
     }
   }
 }
