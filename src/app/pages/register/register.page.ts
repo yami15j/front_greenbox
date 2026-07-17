@@ -90,7 +90,7 @@ export class RegisterPage {
       const boxId = localStorage.getItem('selectedBoxId');
       setTimeout(() => {
         if (boxId) {
-          this.router.navigateByUrl('/home');
+          this.router.navigateByUrl('/select');
         } else {
           this.router.navigateByUrl('/login');
         }

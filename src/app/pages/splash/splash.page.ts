@@ -25,12 +25,12 @@ export class SplashPage implements OnInit {
     if (user) {
       const savedBoxId = localStorage.getItem('selectedBoxId');
       if (savedBoxId) {
-        this.router.navigateByUrl('/home');
+        this.router.navigateByUrl('/select');
       } else {
         try {
           const boxId = await this.api.ensureSelectedBox();
           if (boxId) {
-            this.router.navigateByUrl('/home');
+            this.router.navigateByUrl('/select');
           } else {
             this.router.navigateByUrl('/login');
           }

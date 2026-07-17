@@ -100,7 +100,7 @@ export class EmailLoginPage {
 
       setTimeout(() => {
         if (boxId) {
-          this.router.navigateByUrl('/home');
+          this.router.navigateByUrl('/select');
         } else {
           this.router.navigateByUrl('/login');
         }
@@ -177,7 +177,7 @@ export class EmailLoginPage {
 
       setTimeout(() => {
         if (boxId) {
-          this.router.navigateByUrl('/home');
+          this.router.navigateByUrl('/select');
         } else {
           this.router.navigateByUrl('/login');
         }

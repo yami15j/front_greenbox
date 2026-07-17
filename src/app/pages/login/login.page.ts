@@ -73,7 +73,7 @@ export class LoginPage {
     // Si ya existe una caja seleccionada en localStorage, ir a home directamente
     const savedBoxId = localStorage.getItem('selectedBoxId');
     if (savedBoxId) {
-      this.router.navigateByUrl('/home');
+      this.router.navigateByUrl('/select');
       return;
     }
 
@@ -82,7 +82,7 @@ export class LoginPage {
     try {
       const boxId = await this.api.ensureSelectedBox();
       if (boxId) {
-        this.router.navigateByUrl('/home');
+        this.router.navigateByUrl('/select');
       }
     } catch (e) {
       console.warn('Error al verificar caja activa en ionViewWillEnter:', e);
@@ -131,7 +131,7 @@ export class LoginPage {
           }
         }
 
-        setTimeout(() => this.router.navigateByUrl('/home'), 800);
+        setTimeout(() => this.router.navigateByUrl('/select'), 800);
 
       } else {
         this.mensaje = 'Código inválido, intenta de nuevo';
