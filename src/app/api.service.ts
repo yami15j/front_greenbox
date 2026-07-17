@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '../environments/environment';
 import { SensorData, SensorReading, ActuatorStatus } from './models/api.models';
 import { getFirebaseIdToken } from './firebase-auth.utils';
+import { getAuth, signInWithCustomToken } from 'firebase/auth';
 
 // Re-export for backward compatibility
 export { SensorData, SensorReading };
@@ -411,19 +412,26 @@ export class ApiService {
   /** Validar código de acceso (login) */
   async validateCode(code: string): Promise<{ valid: boolean; boxId?: string; boxName?: string; profileImage?: string; plant?: any }> {
     try {
-      // Intentar primero validación real contra el backend
+      // Intentar validación real contra el backend de login por código (público)
       const res = await firstValueFrom(
-        this.http.post<any>(`${this.base}/auth/validate`, { code })
+        this.http.post<any>(`${this.base}/auth/validate-code-login`, { code })
       );
 
-      // Si es válido y tiene boxId, guardarlo en localStorage
-      if (res && res.data && res.data.box) {
-        const box = res.data.box;
-        const userPlantId = res.data.userPlantId;
-        const plant = res.data.plant;
+      // Si es válido, guardarlo en localStorage y autenticar en Firebase
+      if (res && res.data && res.data.box && res.data.firebaseToken) {
+        const data = res.data;
+        const box = data.box;
+        const userPlantId = data.userPlantId;
+        const plant = data.plant;
+
+        // Iniciar sesión en Firebase usando el token personalizado generado
+        const auth = getAuth();
+        await signInWithCustomToken(auth, data.firebaseToken);
 
         localStorage.setItem('selectedBoxId', String(box.id));
         localStorage.setItem('selectedBoxName', box.locationName || `Caja ${box.code}`);
+        localStorage.setItem('currentUserEmail', data.user.email);
+        localStorage.setItem('userName', data.user.name);
         
         if (box.profileImage) {
           localStorage.setItem('profileImage', box.profileImage);
@@ -444,6 +452,14 @@ export class ApiService {
         } else {
           localStorage.removeItem('activePlant');
           localStorage.removeItem('activePlantId');
+        }
+
+        // Guardar también con el scope del correo del usuario
+        localStorage.setItem('selectedBoxId_' + data.user.email, String(box.id));
+        if (plant) {
+          const mappedPlant = mapBackendPlantToProfile(plant);
+          localStorage.setItem('activePlant_' + data.user.email, JSON.stringify(mappedPlant));
+          localStorage.setItem('activePlantId_' + data.user.email, String(mappedPlant.id));
         }
 
         return {

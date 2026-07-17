@@ -466,7 +466,7 @@ export class HomePage implements OnInit, OnDestroy {
     localStorage.removeItem('activePlant');
     localStorage.removeItem('activePlantId');
     localStorage.removeItem('currentUserEmail');
-    this.router.navigate(['/email-login']);
+    this.router.navigate(['/login']);
   }
 
   // ✅ NAVEGACIÓN TABS CORREGIDA

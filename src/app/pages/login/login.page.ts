@@ -169,6 +169,6 @@ export class LoginPage {
     localStorage.removeItem('activePlant');
     localStorage.removeItem('activePlantId');
     localStorage.removeItem('currentUserEmail');
-    this.router.navigateByUrl('/email-login');
+    this.router.navigateByUrl('/login');
   }
 }

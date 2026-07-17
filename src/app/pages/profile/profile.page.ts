@@ -350,6 +350,6 @@ export class ProfilePage implements OnInit {
     localStorage.removeItem('activePlant');
     localStorage.removeItem('activePlantId');
     localStorage.removeItem('currentUserEmail');
-    this.router.navigate(['/email-login']);
+    this.router.navigate(['/login']);
   }
 }
