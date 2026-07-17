@@ -268,6 +268,8 @@ export class ApiService {
 
     if (box.profileImage) {
       localStorage.setItem('profileImage', box.profileImage);
+    } else {
+      localStorage.removeItem('profileImage');
     }
 
     const currentEmail = localStorage.getItem('currentUserEmail');
@@ -625,7 +627,7 @@ export class ApiService {
                 ...(box ?? {}),
                 id: box?.id ?? numericBoxId,
                 name: box?.locationName ?? box?.name ?? localStorage.getItem('selectedBoxName') ?? '',
-                profileImage: box?.profileImage ?? (localStorage.getItem('profileImage') || null),
+                profileImage: box?.profileImage !== undefined ? box?.profileImage : (localStorage.getItem('profileImage') || null),
                 plant: mappedPlant,
                 plantId: mappedPlant?.id ?? cachedBoxInfo.box.plantId ?? null,
                 userPlantId: userPlant?.id ?? cachedBoxInfo.box.userPlantId ?? null,
@@ -652,7 +654,7 @@ export class ApiService {
           ...(res?.box ?? {}),
           id: res?.box?.id ?? cachedBoxInfo.box.id,
           name: res?.box?.locationName ?? res?.box?.name ?? cachedBoxInfo.box.name,
-          profileImage: res?.box?.profileImage ?? cachedBoxInfo.box.profileImage ?? null,
+          profileImage: res?.box?.profileImage !== undefined ? res?.box?.profileImage : (cachedBoxInfo.box.profileImage ?? null),
           plant: mappedPlant,
           plantId: res?.box?.plantId ?? mappedPlant?.id ?? cachedBoxInfo.box.plantId ?? null,
           userPlantId: res?.box?.userPlantId ?? cachedBoxInfo.box.userPlantId ?? null,
