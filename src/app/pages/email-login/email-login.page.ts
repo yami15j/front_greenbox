@@ -82,10 +82,7 @@ export class EmailLoginPage {
 
         // Crear su caja en la base de datos si es primera vez
         try {
-          const res = await this.api.generateAndSendBoxCode(user.email, user.displayName || 'Usuario Google', user.uid);
-          if (res && res.code) {
-            alert(`¡Tu código de acceso es: ${res.code}! (Cópialo para continuar)`);
-          }
+          await this.api.generateAndSendBoxCode(user.email, user.displayName || 'Usuario Google', user.uid);
         } catch (dbErr) {
           console.warn('La caja para este correo ya existía o hubo un error al crearla:', dbErr);
         }
