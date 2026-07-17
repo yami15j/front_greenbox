@@ -15,34 +15,23 @@
   .hero-section {
     position: relative;
     overflow: hidden;
-    padding: 32px 20px 34px;
-    background: linear-gradient(180deg, #e8f7e8 0%, #cfe5ca 42%, #c0d9b8 100%);
+    padding: 24px 20px 48px;
+    background: radial-gradient(circle at 100% 0%, #e2f2e9 0%, #f6faf7 100%);
     border-radius: 0 0 36px 36px;
     margin: 0;
+    border-bottom: 1px solid rgba(95, 166, 140, 0.08);
   }
 
   .hero-section::before {
     content: '';
     position: absolute;
-    top: -28px;
-    right: -22px;
-    width: 190px;
-    height: 190px;
-    background: rgba(91, 158, 91, 0.18);
+    top: -40px;
+    right: -40px;
+    width: 260px;
+    height: 260px;
+    background: rgba(95, 166, 140, 0.10);
     border-radius: 50%;
     z-index: 0;
-  }
-
-  .hero-section::after {
-    content: '';
-    position: absolute;
-    bottom: -18px;
-    left: 0;
-    width: 100%;
-    height: 96px;
-    background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #ffffff 100%);
-    border-radius: 0 0 36px 36px;
-    z-index: 1;
   }
 
   .top-bar {
@@ -139,48 +128,66 @@
     display: none;
   }
 
-  .hero-text {
+  .hero-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 14px;
     position: relative;
+  }
+
+  .hero-text {
+    flex: 1.2;
     z-index: 2;
+    padding-right: 110px; // Ensure text never overlaps the plant
 
     .hero-title {
       margin: 0;
-      font-size: 26px;
-      font-weight: 900;
+      font-size: 25px;
+      font-weight: 850;
       color: #17452f;
-      line-height: 1.08;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .title-leaves {
+        font-size: 20px;
+      }
     }
 
     .hero-question {
-      margin: 10px 0 0 0;
-      font-size: 17px;
-      font-weight: 700;
-      color: #1d4f36;
+      margin: 8px 0 0 0;
+      font-size: 15.5px;
+      font-weight: 600;
+      color: #2b543b;
       line-height: 1.35;
-      max-width: 280px;
     }
 
     .hero-caption {
-      margin: 12px 0 0 0;
-      font-size: 13px;
-      color: #53705f;
-      line-height: 1.7;
-      max-width: 300px;
+      margin: 10px 0 0 0;
+      font-size: 12.5px;
+      color: #5e7669;
+      line-height: 1.6;
     }
   }
 
-  .hero-media {
+  .hero-illustration {
+    position: absolute;
+    right: -10px;
+    bottom: -48px;
+    width: 130px;
+    height: 160px;
     display: flex;
-    justify-content: center;
     align-items: flex-end;
-    min-width: 100px;
-    position: relative;
-  }
+    justify-content: flex-end;
+    z-index: 1;
 
-  .hero-image {
-    width: 110px;
-    height: auto;
-    transform: translateY(4px);
+    .plant-illu {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
   }
 
   /* 2. Cuerpo Blanco Principal (CATEGORIES CONTAINER) */
@@ -296,22 +303,22 @@
 
         /* Botón de acción chevron */
         .chevron-action-btn {
-          width: 38px;
-          height: 38px;
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
-          background: #eef7ee;
+          background: #3f7254; // Solid green background
           border: none;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #3c6e4d;
-          font-size: 18px;
+          color: #ffffff; // White chevron
+          font-size: 14px;
           cursor: pointer;
-          transition: transform 0.2s ease, background-color 0.2s ease;
+          transition: all 0.2s ease;
 
-          &:hover {
-            background: #d8ecd7;
-            transform: translateX(1px);
+          &:hover, &:active {
+            background: #2b543b;
+            transform: scale(1.05);
           }
         }
       }
