@@ -182,7 +182,7 @@ const PLANT_PROFILES_MAP: { [key: string]: any } = {
   }
 };
 
-function mapBackendPlantToProfile(dbPlant: any): any {
+export function mapBackendPlantToProfile(dbPlant: any): any {
   if (!dbPlant) return null;
   const key = String(dbPlant.id);
   const baseProfile = PLANT_PROFILES_MAP[key] || {

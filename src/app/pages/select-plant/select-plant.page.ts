@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
 import { Router } from '@angular/router';
-import { ApiService } from 'src/app/api.service';
+import { ApiService, mapBackendPlantToProfile } from 'src/app/api.service';
 import { restoreUserScopedStorageFromFirebase } from 'src/app/firebase-auth.utils';
 import { SocketService } from 'src/app/socket.service';
 import { PLANT_PROFILES, Plantprofile } from 'src/app/models/plants.data';
@@ -220,10 +220,11 @@ export class SelectPlantPage implements OnInit {
       }
 
       if (response?.data?.plant) {
-        localStorage.setItem('activePlant', JSON.stringify(response.data.plant));
+        const mappedPlant = mapBackendPlantToProfile(response.data.plant);
+        localStorage.setItem('activePlant', JSON.stringify(mappedPlant));
         const currentEmail = localStorage.getItem('currentUserEmail');
         if (currentEmail) {
-          localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(response.data.plant));
+          localStorage.setItem('activePlant_' + currentEmail, JSON.stringify(mappedPlant));
         }
       }
     } catch (error: any) {
