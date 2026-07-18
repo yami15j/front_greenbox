@@ -15,6 +15,7 @@ import {
   Plantprofile,
   TimelineEvent,
 } from 'src/app/models/plants.data';
+import { environment } from 'src/environments/environment';
 import { addIcons } from 'ionicons';
 import {
   chevronBackOutline,
@@ -51,6 +52,7 @@ export class PlantPage implements OnInit {
   optionalNote = '';
 
   plantProfiles: Plantprofile[] = [];
+  private readonly plantProgressEnabled = environment.plantProgressEnabled;
 
   constructor(
     private navCtrl: NavController,
@@ -132,7 +134,11 @@ export class PlantPage implements OnInit {
               this.activePlant = matchedPlant;
               localStorage.setItem('activePlantId', plantId);
 
-              await this.loadProgressTimeline(boxId);
+              if (this.plantProgressEnabled) {
+                await this.loadProgressTimeline(boxId);
+              } else if (!this.activePlant.timeline || this.activePlant.timeline.length === 0) {
+                this.activePlant.timeline = this.getDefaultTimeline();
+              }
 
               localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
 
@@ -180,7 +186,16 @@ export class PlantPage implements OnInit {
         this.activePlant.timeline = this.getDefaultTimeline();
       }
     } catch (err) {
-      console.warn('Error loading progress timeline from backend:', err);
+      if (
+        this.activePlant &&
+        (!this.activePlant.timeline || this.activePlant.timeline.length === 0)
+      ) {
+        this.activePlant.timeline = this.getDefaultTimeline();
+      }
+
+      if ((err as { status?: number })?.status !== 404) {
+        console.warn('Error loading progress timeline from backend:', err);
+      }
     }
   }
 

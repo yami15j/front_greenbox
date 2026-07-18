@@ -402,7 +402,7 @@ export const PLANT_PROFILES: Plantprofile[] = [
     name: 'Tomate',
     type: 'Fruto',
     icon: '🍅',
-    imageUrl: 'assets/plants/tomato.jpg',
+    imageUrl: 'assets/plants/tomate.jpg',
     optimalConditions: { tempMin: 20, tempMax: 30, humMin: 50, humMax: 70, lightMin: 70, lightMax: 90, waterMin: 75 },
     growthTime: '60-80 días',
     difficulty: 'Intermedio',

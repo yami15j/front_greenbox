@@ -244,7 +244,7 @@
   </div>
 </ion-content>
 
-<ion-footer class="ion-no-border stats-footer" *ngIf="viewMode !== 'camera' && viewMode !== 'photo-detail'">
+<ion-footer class="ion-no-border stats-footer" *ngIf="viewMode !== 'camera' && viewMode !== 'photo-detail' && !isPlantDetailsModalOpen">
   <div class="custom-tabs-nav">
     <button class="nav-tab" (click)="goHome()">
       <ion-icon name="home-outline"></ion-icon>

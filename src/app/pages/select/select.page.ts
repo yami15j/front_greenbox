@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NavController } from '@ionic/angular';
 import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
@@ -12,7 +11,7 @@ import {
   leafOutline,
   chevronForwardOutline,
   sparklesOutline,
-  gridOutline
+  gridOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -20,17 +19,14 @@ import {
   templateUrl: './select.page.html',
   styleUrls: ['./select.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonIcon]
+  imports: [CommonModule, FormsModule, IonContent, IonIcon],
 })
 export class SelectPage implements OnInit {
   userName = 'Zaida Jumbo';
   profileImage: string | null = null;
   unreadCount = 0;
 
-  constructor(
-    private navCtrl: NavController,
-    private router: Router
-  ) {
+  constructor(private router: Router) {
     addIcons({
       notificationsOutline,
       homeOutline,
@@ -38,7 +34,7 @@ export class SelectPage implements OnInit {
       leafOutline,
       chevronForwardOutline,
       sparklesOutline,
-      gridOutline
+      gridOutline,
     });
   }
 
@@ -67,39 +63,43 @@ export class SelectPage implements OnInit {
     return parts[0];
   }
 
+  private blurActiveElement() {
+    (document.activeElement as HTMLElement | null)?.blur();
+  }
+
   selectCategory(category: string) {
-    console.log('Categoría seleccionada:', category);
-    // Navegar a la pantalla de selección de plantas con el filtro correspondiente
-    // Guardamos en localStorage para que la vista de plantas filtre automáticamente
+    this.blurActiveElement();
     localStorage.setItem('selectedCategoryFilter', category);
     this.router.navigate(['/select-plant']);
   }
 
   goHelp() {
-    console.log('Clic en botón Ayudarme');
-    // Navegar a guía o asistente
+    this.blurActiveElement();
     this.router.navigate(['/guide']);
   }
 
   goNotifications() {
+    this.blurActiveElement();
     this.router.navigate(['/notification']);
   }
 
   goProfile() {
+    this.blurActiveElement();
     this.router.navigate(['/perfil']);
   }
 
-  // Métodos de navegación del Tab Bar Inferior
   goHome() {
+    this.blurActiveElement();
     this.router.navigate(['/home']);
   }
 
   goStats() {
+    this.blurActiveElement();
     this.router.navigate(['/weekly']);
   }
 
   goMyPlant() {
-    // Al estar en "Plantas", si hace clic en el tab activo, hace scroll al inicio o se queda
+    this.blurActiveElement();
     document.querySelector('ion-content')?.scrollToTop(300);
   }
 }
