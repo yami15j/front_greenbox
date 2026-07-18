@@ -1,7 +1,17 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonicModule } from '@ionic/angular';
+import {
+  IonContent,
+  IonButton,
+  IonIcon,
+  IonModal,
+  IonHeader,
+  IonToolbar,
+  IonButtons,
+  IonTitle,
+  IonFooter
+} from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { ApiService, mapBackendPlantToProfile } from 'src/app/api.service';
 import { restoreUserScopedStorageFromFirebase } from 'src/app/firebase-auth.utils';
@@ -29,7 +39,19 @@ import {
   templateUrl: './select-plant.page.html',
   styleUrls: ['./select-plant.page.scss'],
   standalone: true,
-  imports: [CommonModule, IonicModule, FormsModule]
+  imports: [
+    CommonModule,
+    FormsModule,
+    IonContent,
+    IonButton,
+    IonIcon,
+    IonModal,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonTitle,
+    IonFooter
+  ]
 })
 export class SelectPlantPage implements OnInit {
 
