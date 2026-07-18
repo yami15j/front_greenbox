@@ -1,102 +1,50 @@
 <ion-content class="plants-content" [scrollEvents]="true" [fullscreen]="true">
-
-  <!-- ====================
-       VISTA 1: MI PLANTA (DETALLES O PROGRESO)
-       ==================== -->
-  <div class="my-plant-container" *ngIf="viewMode === 'detail' && activePlant">
-    <!-- HEADER -->
+  <div class="my-plant-container" *ngIf="viewMode === 'progress' && activePlant">
     <div class="my-plant-header">
       <button class="header-btn" (click)="goBack()">
         <ion-icon name="chevron-back-outline"></ion-icon>
       </button>
-      <h1 class="page-title">{{ detailSubMode === 'info' ? 'Mi Planta' : 'Progreso de la Planta' }}</h1>
+      <h1 class="page-title">Progreso</h1>
       <button class="header-btn edit-btn" (click)="editPlantDetails()">
         <ion-icon name="create-outline"></ion-icon>
       </button>
     </div>
 
-    <!-- SUB-SEGMENTS: DETALLES | PROGRESO -->
-    <div class="my-plant-subsegments">
-      <button class="segment-btn" [class.active]="detailSubMode === 'info'" (click)="setDetailSubMode('info')">
-        Detalles
-      </button>
-      <button class="segment-btn" [class.active]="detailSubMode === 'progress'" (click)="setDetailSubMode('progress')">
-        Progreso
-      </button>
-    </div>
+    <div class="plant-progress-shell">
+      <div class="plant-summary-card" (click)="openPlantDetailsModal()">
+        <div class="plant-summary-image">
+          <img [src]="activePlant.imageUrl" [alt]="activePlant.name" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
+        </div>
 
-    <!-- SUB-VIEW 1: DETALLES BOTÁNICOS -->
-    <div class="my-plant-card" *ngIf="detailSubMode === 'info'">
-      <div class="plant-image-frame">
-        <img [src]="activePlant.imageUrl" [alt]="activePlant.name" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
-      </div>
+        <div class="plant-summary-copy">
+          <span class="plant-summary-kicker">Mi planta</span>
+          <h2>{{ activePlant.name }}</h2>
+          <p>{{ activePlant.type }} · {{ activePlant.growthTime }}</p>
 
-      <div class="plant-name-badge-row">
-        <h2 class="plant-title">{{ activePlant.name }}</h2>
-        <span class="growth-badge">En Crecimiento</span>
-      </div>
+          <div class="plant-summary-badges">
+            <span class="summary-badge">{{ activePlant.difficulty }}</span>
+            <span class="summary-badge">{{ activePlant.daysSincePlanting || 32 }} dias</span>
+          </div>
+        </div>
 
-      <hr class="separator-line">
-
-      <!-- TAXONOMIC CLASSIFICATION -->
-      <div class="taxonomy-section">
-        <h3 class="section-title">Clasificacion taxonómica</h3>
-        <div class="taxonomy-grid">
-          <div class="taxonomy-row">
-            <span class="tax-label">Reino:</span>
-            <span class="tax-value">{{ getTaxonomy(activePlant).reino }}</span>
-          </div>
-          <div class="taxonomy-row">
-            <span class="tax-label">División:</span>
-            <span class="tax-value">{{ getTaxonomy(activePlant).division }}</span>
-          </div>
-          <div class="taxonomy-row">
-            <span class="tax-label">Clase:</span>
-            <span class="tax-value">{{ getTaxonomy(activePlant).clase }}</span>
-          </div>
-          <div class="taxonomy-row">
-            <span class="tax-label">Orden:</span>
-            <span class="tax-value">{{ getTaxonomy(activePlant).orden }}</span>
-          </div>
-          <div class="taxonomy-row">
-            <span class="tax-label">Familia:</span>
-            <span class="tax-value">{{ getTaxonomy(activePlant).familia }}</span>
-          </div>
-          <div class="taxonomy-row">
-            <span class="tax-label">Genero:</span>
-            <span class="tax-value">{{ getTaxonomy(activePlant).genero }}</span>
-          </div>
-          <div class="taxonomy-row">
-            <span class="tax-label">Especie:</span>
-            <span class="tax-value">{{ getTaxonomy(activePlant).especie }}</span>
-          </div>
+        <div class="plant-summary-action">
+          <span>Ver detalles</span>
+          <ion-icon name="chevron-forward-outline"></ion-icon>
         </div>
       </div>
 
-      <hr class="separator-line">
+      <h2 class="progress-section-title">Progreso</h2>
 
-      <!-- GENERAL INFORMATION -->
-      <div class="info-section">
-        <h3 class="section-title">Información General</h3>
-        <p class="info-paragraph">
-          {{ activePlant.description || 'Planta de cultivo doméstico configurada en el sistema GREENBOX.' }}
-        </p>
-      </div>
-    </div>
-
-    <!-- SUB-VIEW 2: PROGRESO / LINEA DE TIEMPO -->
-    <div class="my-plant-progress-view" *ngIf="detailSubMode === 'progress'">
-      <!-- TOP OVERVIEW CARD -->
       <div class="progress-overview-card">
         <div class="overview-col">
-          <span class="overview-label">Días desde la siembra</span>
-          <span class="overview-value">{{ activePlant.daysSincePlanting || 32 }} días</span>
+          <span class="overview-label">Dias desde la siembra</span>
+          <span class="overview-value">{{ activePlant.daysSincePlanting || 32 }} dias</span>
         </div>
         <div class="vertical-divider"></div>
         <div class="overview-col">
-          <span class="overview-label">Etapa Actual</span>
+          <span class="overview-label">Etapa actual</span>
           <div class="stage-row">
-            <span class="stage-value">En Crecimiento</span>
+            <span class="stage-value">En crecimiento</span>
             <div class="stage-icon-wrapper">
               <ion-icon name="leaf-outline"></ion-icon>
             </div>
@@ -104,9 +52,8 @@
         </div>
       </div>
 
-      <h3 class="timeline-title">Linea de Tiempo</h3>
+      <h3 class="timeline-title">Linea de tiempo</h3>
 
-      <!-- TIMELINE LIST -->
       <div class="timeline-list">
         <div class="timeline-card" *ngFor="let ev of activePlant.timeline || getDefaultTimeline()">
           <div class="timeline-image">
@@ -127,7 +74,6 @@
         </div>
       </div>
 
-      <!-- TAKE PHOTO BUTTON -->
       <button class="take-photo-btn" (click)="openCamera()">
         <ion-icon name="camera-outline"></ion-icon>
         Tomar nueva foto
@@ -135,11 +81,7 @@
     </div>
   </div>
 
-  <!-- ====================
-       VISTA 3: NUEVA FOTO (CÁMARA)
-       ==================== -->
   <div class="camera-flow-container" *ngIf="viewMode === 'camera'">
-    <!-- HEADER -->
     <div class="camera-header">
       <button class="header-btn" (click)="goBack()">
         <ion-icon name="chevron-back-outline"></ion-icon>
@@ -150,14 +92,11 @@
       </button>
     </div>
 
-    <!-- VIEWFINDER PREVIEW -->
     <div class="viewfinder-box" [class.front-facing]="cameraFacing === 'user'">
       <img [src]="activePlant?.imageUrl || 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop'" class="live-preview-image">
-      
-      <!-- SCANNING LINE EFFECT -->
+
       <div class="scan-line"></div>
-      
-      <!-- GRID LINES -->
+
       <div class="camera-grid">
         <div class="grid-line horizontal-1"></div>
         <div class="grid-line horizontal-2"></div>
@@ -165,36 +104,27 @@
         <div class="grid-line vertical-2"></div>
       </div>
 
-      <!-- BOTTOM INSTRUCTION OVERLAY -->
       <div class="viewfinder-instruction">
         Toma una foto para el progreso de tu planta
       </div>
     </div>
 
-    <!-- CONTROLS ROW -->
     <div class="camera-controls-row">
-      <!-- Gallery Button -->
       <button class="control-circle-btn" (click)="selectFromGallery()">
         <ion-icon name="image-outline"></ion-icon>
       </button>
-      
-      <!-- Shutter Trigger Button -->
+
       <button class="shutter-outer-ring" (click)="triggerShutter()">
         <div class="shutter-inner-solid"></div>
       </button>
-      
-      <!-- Switch Camera Button -->
+
       <button class="control-circle-btn" (click)="switchCamera()">
         <ion-icon name="refresh-outline"></ion-icon>
       </button>
     </div>
   </div>
 
-  <!-- ====================
-       VISTA 4: DETALLE DE LA FOTO
-       ==================== -->
   <div class="photo-detail-container" *ngIf="viewMode === 'photo-detail'">
-    <!-- HEADER -->
     <div class="photo-detail-header">
       <button class="header-btn" (click)="goBack()">
         <ion-icon name="chevron-back-outline"></ion-icon>
@@ -205,48 +135,115 @@
       </button>
     </div>
 
-    <!-- CONTENT BODY -->
     <div class="photo-detail-body">
-      <!-- CAPTURED IMAGE WITH ROUNDED CORNERS -->
       <div class="captured-image-frame">
         <img [src]="capturedImage" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
       </div>
 
-      <!-- DATE & INITIAL CAPTION -->
       <div class="date-caption-row">
-        <h4 class="caption-date">Hoy, 20 Mayo 2026</h4>
+        <h4 class="caption-date">Hoy, 18 Julio 2026</h4>
         <p class="caption-status">La planta se ve saludable</p>
       </div>
 
-      <!-- PROGRESS SLIDER -->
       <div class="progress-slider-section">
-        <h4 class="section-subtitle">Progreso de la Planta</h4>
+        <h4 class="section-subtitle">Progreso de la planta</h4>
         <div class="slider-wrapper-row">
           <input type="range" min="0" max="100" [(ngModel)]="progressValue" class="progress-range-slider">
           <span class="percentage-display-text">{{ progressValue }} %</span>
         </div>
       </div>
 
-      <!-- OPTIONAL NOTE INPUT -->
       <div class="note-input-section">
         <h4 class="section-subtitle">Nota (opcional)</h4>
-        <textarea 
-          placeholder="Escribe una nota sobre el estado de tu planta ...." 
+        <textarea
+          placeholder="Escribe una nota sobre el estado de tu planta..."
           [(ngModel)]="optionalNote"
           class="custom-note-textarea">
         </textarea>
       </div>
 
-      <!-- SAVE BUTTON -->
       <button class="save-detail-btn" (click)="savePhotoDetail()">
         Guardar
       </button>
     </div>
   </div>
 
+  <div
+    class="plant-detail-modal-backdrop"
+    *ngIf="isPlantDetailsModalOpen && activePlant"
+    (click)="closePlantDetailsModal()">
+    <div class="plant-detail-modal" (click)="$event.stopPropagation()">
+      <div class="plant-detail-modal-header">
+        <div>
+          <h2>Detalles de la planta</h2>
+          <p>{{ activePlant.name }} · {{ activePlant.type }}</p>
+        </div>
+        <button class="modal-close-btn" (click)="closePlantDetailsModal()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="plant-detail-modal-scroll">
+        <div class="my-plant-card modal-card">
+          <div class="plant-image-frame">
+            <img [src]="activePlant.imageUrl" [alt]="activePlant.name" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
+          </div>
+
+          <div class="plant-name-badge-row">
+            <h2 class="plant-title">{{ activePlant.name }}</h2>
+            <span class="growth-badge">En crecimiento</span>
+          </div>
+
+          <hr class="separator-line">
+
+          <div class="taxonomy-section">
+            <h3 class="section-title">Clasificacion taxonomica</h3>
+            <div class="taxonomy-grid">
+              <div class="taxonomy-row">
+                <span class="tax-label">Reino:</span>
+                <span class="tax-value">{{ getTaxonomy(activePlant).reino }}</span>
+              </div>
+              <div class="taxonomy-row">
+                <span class="tax-label">Division:</span>
+                <span class="tax-value">{{ getTaxonomy(activePlant).division }}</span>
+              </div>
+              <div class="taxonomy-row">
+                <span class="tax-label">Clase:</span>
+                <span class="tax-value">{{ getTaxonomy(activePlant).clase }}</span>
+              </div>
+              <div class="taxonomy-row">
+                <span class="tax-label">Orden:</span>
+                <span class="tax-value">{{ getTaxonomy(activePlant).orden }}</span>
+              </div>
+              <div class="taxonomy-row">
+                <span class="tax-label">Familia:</span>
+                <span class="tax-value">{{ getTaxonomy(activePlant).familia }}</span>
+              </div>
+              <div class="taxonomy-row">
+                <span class="tax-label">Genero:</span>
+                <span class="tax-value">{{ getTaxonomy(activePlant).genero }}</span>
+              </div>
+              <div class="taxonomy-row">
+                <span class="tax-label">Especie:</span>
+                <span class="tax-value">{{ getTaxonomy(activePlant).especie }}</span>
+              </div>
+            </div>
+          </div>
+
+          <hr class="separator-line">
+
+          <div class="info-section">
+            <h3 class="section-title">Informacion general</h3>
+            <p class="info-paragraph">
+              {{ activePlant.description || 'Planta de cultivo domestico configurada en el sistema GREENBOX.' }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </ion-content>
 
-<!-- BOTTOM TABS FOOTER -->
 <ion-footer class="ion-no-border stats-footer" *ngIf="viewMode !== 'camera' && viewMode !== 'photo-detail'">
   <div class="custom-tabs-nav">
     <button class="nav-tab" (click)="goHome()">
@@ -255,7 +252,7 @@
     </button>
     <button class="nav-tab" (click)="goStats()">
       <ion-icon name="stats-chart-outline"></ion-icon>
-      <span class="nav-label">Estadística</span>
+      <span class="nav-label">Estadistica</span>
     </button>
     <button class="nav-tab active">
       <ion-icon name="leaf-outline"></ion-icon>

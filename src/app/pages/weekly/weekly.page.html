@@ -1,26 +1,22 @@
 <ion-content class="weekly-content" [scrollY]="true">
-
-  <!-- Pull to Refresh -->
   <ion-refresher slot="fixed" (ionRefresh)="refreshData($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
   <div class="main-container">
-    <!-- HEADER -->
     <div class="weekly-header">
       <button class="header-btn" (click)="goBack()">
         <ion-icon name="arrow-back"></ion-icon>
       </button>
-      <h1 class="page-title">Estadísticas</h1>
+      <h1 class="page-title">Estadisticas</h1>
       <button class="header-btn calendar-btn">
         <ion-icon name="calendar-outline"></ion-icon>
       </button>
     </div>
 
-    <!-- SEGMENT TIME FILTER -->
     <div class="time-filter-segment">
       <button class="filter-capsule" [class.active]="selectedRange === 'day'" (click)="changeRange('day')">
-        Día
+        Dia
       </button>
       <button class="filter-capsule" [class.active]="selectedRange === 'week'" (click)="changeRange('week')">
         Semana
@@ -30,7 +26,6 @@
       </button>
     </div>
 
-    <!-- LOADING STATE -->
     <div class="loading-container" *ngIf="isLoading">
       <div class="shimmer-chart-card" *ngFor="let i of [1,2,3,4]">
         <div class="shimmer header-shimmer"></div>
@@ -38,43 +33,105 @@
       </div>
     </div>
 
-    <!-- CHARTS BODY -->
     <div class="charts-body" *ngIf="!isLoading">
-      <div class="chart-card" *ngFor="let chart of charts">
+      <div
+        class="chart-card chart-card-clickable"
+        *ngFor="let chart of charts"
+        (click)="openChartDetail(chart)">
         <div class="chart-card-header">
           <div class="header-left">
             <ion-icon [name]="chart.icon" [style.color]="chart.color" class="sensor-icon"></ion-icon>
             <span class="sensor-title">{{ chart.title | uppercase }}</span>
           </div>
+          <div class="header-right">
+            <span class="detail-hint">{{ chart.hint }}</span>
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </div>
         </div>
 
         <div class="chart-plot-area">
           <svg viewBox="0 0 300 110" class="line-chart-svg">
-            <!-- Grid axis line -->
             <line x1="32" y1="75" x2="282" y2="75" class="chart-grid-line" stroke="#e8e8e8" stroke-width="1"></line>
 
-            <!-- Connection Polyline -->
-            <polyline [attr.points]="chart.pointsString" fill="none" [attr.stroke]="chart.color" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></polyline>
+            <polyline
+              [attr.points]="chart.pointsString"
+              fill="none"
+              [attr.stroke]="chart.color"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"></polyline>
 
-            <!-- Data Dots and Value Labels -->
             <g *ngFor="let pt of chart.points">
-              <!-- Point Dot -->
               <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" [attr.fill]="chart.color" stroke="#ffffff" stroke-width="1.5"></circle>
-              <!-- Value text label above dot -->
-              <text [attr.x]="pt.x" [attr.y]="pt.y - 8" text-anchor="middle" class="chart-value-text">{{ pt.val }}{{ chart.unit }}</text>
-              <!-- Horizontal coordinate Label below axis line -->
+              <text [attr.x]="pt.x" [attr.y]="pt.y - 8" text-anchor="middle" class="chart-value-text">{{ pt.val }}{{ chart.key === 'temperature' ? '°' : '' }}{{ chart.unit }}</text>
               <text [attr.x]="pt.x" [attr.y]="92" text-anchor="middle" class="chart-coordinate-label">{{ pt.label }}</text>
             </g>
           </svg>
         </div>
       </div>
     </div>
-
   </div>
 
+  <div
+    class="chart-detail-backdrop"
+    *ngIf="selectedChartDetail"
+    (click)="closeChartDetail()">
+    <div class="chart-detail-modal" (click)="$event.stopPropagation()">
+      <div class="chart-detail-header">
+        <div class="detail-title-block">
+          <ion-icon [name]="selectedChartDetail.icon" [style.color]="selectedChartDetail.color"></ion-icon>
+          <div>
+            <h2>{{ selectedChartDetail.title }}</h2>
+            <p>{{ selectedChartDetail.rangeLabel }}</p>
+          </div>
+        </div>
+        <button class="close-detail-btn" (click)="closeChartDetail()">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="detail-summary-grid">
+        <div class="summary-pill">
+          <span>Promedio</span>
+          <strong>{{ selectedChartDetail.averageLabel }}</strong>
+        </div>
+        <div class="summary-pill">
+          <span>Minimo</span>
+          <strong>{{ selectedChartDetail.minLabel }}</strong>
+        </div>
+        <div class="summary-pill">
+          <span>Maximo</span>
+          <strong>{{ selectedChartDetail.maxLabel }}</strong>
+        </div>
+      </div>
+
+      <div class="detail-list">
+        <div class="detail-reading-card" *ngFor="let item of selectedChartDetail.entries">
+          <div class="reading-card-top">
+            <span class="sensor-value-chip" [style.background]="selectedChartDetail.color">{{ item.valueLabel }}</span>
+            <span class="reading-day">{{ item.dayLabel }}</span>
+          </div>
+
+          <div class="reading-meta-grid">
+            <div class="meta-item">
+              <span class="meta-label">Fecha</span>
+              <strong>{{ item.dateLabel }}</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Hora</span>
+              <strong>{{ item.timeLabel }}</strong>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Registro</span>
+              <strong>{{ item.timestamp | date:'short' }}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </ion-content>
 
-<!-- BOTTOM TABS FOOTER -->
 <ion-footer class="ion-no-border stats-footer">
   <div class="custom-tabs-nav">
     <button class="nav-tab" (click)="goHome()">
@@ -83,7 +140,7 @@
     </button>
     <button class="nav-tab active">
       <ion-icon name="stats-chart-outline"></ion-icon>
-      <span class="nav-label">Estadística</span>
+      <span class="nav-label">Estadistica</span>
     </button>
     <button class="nav-tab" (click)="goPlants()">
       <ion-icon name="leaf-outline"></ion-icon>

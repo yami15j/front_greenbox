@@ -2,40 +2,81 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {
-  IonContent, IonSpinner, IonIcon
-} from '@ionic/angular/standalone';
+import { IonContent, IonSpinner, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  eyeOutline, eyeOffOutline, mailOutline,
-  personOutline, checkmarkCircle, alertCircle
+  eyeOutline,
+  eyeOffOutline,
+  mailOutline,
+  personOutline,
+  checkmarkCircle,
+  alertCircle,
 } from 'ionicons/icons';
-import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile } from 'firebase/auth';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  updateProfile,
+} from 'firebase/auth';
 import { ApiService } from 'src/app/api.service';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.page.html',
-  styleUrls:  ['./register.page.scss'],
+  styleUrls: ['./register.page.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonContent, IonSpinner, IonIcon]
+  imports: [CommonModule, FormsModule, IonContent, IonSpinner, IonIcon],
 })
 export class RegisterPage {
-
-  fullName    = '';
-  email       = '';
-  password    = '';
-  showPass    = false;
-  mensaje     = '';
-  isError     = false;
-  loading     = false;
+  fullName = '';
+  email = '';
+  password = '';
+  showPass = false;
+  mensaje = '';
+  isError = false;
+  loading = false;
 
   constructor(private router: Router, private api: ApiService) {
-    addIcons({ eyeOutline, eyeOffOutline, mailOutline,
-               personOutline, checkmarkCircle, alertCircle });
+    addIcons({
+      eyeOutline,
+      eyeOffOutline,
+      mailOutline,
+      personOutline,
+      checkmarkCircle,
+      alertCircle,
+    });
   }
 
-  togglePass() { this.showPass = !this.showPass; }
+  togglePass() {
+    this.showPass = !this.showPass;
+  }
+
+  private getApiErrorMessage(err: any, fallback: string): string {
+    return err?.error?.message || err?.message || fallback;
+  }
+
+  private async requestAccessCode(
+    email: string,
+    name: string,
+    firebaseUid?: string,
+  ): Promise<boolean> {
+    try {
+      const response = await this.api.generateAndSendBoxCode(email, name, firebaseUid);
+      this.mensaje =
+        response?.message || 'Te enviamos tu codigo de acceso al correo registrado.';
+      this.isError = false;
+      return true;
+    } catch (err: any) {
+      console.error('Error enviando codigo por correo:', err);
+      this.mensaje = this.getApiErrorMessage(
+        err,
+        'No pudimos enviarte el codigo por correo. Intenta de nuevo en unos minutos.',
+      );
+      this.isError = true;
+      return false;
+    }
+  }
 
   async onGoogleLogin() {
     this.loading = true;
@@ -48,43 +89,40 @@ export class RegisterPage {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      this.mensaje = 'Registro y sesión iniciada con Google';
-      this.isError = false;
-      
-      if (user.email) {
-        // Guardar email del usuario actual y su nombre
-        localStorage.setItem('currentUserEmail', user.email);
-        localStorage.setItem('userName', user.displayName || 'Usuario Google');
+      if (!user.email) {
+        throw new Error('Google no devolvio un correo valido para esta cuenta.');
+      }
 
-        // Cargar boxId guardado para este correo
-        const savedBoxId = localStorage.getItem('selectedBoxId_' + user.email);
-        if (savedBoxId) {
-          localStorage.setItem('selectedBoxId', savedBoxId);
-        } else {
-          localStorage.removeItem('selectedBoxId');
-        }
+      const email = user.email.trim().toLowerCase();
+      const name = user.displayName || 'Usuario Google';
 
-        // Cargar activePlant guardada para este correo
-        const savedPlant = localStorage.getItem('activePlant_' + user.email);
-        if (savedPlant) {
-          localStorage.setItem('activePlant', savedPlant);
-        } else {
-          localStorage.removeItem('activePlant');
-        }
+      localStorage.setItem('currentUserEmail', email);
+      localStorage.setItem('userName', name);
 
-        const savedPlantId = localStorage.getItem('activePlantId_' + user.email);
-        if (savedPlantId) {
-          localStorage.setItem('activePlantId', savedPlantId);
-        } else {
-          localStorage.removeItem('activePlantId');
-        }
+      const savedBoxId = localStorage.getItem(`selectedBoxId_${email}`);
+      if (savedBoxId) {
+        localStorage.setItem('selectedBoxId', savedBoxId);
+      } else {
+        localStorage.removeItem('selectedBoxId');
+      }
 
-        // Crear su caja en la base de datos si es primera vez
-        try {
-          await this.api.generateAndSendBoxCode(user.email, user.displayName || 'Usuario Google', user.uid);
-        } catch (dbErr) {
-          console.warn('La caja para este correo ya existía o hubo un error al crearla:', dbErr);
-        }
+      const savedPlant = localStorage.getItem(`activePlant_${email}`);
+      if (savedPlant) {
+        localStorage.setItem('activePlant', savedPlant);
+      } else {
+        localStorage.removeItem('activePlant');
+      }
+
+      const savedPlantId = localStorage.getItem(`activePlantId_${email}`);
+      if (savedPlantId) {
+        localStorage.setItem('activePlantId', savedPlantId);
+      } else {
+        localStorage.removeItem('activePlantId');
+      }
+
+      const emailSent = await this.requestAccessCode(email, name, user.uid);
+      if (!emailSent) {
+        return;
       }
 
       const boxId = localStorage.getItem('selectedBoxId');
@@ -98,10 +136,14 @@ export class RegisterPage {
     } catch (err: any) {
       console.error('Error Google Sign-In:', err);
       this.isError = true;
+
       if (err.code === 'auth/popup-closed-by-user') {
         this.mensaje = 'Ventana de login cerrada';
       } else {
-        this.mensaje = `Error de Google: ${err.message}`;
+        this.mensaje = this.getApiErrorMessage(
+          err,
+          'No se pudo registrar con Google.',
+        );
       }
     } finally {
       this.loading = false;
@@ -114,42 +156,52 @@ export class RegisterPage {
       this.isError = true;
       return;
     }
+
     this.loading = true;
     this.mensaje = '';
     this.isError = false;
 
     try {
       const auth = getAuth();
-      const userCredential = await createUserWithEmailAndPassword(auth, this.email.trim(), this.password);
-      
-      // Actualizar nombre en perfil de Firebase
-      await updateProfile(userCredential.user, { displayName: this.fullName.trim() });
-      
-      // Guardar nombre del usuario en localStorage
-      localStorage.setItem('userName', this.fullName.trim());
-      localStorage.setItem('currentUserEmail', this.email.trim());
+      const email = this.email.trim().toLowerCase();
+      const name = this.fullName.trim();
 
-      // Nuevo registro: va desde cero. Limpiar datos del box/planta local
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        this.password,
+      );
+
+      await updateProfile(userCredential.user, { displayName: name });
+
+      localStorage.setItem('userName', name);
+      localStorage.setItem('currentUserEmail', email);
       localStorage.removeItem('selectedBoxId');
       localStorage.removeItem('activePlant');
       localStorage.removeItem('activePlantId');
 
-      // Llamar al backend para generar su nueva caja y enviarle el código de acceso
-      const res = await this.api.generateAndSendBoxCode(this.email.trim(), this.fullName.trim(), userCredential.user.uid);
+      const emailSent = await this.requestAccessCode(email, name, userCredential.user.uid);
+      if (!emailSent) {
+        this.mensaje =
+          'Tu cuenta fue creada, pero no pudimos enviarte el codigo. Intenta iniciar sesion de nuevo para reenviarlo.';
+        this.isError = true;
+        return;
+      }
 
-      this.mensaje = `Cuenta creada. Revisa tu correo electrónico para obtener tu código de acceso.`;
+      this.mensaje =
+        'Cuenta creada. Revisa tu correo electronico para obtener tu codigo de acceso.';
       this.isError = false;
       setTimeout(() => this.router.navigateByUrl('/login'), 4000);
     } catch (err: any) {
       console.error('Error de registro en Firebase:', err);
       this.isError = true;
-      // Traducir los errores más comunes de Firebase a español
+
       if (err.code === 'auth/email-already-in-use') {
-        this.mensaje = 'Este correo ya está registrado';
+        this.mensaje = 'Este correo ya esta registrado';
       } else if (err.code === 'auth/invalid-email') {
-        this.mensaje = 'El correo ingresado no es válido';
+        this.mensaje = 'El correo ingresado no es valido';
       } else if (err.code === 'auth/weak-password') {
-        this.mensaje = 'La contraseña debe tener al menos 6 caracteres';
+        this.mensaje = 'La contrasena debe tener al menos 6 caracteres';
       } else {
         this.mensaje = `Error: ${err.message}`;
       }
@@ -158,6 +210,11 @@ export class RegisterPage {
     }
   }
 
-  goLogin()  { this.router.navigateByUrl('/login'); }
-  goEmailLogin() { this.router.navigateByUrl('/email-login'); }
+  goLogin() {
+    this.router.navigateByUrl('/login');
+  }
+
+  goEmailLogin() {
+    this.router.navigateByUrl('/email-login');
+  }
 }

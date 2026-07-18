@@ -7,7 +7,6 @@
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
   }
 
-  /* ========== HEADER ========== */
   .weekly-header {
     display: flex;
     justify-content: space-between;
@@ -45,10 +44,6 @@
           font-size: 18px;
           color: #444;
         }
-
-        &:active {
-          background: #e0e0e0;
-        }
       }
     }
 
@@ -63,7 +58,6 @@
     }
   }
 
-  /* ========== SEGMENT TIME FILTER ========== */
   .time-filter-segment {
     display: flex;
     gap: 10px;
@@ -88,15 +82,9 @@
         border-color: #3a9c7b;
         box-shadow: 0 4px 12px rgba(58, 156, 123, 0.25);
       }
-
-      &:active:not(.active) {
-        background: #f8fafc;
-        transform: scale(0.97);
-      }
     }
   }
 
-  /* ========== SHIMMER LOADING ========== */
   .loading-container {
     display: flex;
     flex-direction: column;
@@ -139,7 +127,6 @@
     }
   }
 
-  /* ========== CHART CARDS ========== */
   .charts-body {
     display: flex;
     flex-direction: column;
@@ -153,11 +140,25 @@
     border: 1px solid #f0f0f0;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.015);
 
+    &.chart-card-clickable {
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:active {
+        transform: scale(0.985);
+      }
+
+      &:hover {
+        box-shadow: 0 10px 24px rgba(58, 156, 123, 0.1);
+      }
+    }
+
     .chart-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 14px;
+      gap: 12px;
 
       .header-left {
         display: flex;
@@ -175,6 +176,23 @@
           color: #444;
           letter-spacing: 0.5px;
           font-family: 'Montserrat', sans-serif;
+        }
+      }
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #7b8b82;
+        font-size: 11px;
+        font-weight: 700;
+
+        ion-icon {
+          font-size: 16px;
+        }
+
+        .detail-hint {
+          text-align: right;
         }
       }
     }
@@ -209,9 +227,176 @@
       }
     }
   }
+
+  .chart-detail-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(14, 25, 20, 0.48);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 250;
+    padding: 16px;
+  }
+
+  .chart-detail-modal {
+    width: min(720px, 100%);
+    max-height: min(82vh, 820px);
+    background: linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%);
+    border-radius: 28px 28px 16px 16px;
+    box-shadow: 0 24px 60px rgba(17, 31, 25, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .chart-detail-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 20px 20px 14px;
+
+    .detail-title-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      ion-icon {
+        font-size: 24px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 800;
+        color: #193126;
+      }
+
+      p {
+        margin: 4px 0 0;
+        font-size: 13px;
+        color: #6f8178;
+      }
+    }
+
+    .close-detail-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: none;
+      background: #eef5f1;
+      color: #355f4f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      ion-icon {
+        font-size: 20px;
+      }
+    }
+  }
+
+  .detail-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    padding: 0 20px 18px;
+
+    .summary-pill {
+      background: #eef7f2;
+      border: 1px solid #ddece4;
+      border-radius: 16px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      span {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #6f8178;
+        font-weight: 800;
+      }
+
+      strong {
+        font-size: 16px;
+        color: #193126;
+      }
+    }
+  }
+
+  .detail-list {
+    padding: 0 20px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .detail-reading-card {
+    background: #ffffff;
+    border: 1px solid #e6efe9;
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 8px 20px rgba(31, 56, 45, 0.05);
+
+    .reading-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .sensor-value-chip {
+      color: #ffffff;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .reading-day {
+      font-size: 12px;
+      font-weight: 700;
+      color: #5f756a;
+      text-transform: capitalize;
+    }
+
+    .reading-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .meta-label {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #89a093;
+        font-weight: 800;
+      }
+
+      strong {
+        font-size: 12px;
+        color: #20392f;
+        line-height: 1.4;
+      }
+    }
+  }
 }
 
-/* ========== CUSTOM FOOTER / TABS ========== */
 .stats-footer {
   background: transparent;
 
@@ -253,26 +438,9 @@
         font-weight: 500;
       }
 
-      .tab-badge-bubble {
-        position: absolute;
-        top: 4px;
-        right: calc(50% - 18px);
-        background: #f44336;
-        color: white;
-        font-size: 9px;
-        font-weight: 700;
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      /* Active tab state - Capsule style */
       &.active {
-        background: #d8ebe4 !important; /* Sage green capsule background */
-        color: #1b4332 !important;     /* Sage green dark text */
+        background: #d8ebe4 !important;
+        color: #1b4332 !important;
         border-radius: 16px;
 
         ion-icon {
@@ -285,11 +453,27 @@
           color: #1b4332;
         }
       }
+    }
+  }
+}
 
-      &:active:not(.active) {
-        transform: scale(0.95);
-        background: #f5f5f5;
-        border-radius: 12px;
+@media (max-width: 640px) {
+  .weekly-content {
+    .detail-summary-grid,
+    .detail-reading-card .reading-meta-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .chart-detail-modal {
+      max-height: 85vh;
+    }
+
+    .chart-card .chart-card-header {
+      align-items: flex-start;
+
+      .header-right {
+        flex-direction: column;
+        align-items: flex-end;
       }
     }
   }
