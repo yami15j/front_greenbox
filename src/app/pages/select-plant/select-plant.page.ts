@@ -39,7 +39,6 @@ export class SelectPlantPage implements OnInit {
   filterType: string = 'all';
   activatingPlantId: string | null = null;
   selectionMessage = '';
-  isAddModalOpen = false;
   newPlant = { name: '', type: 'Hierba Aromática', tempMax: 25, humMax: 70 };
   newPlantImage: string | null = null;
 
@@ -278,7 +277,7 @@ export class SelectPlantPage implements OnInit {
     }
   }
 
-  openAddPlantModal() {
+  onModalWillPresent() {
     this.newPlant = {
       name: '',
       type: 'Hierba Aromática',
@@ -286,12 +285,6 @@ export class SelectPlantPage implements OnInit {
       humMax: 70
     };
     this.newPlantImage = null;
-    this.isAddModalOpen = true;
-    this.cdr.detectChanges();
-  }
-
-  closeAddPlantModal() {
-    this.isAddModalOpen = false;
     this.cdr.detectChanges();
   }
 
@@ -338,7 +331,7 @@ export class SelectPlantPage implements OnInit {
     }
   }
 
-  saveNewPlant() {
+  saveNewPlant(modal?: any) {
     if (!this.newPlant.name || !this.newPlant.name.trim()) {
       alert('Por favor, ingresa el nombre de la planta.');
       return;
@@ -380,7 +373,9 @@ export class SelectPlantPage implements OnInit {
     localStorage.setItem('customPlants', JSON.stringify(customPlants));
 
     this.applyFilter(this.filterType);
-    this.closeAddPlantModal();
+    if (modal) {
+      modal.dismiss();
+    }
     this.cdr.detectChanges();
   }
 }
