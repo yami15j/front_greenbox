@@ -296,7 +296,38 @@ export class SelectPlantPage implements OnInit {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        this.newPlantImage = reader.result as string;
+        const img = new Image();
+        img.onload = () => {
+          // Crear un canvas para redimensionar la imagen a un tamaño óptimo
+          const canvas = document.createElement('canvas');
+          const max_size = 400; // Ancho/alto máximo para no saturar el localStorage
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > max_size) {
+              height *= max_size / width;
+              width = max_size;
+            }
+          } else {
+            if (height > max_size) {
+              width *= max_size / height;
+              height = max_size;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            // Comprimir como JPEG al 70% de calidad para optimizar espacio (aproximadamente 15KB - 30KB)
+            this.newPlantImage = canvas.toDataURL('image/jpeg', 0.7);
+          } else {
+            this.newPlantImage = reader.result as string;
+          }
+        };
+        img.src = reader.result as string;
       };
       reader.readAsDataURL(file);
     }
