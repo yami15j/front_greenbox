@@ -169,22 +169,25 @@
               </ng-template>
             </div>
             <input type="file" #fileInput accept="image/*" style="display: none;" (change)="onPhotoSelected($event)">
+            <span class="field-error-text" *ngIf="imageError">{{ imageError }}</span>
           </div>
 
           <div class="form-group">
             <label class="form-label">Nombre de la planta</label>
-            <input type="text" class="form-input" [(ngModel)]="newPlant.name" placeholder="Ej. Albahaca Morada">
+            <input type="text" class="form-input" [(ngModel)]="newPlant.name" (input)="onNameInput()" placeholder="Ej. Albahaca Morada">
+            <span class="field-error-text" *ngIf="nameError">{{ nameError }}</span>
           </div>
 
           <div class="form-group">
             <label class="form-label">Categoría</label>
-            <select class="form-select" [(ngModel)]="newPlant.type">
+            <select class="form-select" [(ngModel)]="newPlant.type" (change)="onCategoryChange()">
               <option value="Hierba Aromática">Medicinales / Hierbas</option>
               <option value="Fruto">Frutales / Frutos</option>
               <option value="Hoja Verde">Vegetales / Hojas Verdes</option>
               <option value="Raíz">Hortalizas / Raíces</option>
             </select>
           </div>
+
 
           <div class="form-row">
             <div class="form-group half">
@@ -193,13 +196,14 @@
             </div>
             <div class="form-group half">
               <label class="form-label">Hum Máx (%)</label>
-              <input type="number" class="form-input" [(ngModel)]="newPlant.humMax" placeholder="Ej. 75">
+              <input type="number" class="form-input" [(ngModel)]="newPlant.humMax" placeholder="Ej. 70">
             </div>
           </div>
 
-          <button type="button" class="submit-btn" (click)="saveNewPlant()">
-            <ion-icon name="add-circle-outline" class="submit-icon"></ion-icon>
-            Guardar Planta
+
+          <button type="button" class="submit-btn" (click)="saveNewPlant()" [disabled]="isSavingPlant">
+            <ion-icon [name]="isSavingPlant ? 'time-outline' : 'add-circle-outline'" class="submit-icon"></ion-icon>
+            {{ isSavingPlant ? 'Guardando...' : 'Guardar Planta' }}
           </button>
         </div>
       </ion-content>
@@ -208,19 +212,5 @@
 
 </ion-content>
 
-<ion-footer class="ion-no-border stats-footer">
-  <div class="custom-tabs-nav">
-    <button type="button" class="nav-tab" (click)="goHome()">
-      <ion-icon name="home-outline"></ion-icon>
-      <span class="nav-label">Inicio</span>
-    </button>
-    <button type="button" class="nav-tab" (click)="goStats()">
-      <ion-icon name="stats-chart-outline"></ion-icon>
-      <span class="nav-label">Estadistica</span>
-    </button>
-    <button type="button" class="nav-tab active">
-      <ion-icon name="leaf-outline"></ion-icon>
-      <span class="nav-label">Plantas</span>
-    </button>
-  </div>
-</ion-footer>
+
+

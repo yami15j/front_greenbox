@@ -64,6 +64,8 @@ export class SelectPlantPage implements OnInit {
   isAddModalOpen = false;
   newPlant = { name: '', type: 'Hierba Aromática', tempMax: 25, humMax: 70 };
   newPlantImage: string | null = null;
+  nameError = '';
+  imageError = '';
 
   constructor(
     private router: Router,
@@ -300,20 +302,58 @@ export class SelectPlantPage implements OnInit {
     }
   }
 
+  // Valores recomendados por categoría
+  private readonly categoryDefaults: { [key: string]: { tempMax: number; humMax: number } } = {
+    'Hierba Aromática': { tempMax: 28, humMax: 70 },
+    'Fruto':            { tempMax: 30, humMax: 80 },
+    'Hoja Verde':       { tempMax: 25, humMax: 75 },
+    'Raíz':             { tempMax: 22, humMax: 65 },
+  };
+
   openAddPlantModal() {
+    const defaults = this.categoryDefaults['Hierba Aromática'];
     this.newPlant = {
       name: '',
       type: 'Hierba Aromática',
-      tempMax: 25,
-      humMax: 70
+      tempMax: defaults.tempMax,
+      humMax: defaults.humMax
     };
     this.newPlantImage = null;
+    this.nameError = '';
+    this.imageError = '';
+    this.savePlantError = '';
     this.isAddModalOpen = true;
     this.cdr.detectChanges();
   }
 
+  onNameInput() {
+    this.checkAndClearErrors();
+  }
+
+  checkAndClearErrors() {
+    const hasName = this.newPlant.name && this.newPlant.name.trim();
+    const hasImage = !!this.newPlantImage;
+    if (hasName && hasImage) {
+      this.nameError = '';
+      this.imageError = '';
+      this.cdr.detectChanges();
+    }
+  }
+
+  onCategoryChange() {
+    const defaults = this.categoryDefaults[this.newPlant.type];
+    if (defaults) {
+      this.newPlant.tempMax = defaults.tempMax;
+      this.newPlant.humMax  = defaults.humMax;
+      this.cdr.detectChanges();
+    }
+  }
+
   closeAddPlantModal() {
     this.isAddModalOpen = false;
+    this.nameError = '';
+    this.imageError = '';
+    this.savePlantError = '';
     this.cdr.detectChanges();
   }
 
@@ -352,6 +392,7 @@ export class SelectPlantPage implements OnInit {
           } else {
             this.newPlantImage = reader.result as string;
           }
+          this.checkAndClearErrors();
           this.cdr.detectChanges();
         };
         img.src = reader.result as string;
@@ -360,19 +401,76 @@ export class SelectPlantPage implements OnInit {
     }
   }
 
-  saveNewPlant() {
-    if (!this.newPlant.name || !this.newPlant.name.trim()) {
-      alert('Por favor, ingresa el nombre de la planta.');
+  isSavingPlant = false;
+  savePlantError = '';
+
+  async saveNewPlant() {
+    const hasName = this.newPlant.name && this.newPlant.name.trim();
+    const hasImage = !!this.newPlantImage;
+
+    this.nameError = hasName ? '' : 'Por favor, ingresa el nombre de la planta.';
+    this.imageError = hasImage ? '' : 'Por favor, sube una foto para la planta.';
+
+    if (!hasName || !hasImage) {
+      this.cdr.detectChanges();
       return;
     }
 
-    const uniqueId = 'custom_' + Date.now();
-    const createdPlant: Plantprofile = {
-      id: uniqueId,
+    this.isSavingPlant = true;
+    this.savePlantError = '';
+    this.cdr.detectChanges();
+
+    // Mapeo de tipo del form a categoría del backend
+    const categoryMap: { [key: string]: string } = {
+      'Hierba Aromática': 'interior',
+      'Fruto': 'comestible',
+      'Hoja Verde': 'comestible',
+      'Raíz': 'comestible',
+    };
+    const category = categoryMap[this.newPlant.type] || 'interior';
+
+    // Datos para el backend
+    const plantPayload = {
+      name: this.newPlant.name.trim(),
+      category,
+      imageUrl: undefined as string | undefined,
+      minTemperature: 15,
+      maxTemperature: this.newPlant.tempMax || 25,
+      minHumidity: 45,
+      maxHumidity: this.newPlant.humMax || 70,
+      lightHours: 8,
+      minWaterLevel: 50,
+      wateringFrequency: 3,
+    };
+
+    let backendId: string = 'custom_' + Date.now();
+    let savedToBackend = false;
+
+    try {
+      const response: any = await this.api.createPlant(plantPayload);
+      const createdPlant = response?.data ?? response;
+      if (createdPlant?.id) {
+        backendId = String(createdPlant.id);
+        savedToBackend = true;
+      }
+    } catch (err) {
+      console.warn('No se pudo guardar en el backend, se guardará solo localmente:', err);
+      this.savePlantError = 'La planta se guardó localmente (sin conexión al servidor).';
+    }
+
+    // Construir el perfil de planta para el frontend
+    const icon = this.newPlant.type === 'Fruto' ? '🍓'
+      : this.newPlant.type === 'Hoja Verde' ? '🥬'
+      : this.newPlant.type === 'Raíz' ? '🥕'
+      : '🌿';
+
+    const createdPlant: any = {
+      id: backendId,
       name: this.newPlant.name.trim(),
       type: this.newPlant.type,
-      icon: this.newPlant.type === 'Fruto' ? '🍓' : (this.newPlant.type === 'Hoja Verde' ? '🥬' : (this.newPlant.type === 'Raíz' ? '🥕' : '🌿')),
-      imageUrl: this.newPlantImage || 'https://images.unsplash.com/photo-1530652101053-8c0db4fbb5de?q=80&w=500&auto=format&fit=crop', // default plant placeholder
+      icon,
+      imageUrl: this.newPlantImage
+        || 'https://images.unsplash.com/photo-1530652101053-8c0db4fbb5de?q=80&w=500&auto=format&fit=crop',
       optimalConditions: {
         tempMin: 15,
         tempMax: this.newPlant.tempMax || 25,
@@ -386,23 +484,27 @@ export class SelectPlantPage implements OnInit {
       difficulty: 'Fácil',
       benefits: ['SALUDABLE', 'PERSONALIZADO'],
       isActive: false,
-      description: 'Planta personalizada agregada por el usuario.'
+      description: 'Planta personalizada agregada por el usuario.',
+      isCustom: true,
+      savedToBackend,
     };
 
+    // Agregar a la lista en pantalla
     this.plantProfiles.push(createdPlant);
 
+    // Guardar también en localStorage como respaldo offline
     const customPlantsRaw = localStorage.getItem('customPlants');
-    let customPlants: Plantprofile[] = [];
-    if (customPlantsRaw) {
-      try {
-        customPlants = JSON.parse(customPlantsRaw);
-      } catch (e) {}
-    }
+    let customPlants: any[] = [];
+    try {
+      customPlants = customPlantsRaw ? JSON.parse(customPlantsRaw) : [];
+    } catch (e) {}
     customPlants.push(createdPlant);
     localStorage.setItem('customPlants', JSON.stringify(customPlants));
 
+    this.isSavingPlant = false;
     this.applyFilter(this.filterType);
     this.closeAddPlantModal();
     this.cdr.detectChanges();
   }
 }
+

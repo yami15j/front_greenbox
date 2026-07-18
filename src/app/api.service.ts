@@ -512,6 +512,39 @@ export class ApiService {
     }
   }
 
+  /* ========== PLANT OPERATIONS ========== */
+
+  /** Crear una planta personalizada en el backend */
+  async createPlant(plantData: {
+    name: string;
+    category: string;
+    imageUrl?: string;
+    minTemperature: number;
+    maxTemperature: number;
+    minHumidity: number;
+    maxHumidity: number;
+    lightHours: number;
+    minWaterLevel: number;
+    wateringFrequency: number;
+  }): Promise<any> {
+    try {
+      const requestOptions = await this.getAuthRequestOptions();
+      const headers = requestOptions?.headers ?? new HttpHeaders({ 'Content-Type': 'application/json' });
+
+      const response = await firstValueFrom(
+        this.http.post(
+          `${this.base}/plant`,
+          plantData,
+          { headers }
+        )
+      );
+      return response;
+    } catch (err) {
+      console.error('Error creando planta en el backend:', err);
+      throw err;
+    }
+  }
+
   /* ========== BOX OPERATIONS ========== */
 
   /** Actualizar la planta de un box */

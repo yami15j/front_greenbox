@@ -846,9 +846,46 @@
         background: #1b533a;
       }
 
+      &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+        transform: none;
+      }
+
       .submit-icon {
         font-size: 16px;
       }
     }
+
+    .save-error-msg {
+      background: rgba(255, 183, 77, 0.15);
+      border: 1px solid rgba(255, 183, 77, 0.5);
+      color: #7a5500;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .form-hint {
+      font-size: 11.5px;
+      color: #6d8a77;
+      margin: 2px 0 8px 0;
+      padding-left: 4px;
+      line-height: 1.4;
+    }
+
+    .field-error-text {
+      font-size: 11.5px;
+      color: #d32f2f;
+      margin-top: 3px;
+      padding-left: 4px;
+      font-weight: 500;
+      text-align: left;
+      width: 100%;
+    }
   }
 }
+

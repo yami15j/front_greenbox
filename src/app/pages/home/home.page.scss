@@ -939,17 +939,19 @@
 .plant-quick-actions {
   display: flex;
   flex-direction: row;
-  gap: 12px;
-  margin: 18px 20px 28px;
+  justify-content: center;
+  gap: 8px;
+  margin: 18px 12px 28px;
 
   .plant-action-btn {
     flex: 1;
+    max-width: 170px;
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 10px;
-    padding: 14px 12px;
-    border-radius: 18px;
+    gap: 6px;
+    padding: 12px 8px;
+    border-radius: 16px;
     border: none;
     cursor: pointer;
     text-align: left;
@@ -961,17 +963,17 @@
     }
 
     .btn-icon-wrap {
-      width: 40px;
-      height: 40px;
-      min-width: 40px;
-      border-radius: 12px;
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
 
       ion-icon {
-        font-size: 20px;
+        font-size: 18px;
       }
     }
 
@@ -979,10 +981,11 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
+      overflow: hidden;
 
       .btn-label {
         display: block;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 700;
         line-height: 1.2;
         letter-spacing: -0.2px;
@@ -991,7 +994,7 @@
 
       .btn-sublabel {
         display: block;
-        font-size: 10.5px;
+        font-size: 10px;
         font-weight: 500;
         opacity: 0.75;
         margin-top: 2px;
