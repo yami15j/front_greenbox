@@ -40,27 +40,18 @@
   <div class="plants-list-container">
     <div class="list-header">
       <span class="available-count">{{ filteredPlants.length }} plantas disponibles</span>
+      
+      <!-- Chip de Categoría Activa (delgado, al lado derecho) -->
+      <div class="active-category-badge" *ngIf="filterType !== 'all'">
+        <span *ngIf="filterType === 'Hoja Verde'">Vegetales</span>
+        <span *ngIf="filterType === 'Fruto'">Frutales</span>
+        <span *ngIf="filterType === 'Hierba Aromatica'">Medicinales</span>
+        <span *ngIf="filterType === 'Raíz'">Hortalizas</span>
+      </div>
     </div>
 
     <div class="selection-message" *ngIf="selectionMessage">
       {{ selectionMessage }}
-    </div>
-
-    <div class="filter-section">
-      <div class="filter-chips">
-        <button type="button" class="filter-chip" [class.active]="filterType === 'all'" (click)="applyFilter('all')">
-          <span>Todos</span>
-        </button>
-        <button type="button" class="filter-chip" [class.active]="filterType === 'Hoja Verde'" (click)="applyFilter('Hoja Verde')">
-          <span>Hojas Verdes</span>
-        </button>
-        <button type="button" class="filter-chip" [class.active]="filterType === 'Fruto'" (click)="applyFilter('Fruto')">
-          <span>Frutos</span>
-        </button>
-        <button type="button" class="filter-chip" [class.active]="filterType === 'Hierba Aromatica'" (click)="applyFilter('Hierba Aromatica')">
-          <span>Hierbas</span>
-        </button>
-      </div>
     </div>
 
     <div class="plants-grid">
@@ -118,6 +109,16 @@
           </button>
         </div>
       </div>
+      <!-- BOTÓN AGREGAR PLANTA PERSONALIZADA -->
+      <div class="plant-card add-plant-card" (click)="openAddPlantModal()">
+        <div class="add-plant-content">
+          <div class="add-icon-circle">
+            <ion-icon name="add-circle-outline"></ion-icon>
+          </div>
+          <h3 class="add-title">¿Tienes otra planta?</h3>
+          <p class="add-subtitle">Agrégala aquí para personalizar tu monitoreo.</p>
+        </div>
+      </div>
     </div>
 
     <div class="how-it-works-card">
@@ -130,6 +131,80 @@
       </div>
     </div>
   </div>
+
+  <!-- MODAL DE AGREGAR PLANTA -->
+  <ion-modal [isOpen]="isAddModalOpen" (willDismiss)="closeAddPlantModal()" class="add-plant-modal">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar class="modal-toolbar">
+          <ion-buttons slot="start" style="width: 48px;"></ion-buttons>
+          <ion-title class="modal-title ion-text-center">Agregar Planta</ion-title>
+          <ion-buttons slot="end">
+            <ion-button class="close-modal-btn" (click)="closeAddPlantModal()">
+              <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="modal-content-form ion-padding">
+        <div class="form-container">
+          <p class="form-intro">Registra tu planta personalizada completando los datos de cultivo a continuación.</p>
+
+          <!-- SELECCIONADOR DE IMAGEN / FOTO -->
+          <div class="form-group image-upload-group">
+            <label class="form-label">Foto de la planta</label>
+            <div class="image-preview-box" (click)="fileInput.click()">
+              <ng-container *ngIf="!newPlantImage; else hasImage">
+                <div class="upload-placeholder">
+                  <ion-icon name="camera-outline" class="upload-icon"></ion-icon>
+                  <span>Toma una foto o sube una imagen</span>
+                </div>
+              </ng-container>
+              <ng-template #hasImage>
+                <img [src]="newPlantImage" class="preview-img">
+                <div class="change-badge">
+                  <ion-icon name="camera-outline"></ion-icon> Cambiar
+                </div>
+              </ng-template>
+            </div>
+            <input type="file" #fileInput accept="image/*" style="display: none;" (change)="onPhotoSelected($event)">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nombre de la planta</label>
+            <input type="text" class="form-input" [(ngModel)]="newPlant.name" placeholder="Ej. Albahaca Morada">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Categoría</label>
+            <select class="form-select" [(ngModel)]="newPlant.type">
+              <option value="Hierba Aromática">Medicinales / Hierbas</option>
+              <option value="Fruto">Frutales / Frutos</option>
+              <option value="Hoja Verde">Vegetales / Hojas Verdes</option>
+              <option value="Raíz">Hortalizas / Raíces</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group half">
+              <label class="form-label">Temp Máx (°C)</label>
+              <input type="number" class="form-input" [(ngModel)]="newPlant.tempMax" placeholder="Ej. 28">
+            </div>
+            <div class="form-group half">
+              <label class="form-label">Hum Máx (%)</label>
+              <input type="number" class="form-input" [(ngModel)]="newPlant.humMax" placeholder="Ej. 75">
+            </div>
+          </div>
+
+          <button type="button" class="submit-btn" (click)="saveNewPlant()">
+            <ion-icon name="add-circle-outline" class="submit-icon"></ion-icon>
+            Guardar Planta
+          </button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
 
 </ion-content>
 

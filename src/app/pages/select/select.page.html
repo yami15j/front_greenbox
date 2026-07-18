@@ -29,27 +29,39 @@
         </div>
       </div>
 
-      <!-- DIVISOR CURVO DEL FONDO -->
-      <div class="bottom-wave">
-        <svg viewBox="0 0 1440 160" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
-          <path d="M0,40 C480,160 960,10 1440,50 L1440,160 L0,160 Z" fill="#ffffff" />
-        </svg>
-      </div>
     </div>
 
     <!-- CONTENEDOR BLANCO PRINCIPAL -->
     <div class="categories-container">
-      <div class="section-title-wrapper">
-        <p class="section-subtitle">Selecciona el tipo de planta que deseas explorar</p>
+      <!-- DIVISOR CURVO DEL FONDO -->
+      <div class="bottom-wave">
+        <svg viewBox="0 0 1440 160" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
+          <path d="M0,120 C250,20 470,20 720,120 C970,120 1190,20 1440,120 L1440,160 L0,160 Z" fill="#ffffff" />
+        </svg>
       </div>
+
 
       <!-- LISTA DE CATEGORÍAS -->
       <div class="categories-list">
+
+        <!-- CARD TODOS -->
+        <div class="category-card all-card" (click)="selectCategory('all')">
+          <div class="category-icon all-bg">
+            <img src="assets/all_plants_real.png" alt="Todos" class="category-image">
+          </div>
+          <div class="card-info">
+            <h3 class="category-name">Todas las plantas</h3>
+            <p class="category-description">Explora el catálogo completo de cultivos de GREENBOX sin filtros.</p>
+          </div>
+          <button class="chevron-action-btn">
+            <ion-icon name="chevron-forward-outline"></ion-icon>
+          </button>
+        </div>
         
         <!-- CARD MEDICINALES -->
         <div class="category-card medicinal-card" (click)="selectCategory('medicinal')">
           <div class="category-icon medicinal-bg">
-            <img src="assets/medicinal_plant_3d.png" alt="Medicinal" class="category-image">
+            <img src="assets/medicinal_real.png" alt="Medicinal" class="category-image">
           </div>
           <div class="card-info">
             <h3 class="category-name">Medicinales</h3>
@@ -63,7 +75,7 @@
         <!-- CARD FRUTALES -->
         <div class="category-card fruit-card" (click)="selectCategory('frutal')">
           <div class="category-icon fruit-bg">
-            <img src="assets/strawberry_3d.png" alt="Frutales" class="category-image">
+            <img src="assets/fruits_real.png" alt="Frutales" class="category-image">
           </div>
           <div class="card-info">
             <h3 class="category-name">Frutales</h3>
@@ -77,7 +89,7 @@
         <!-- CARD HORTALIZAS -->
         <div class="category-card vegetable-card" (click)="selectCategory('hortaliza')">
           <div class="category-icon vegetable-bg">
-            <img src="assets/lettuce_3d.png" alt="Hortalizas" class="category-image">
+            <img src="assets/hortalizas_real.png" alt="Hortalizas" class="category-image">
           </div>
           <div class="card-info">
             <h3 class="category-name">Hortalizas</h3>
@@ -91,7 +103,7 @@
         <!-- CARD VEGETALES -->
         <div class="category-card greens-card" (click)="selectCategory('vegetal')">
           <div class="category-icon greens-bg">
-            <img src="assets/sprout_3d.png" alt="Vegetales" class="category-image">
+            <img src="assets/vegetales_real.png" alt="Vegetales" class="category-image">
           </div>
           <div class="card-info">
             <h3 class="category-name">Vegetales</h3>
@@ -124,20 +136,4 @@
 
 </ion-content>
 
-<!-- BOTTOM TABS FOOTER (3 ICONOS CON ESTILO CONSISTENTE) -->
-<ion-footer class="ion-no-border stats-footer">
-  <div class="custom-tabs-nav">
-    <button class="nav-tab" (click)="goHome()">
-      <ion-icon name="home-outline"></ion-icon>
-      <span class="nav-label">Inicio</span>
-    </button>
-    <button class="nav-tab" (click)="goStats()">
-      <ion-icon name="stats-chart-outline"></ion-icon>
-      <span class="nav-label">Estadística</span>
-    </button>
-    <button class="nav-tab active" (click)="goMyPlant()">
-      <ion-icon name="leaf-outline"></ion-icon>
-      <span class="nav-label">Plantas</span>
-    </button>
-  </div>
-</ion-footer>
+

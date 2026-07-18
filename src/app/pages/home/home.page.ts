@@ -488,7 +488,7 @@ export class HomePage implements OnInit, OnDestroy {
   goMyPlant() {
     // Si no hay planta activa, ir directo a selección
     if (!this.activePlant) {
-      this.router.navigate(['/select-plant']);
+      this.router.navigate(['/select']);
     } else {
       this.router.navigate(['/plant']);
     }
@@ -506,7 +506,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   goPlants() {
-    this.router.navigate(['/select-plant']);
+    this.router.navigate(['/select']);
     this.closeMenu();
   }
 

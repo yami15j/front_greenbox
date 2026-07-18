@@ -19,7 +19,9 @@ import {
   leafOutline,
   timeOutline,
   addCircleOutline,
-  personOutline
+  personOutline,
+  closeOutline,
+  cameraOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -37,6 +39,9 @@ export class SelectPlantPage implements OnInit {
   filterType: string = 'all';
   activatingPlantId: string | null = null;
   selectionMessage = '';
+  isAddModalOpen = false;
+  newPlant = { name: '', type: 'Hierba Aromática', tempMax: 25, humMax: 70 };
+  newPlantImage: string | null = null;
 
   constructor(
     private router: Router,
@@ -54,18 +59,42 @@ export class SelectPlantPage implements OnInit {
       leafOutline,
       timeOutline,
       addCircleOutline,
-      'person-outline': personOutline
+      'person-outline': personOutline,
+      closeOutline,
+      cameraOutline
     });
   }
 
   async ngOnInit() {
     this.plantProfiles = JSON.parse(JSON.stringify(PLANT_PROFILES));
-    this.applyFilter('all');
+    this.loadCustomPlants();
     await this.initializePage();
   }
 
   async ionViewWillEnter() {
+    this.loadCategoryFilter();
     await this.refreshPageState();
+  }
+
+  private loadCategoryFilter() {
+    const category = localStorage.getItem('selectedCategoryFilter');
+    if (category) {
+      let filterToApply = 'all';
+      if (category === 'medicinal') {
+        filterToApply = 'Hierba Aromatica';
+      } else if (category === 'frutal') {
+        filterToApply = 'Fruto';
+      } else if (category === 'vegetal') {
+        filterToApply = 'Hoja Verde';
+      } else if (category === 'hortaliza') {
+        // En los perfiles de planta, cebollín/zanahoria/rábano son 'Raíz' o 'Hierba Aromática'
+        filterToApply = 'Raíz';
+      }
+      this.applyFilter(filterToApply);
+      localStorage.removeItem('selectedCategoryFilter'); // Consumimos el filtro de un solo uso
+    } else {
+      this.applyFilter('all');
+    }
   }
 
   private async initializePage() {
@@ -208,7 +237,7 @@ export class SelectPlantPage implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/plant']);
+    this.router.navigate(['/select']);
   }
 
   goHome() {
@@ -225,5 +254,96 @@ export class SelectPlantPage implements OnInit {
 
   goProfile() {
     this.router.navigate(['/perfil']);
+  }
+
+  getCategoryLabel(): string {
+    if (this.filterType === 'Hierba Aromatica') return 'Medicinales';
+    if (this.filterType === 'Fruto') return 'Frutales';
+    if (this.filterType === 'Hoja Verde') return 'Vegetales';
+    if (this.filterType === 'Raíz') return 'Hortalizas';
+    return 'Todas las plantas';
+  }
+
+  loadCustomPlants() {
+    const customPlantsRaw = localStorage.getItem('customPlants');
+    if (customPlantsRaw) {
+      try {
+        const customPlants: Plantprofile[] = JSON.parse(customPlantsRaw);
+        this.plantProfiles.push(...customPlants);
+      } catch (e) {
+        console.warn('Error loading custom plants from localStorage:', e);
+      }
+    }
+  }
+
+  openAddPlantModal() {
+    this.newPlant = {
+      name: '',
+      type: 'Hierba Aromática',
+      tempMax: 25,
+      humMax: 70
+    };
+    this.newPlantImage = null;
+    this.isAddModalOpen = true;
+  }
+
+  closeAddPlantModal() {
+    this.isAddModalOpen = false;
+  }
+
+  onPhotoSelected(event: any) {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.newPlantImage = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  saveNewPlant() {
+    if (!this.newPlant.name || !this.newPlant.name.trim()) {
+      alert('Por favor, ingresa el nombre de la planta.');
+      return;
+    }
+
+    const uniqueId = 'custom_' + Date.now();
+    const createdPlant: Plantprofile = {
+      id: uniqueId,
+      name: this.newPlant.name.trim(),
+      type: this.newPlant.type,
+      icon: this.newPlant.type === 'Fruto' ? '🍓' : (this.newPlant.type === 'Hoja Verde' ? '🥬' : (this.newPlant.type === 'Raíz' ? '🥕' : '🌿')),
+      imageUrl: this.newPlantImage || 'https://images.unsplash.com/photo-1530652101053-8c0db4fbb5de?q=80&w=500&auto=format&fit=crop', // default plant placeholder
+      optimalConditions: {
+        tempMin: 15,
+        tempMax: this.newPlant.tempMax || 25,
+        humMin: 45,
+        humMax: this.newPlant.humMax || 70,
+        lightMin: 50,
+        lightMax: 80,
+        waterMin: 50
+      },
+      growthTime: '30-40 días',
+      difficulty: 'Fácil',
+      benefits: ['SALUDABLE', 'PERSONALIZADO'],
+      isActive: false,
+      description: 'Planta personalizada agregada por el usuario.'
+    };
+
+    this.plantProfiles.push(createdPlant);
+
+    const customPlantsRaw = localStorage.getItem('customPlants');
+    let customPlants: Plantprofile[] = [];
+    if (customPlantsRaw) {
+      try {
+        customPlants = JSON.parse(customPlantsRaw);
+      } catch (e) {}
+    }
+    customPlants.push(createdPlant);
+    localStorage.setItem('customPlants', JSON.stringify(customPlants));
+
+    this.applyFilter(this.filterType);
+    this.closeAddPlantModal();
   }
 }

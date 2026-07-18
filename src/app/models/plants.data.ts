@@ -71,7 +71,7 @@ export const PLANT_PROFILES: Plantprofile[] = [
   {
     id: 'crassula_muscosa',
     name: 'Crassula Muscosa',
-    type: 'Fruto',
+    type: 'Suculenta',
     icon: '🌱',
     imageUrl: 'assets/plants/crassula_mucosa.jpg',
     optimalConditions: { tempMin: 15, tempMax: 24, humMin: 30, humMax: 50, lightMin: 60, lightMax: 80, waterMin: 40 },

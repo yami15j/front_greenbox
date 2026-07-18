@@ -338,7 +338,7 @@ export class ProfilePage implements OnInit {
   goMyPlant() {
     const activePlant = localStorage.getItem('activePlant');
     if (!activePlant) {
-      this.router.navigate(['/select-plant']);
+      this.router.navigate(['/select']);
     } else {
       this.router.navigate(['/plant']);
     }

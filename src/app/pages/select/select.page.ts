@@ -10,7 +10,8 @@ import {
   statsChartOutline,
   leafOutline,
   chevronForwardOutline,
-  sparklesOutline
+  sparklesOutline,
+  gridOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -35,7 +36,8 @@ export class SelectPage implements OnInit {
       statsChartOutline,
       leafOutline,
       chevronForwardOutline,
-      sparklesOutline
+      sparklesOutline,
+      gridOutline
     });
   }
 

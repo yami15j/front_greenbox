@@ -75,7 +75,7 @@ export class PlantPage implements OnInit {
 
     // Si no hay planta activa, redirigir directamente a la pantalla de selección
     if (!this.activePlant) {
-      this.router.navigate(['/select-plant']);
+      this.router.navigate(['/select']);
     }
   }
 
