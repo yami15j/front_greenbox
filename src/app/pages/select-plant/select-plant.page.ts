@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
@@ -46,7 +46,8 @@ export class SelectPlantPage implements OnInit {
   constructor(
     private router: Router,
     private api: ApiService,
-    private socketService: SocketService
+    private socketService: SocketService,
+    private cdr: ChangeDetectorRef
   ) {
     addIcons({
       chevronBackOutline,
@@ -285,10 +286,12 @@ export class SelectPlantPage implements OnInit {
     };
     this.newPlantImage = null;
     this.isAddModalOpen = true;
+    this.cdr.detectChanges();
   }
 
   closeAddPlantModal() {
     this.isAddModalOpen = false;
+    this.cdr.detectChanges();
   }
 
   onPhotoSelected(event: any) {
@@ -326,6 +329,7 @@ export class SelectPlantPage implements OnInit {
           } else {
             this.newPlantImage = reader.result as string;
           }
+          this.cdr.detectChanges();
         };
         img.src = reader.result as string;
       };
@@ -376,5 +380,6 @@ export class SelectPlantPage implements OnInit {
 
     this.applyFilter(this.filterType);
     this.closeAddPlantModal();
+    this.cdr.detectChanges();
   }
 }
