@@ -163,11 +163,25 @@
 
     </div>
 
-    <!-- Botón Cambiar Planta al Final -->
-    <div class="change-plant-bottom-container" *ngIf="activePlant">
-      <button class="change-plant-btn-bottom" (click)="goPlants()">
-        <ion-icon name="swap-horizontal-outline"></ion-icon>
-        Cambiar Planta
+    <!-- Acciones rápidas de Planta -->
+    <div class="plant-quick-actions" *ngIf="activePlant">
+      <button class="plant-action-btn primary-action" (click)="goSelectPlant()">
+        <div class="btn-icon-wrap">
+          <ion-icon name="swap-horizontal-outline"></ion-icon>
+        </div>
+        <div class="btn-text-wrap">
+          <span class="btn-label">Cambiar Planta</span>
+          <span class="btn-sublabel">Elige otra especie</span>
+        </div>
+      </button>
+      <button class="plant-action-btn secondary-action" (click)="goPlants()">
+        <div class="btn-icon-wrap">
+          <ion-icon name="grid-outline"></ion-icon>
+        </div>
+        <div class="btn-text-wrap">
+          <span class="btn-label">Tipo de Planta</span>
+          <span class="btn-sublabel">Cambiar categoría</span>
+        </div>
       </button>
     </div>
 

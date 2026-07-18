@@ -29,7 +29,9 @@ import {
   personOutline,
   chevronDownOutline,
   logOutOutline,
-  closeOutline
+  closeOutline,
+  swapHorizontalOutline,
+  gridOutline
 } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 
@@ -104,7 +106,9 @@ export class HomePage implements OnInit, OnDestroy {
       'eye-off-outline': eyeOffOutline,
       'rainy-outline': rainyOutline,
       'snow-outline': snowOutline,
-      'thunderstorm-outline': thunderstormOutline
+      'thunderstorm-outline': thunderstormOutline,
+      'swap-horizontal-outline': swapHorizontalOutline,
+      'grid-outline': gridOutline
     });
   }
 
@@ -507,6 +511,11 @@ export class HomePage implements OnInit, OnDestroy {
 
   goPlants() {
     this.router.navigate(['/select']);
+    this.closeMenu();
+  }
+
+  goSelectPlant() {
+    this.router.navigate(['/select-plant']);
     this.closeMenu();
   }
 

@@ -933,4 +933,97 @@
       }
     }
   }
+
+  // ─── Plant Quick Action Buttons ─────────────────────────────────
+  .plant-quick-actions {
+    display: flex;
+    gap: 12px;
+    margin: 18px 20px 28px;
+
+    .plant-action-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 14px;
+      border-radius: 18px;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.18s cubic-bezier(0.25, 0.8, 0.25, 1),
+                  box-shadow 0.18s ease;
+
+      &:active {
+        transform: scale(0.96);
+      }
+
+      .btn-icon-wrap {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        ion-icon {
+          font-size: 20px;
+        }
+      }
+
+      .btn-text-wrap {
+        display: flex;
+        flex-direction: column;
+
+        .btn-label {
+          font-size: 13.5px;
+          font-weight: 700;
+          line-height: 1.2;
+          letter-spacing: -0.2px;
+        }
+
+        .btn-sublabel {
+          font-size: 11px;
+          font-weight: 500;
+          opacity: 0.75;
+          margin-top: 2px;
+        }
+      }
+
+      // ── Primary: verde sólido con gradiente ──
+      &.primary-action {
+        background: linear-gradient(135deg, #3d8b6e 0%, #2e7d5c 100%);
+        box-shadow: 0 6px 20px rgba(61, 139, 110, 0.35);
+        color: #ffffff;
+
+        .btn-icon-wrap {
+          background: rgba(255, 255, 255, 0.2);
+          ion-icon { color: #ffffff; }
+        }
+
+        .btn-label  { color: #ffffff; }
+        .btn-sublabel { color: rgba(255,255,255,0.78); }
+      }
+
+      // ── Secondary: blanco con borde verde suave ──
+      &.secondary-action {
+        background: #ffffff;
+        border: 1.5px solid #c6e6d9;
+        box-shadow: 0 4px 14px rgba(61, 139, 110, 0.12);
+        color: #2e7d5c;
+
+        .btn-icon-wrap {
+          background: #e8f5f0;
+          ion-icon { color: #3d8b6e; }
+        }
+
+        .btn-label  { color: #2e6e50; }
+        .btn-sublabel { color: #6da48c; }
+
+        &:active {
+          background: #f0faf5;
+        }
+      }
+    }
+  }
 }
