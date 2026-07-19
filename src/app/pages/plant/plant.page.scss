@@ -1020,6 +1020,7 @@
         .progress-range-slider {
           flex: 1;
           -webkit-appearance: none;
+          appearance: none;
           height: 8px;
           border-radius: 4px;
           background: #eef2f0;
@@ -1028,6 +1029,7 @@
 
           &::-webkit-slider-thumb {
             -webkit-appearance: none;
+            appearance: none;
             width: 20px;
             height: 20px;
             border-radius: 50%;
