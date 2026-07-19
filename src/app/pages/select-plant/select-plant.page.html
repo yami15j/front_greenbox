@@ -1,11 +1,12 @@
 <ion-content class="plants-content" [scrollEvents]="true" [fullscreen]="true">
 
-  <div class="plants-hero" [class.no-active]="!selectedPlant" [style.background-image]="(selectedPlant && selectedPlant.imageUrl) ? 'url(\'' + selectedPlant.imageUrl + '\')' : null">
+  <div class="plants-hero" [class.no-active]="!selectedPlant"
+    [style.background-image]="(selectedPlant && selectedPlant.imageUrl) ? 'url(\'' + selectedPlant.imageUrl + '\')' : null">
     <div class="hero-overlay"></div>
 
-    <ion-button fill="clear" class="back-button" (click)="goBack()">
-      <ion-icon name="chevron-back-outline" slot="icon-only"></ion-icon>
-    </ion-button>
+    <button class="back-button" (click)="goHome()">
+      <ion-icon name="chevron-back-outline"></ion-icon>
+    </button>
 
     <div class="hero-content" *ngIf="selectedPlant">
       <span class="hero-subtitle">MIS PLANTAS</span>
@@ -40,7 +41,7 @@
   <div class="plants-list-container">
     <div class="list-header">
       <span class="available-count">{{ filteredPlants.length }} plantas disponibles</span>
-      
+
       <!-- Chip de Categoría Activa (delgado, al lado derecho) -->
       <div class="active-category-badge" *ngIf="filterType !== 'all'">
         <span *ngIf="filterType === 'Hoja Verde'">Vegetales</span>
@@ -60,7 +61,8 @@
         <div class="plant-card-image-wrapper">
           <div class="plant-image" [style.background-image]="'url(' + plant.imageUrl + ')'"></div>
 
-          <span class="difficulty-badge" [class.facil]="plant.difficulty.startsWith('F')" [class.intermedio]="plant.difficulty === 'Intermedio'" [class.avanzado]="plant.difficulty === 'Avanzado'">
+          <span class="difficulty-badge" [class.facil]="plant.difficulty.startsWith('F')"
+            [class.intermedio]="plant.difficulty === 'Intermedio'" [class.avanzado]="plant.difficulty === 'Avanzado'">
             {{ plant.difficulty }}
           </span>
 
@@ -84,7 +86,8 @@
           </div>
 
           <div class="benefits-section">
-            <ng-container *ngIf="plant.benefits && plant.benefits.length > 0 && plant.benefits[0] !== ''; else defaultTags">
+            <ng-container
+              *ngIf="plant.benefits && plant.benefits.length > 0 && plant.benefits[0] !== ''; else defaultTags">
               <span class="benefit-tag" *ngFor="let benefit of plant.benefits.slice(0, 2)">
                 {{ benefit | uppercase }}
               </span>
@@ -97,15 +100,12 @@
         </div>
 
         <div class="plant-card-footer">
-          <button
-            type="button"
-            [class.active-btn]="plant.isActive"
-            [class.inactive-btn]="!plant.isActive"
-            class="select-btn-custom"
-            [disabled]="activatingPlantId === plant.id"
-            (click)="selectPlant(plant)">
-            <ion-icon [name]="activatingPlantId === plant.id ? 'time-outline' : (plant.isActive ? 'checkmark-circle' : 'add-circle-outline')"></ion-icon>
-            <span>{{ activatingPlantId === plant.id ? 'Activando...' : (plant.isActive ? 'Activa' : 'Seleccionar') }}</span>
+          <button type="button" [class.active-btn]="plant.isActive" [class.inactive-btn]="!plant.isActive"
+            class="select-btn-custom" [disabled]="activatingPlantId === plant.id" (click)="selectPlant(plant)">
+            <ion-icon
+              [name]="activatingPlantId === plant.id ? 'time-outline' : (plant.isActive ? 'checkmark-circle' : 'add-circle-outline')"></ion-icon>
+            <span>{{ activatingPlantId === plant.id ? 'Activando...' : (plant.isActive ? 'Activa' : 'Seleccionar')
+              }}</span>
           </button>
         </div>
       </div>
@@ -126,7 +126,8 @@
       <div class="card-text-content">
         <h3 class="card-title">Como funciona?</h3>
         <p class="card-description">
-          Al seleccionar una planta, GREENBOX ajusta automaticamente los umbrales de temperatura, humedad and alertas para ese cultivo.
+          Al seleccionar una planta, GREENBOX ajusta automaticamente los umbrales de temperatura, humedad and alertas
+          para ese cultivo.
         </p>
       </div>
     </div>
@@ -174,29 +175,59 @@
 
           <div class="form-group">
             <label class="form-label">Nombre de la planta</label>
-            <input type="text" class="form-input" [(ngModel)]="newPlant.name" (input)="onNameInput()" placeholder="Ej. Albahaca Morada">
+            <input type="text" class="form-input" [(ngModel)]="newPlant.name" (input)="onNameInput()"
+              placeholder="Ej. Albahaca Morada">
             <span class="field-error-text" *ngIf="nameError">{{ nameError }}</span>
           </div>
 
           <div class="form-group">
             <label class="form-label">Categoría</label>
             <select class="form-select" [(ngModel)]="newPlant.type" (change)="onCategoryChange()">
-              <option value="Hierba Aromática">Medicinales / Hierbas</option>
-              <option value="Fruto">Frutales / Frutos</option>
-              <option value="Hoja Verde">Vegetales / Hojas Verdes</option>
-              <option value="Raíz">Hortalizas / Raíces</option>
+              <option value="medicinal">Medicinales</option>
+              <option value="frutal">Frutales</option>
+              <option value="vegetal">Vegetales</option>
+              <option value="hortaliza">Hortalizas</option>
             </select>
           </div>
 
 
           <div class="form-row">
             <div class="form-group half">
+              <label class="form-label">Temp Mín (°C)</label>
+              <input type="number" class="form-input" [(ngModel)]="newPlant.tempMin" placeholder="Ej. 15">
+            </div>
+            <div class="form-group half">
               <label class="form-label">Temp Máx (°C)</label>
               <input type="number" class="form-input" [(ngModel)]="newPlant.tempMax" placeholder="Ej. 28">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group half">
+              <label class="form-label">Hum Mín (%)</label>
+              <input type="number" class="form-input" [(ngModel)]="newPlant.humMin" placeholder="Ej. 50">
             </div>
             <div class="form-group half">
               <label class="form-label">Hum Máx (%)</label>
               <input type="number" class="form-input" [(ngModel)]="newPlant.humMax" placeholder="Ej. 70">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group half">
+              <label class="form-label">Luz (hrs)</label>
+              <input type="number" class="form-input" [(ngModel)]="newPlant.lightHours" placeholder="Ej. 8">
+            </div>
+            <div class="form-group half">
+              <label class="form-label">Agua Mín (%)</label>
+              <input type="number" class="form-input" [(ngModel)]="newPlant.minWaterLevel" placeholder="Ej. 50">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full">
+              <label class="form-label">Frec. de Riego (días)</label>
+              <input type="number" class="form-input" [(ngModel)]="newPlant.wateringFrequency" placeholder="Ej. 3">
             </div>
           </div>
 
@@ -211,6 +242,3 @@
   </ion-modal>
 
 </ion-content>
-
-
-

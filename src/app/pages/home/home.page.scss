@@ -530,10 +530,29 @@
     flex-direction: column;
     justify-content: space-between;
 
+    &.card-temp {
+      background: #FFB899;
+      border-color: rgba(255, 184, 153, 0.8);
+    }
+    
+    &.card-hum {
+      background: #9AD9E3;
+      border-color: rgba(154, 217, 227, 0.8);
+    }
+    
+    &.card-light {
+      background: #FFE17F;
+      border-color: rgba(255, 225, 127, 0.8);
+    }
+    
+    &.card-water {
+      background: #7BC8A4;
+      border-color: rgba(123, 200, 164, 0.8);
+    }
+
     &:hover {
       transform: translateY(-1px);
       box-shadow: 0 8px 18px rgba(45, 74, 62, 0.06);
-      border-color: rgba(95, 166, 140, 0.3);
     }
     &:active {
       transform: scale(0.98);
@@ -556,7 +575,7 @@
   .sensor-title-compact {
     font-size: 10px;
     font-weight: 800;
-    color: #82928c;
+    color: #1a2e26;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
@@ -581,9 +600,9 @@
     letter-spacing: 0.5px;
 
     &.good {
-      background: #e8f5f0;
-      color: #3d7a63;
-      border: 1px solid rgba(95, 166, 140, 0.15);
+      background: rgba(255,255,255,0.7);
+      color: #1a2e26;
+      border: 1px solid rgba(26, 46, 38, 0.2);
     }
 
     &.bad {

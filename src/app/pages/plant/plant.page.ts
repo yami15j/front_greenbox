@@ -6,6 +6,7 @@ import {
   NavController,
   AlertController,
   ToastController,
+  ActionSheetController,
 } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ApiService } from 'src/app/api.service';
@@ -74,6 +75,7 @@ export class PlantPage implements OnInit {
     private router: Router,
     private alertController: AlertController,
     private toastController: ToastController,
+    private actionSheetCtrl: ActionSheetController,
     private api: ApiService,
   ) {
     addIcons({
@@ -314,6 +316,97 @@ export class PlantPage implements OnInit {
     this.viewMode = 'progress';
   }
 
+  async presentRecordOptions() {
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: 'Opciones de registro',
+      buttons: [
+        {
+          text: 'Eliminar registro',
+          role: 'destructive',
+          icon: 'trash-outline',
+          handler: () => {
+            this.confirmDeleteRecord();
+          }
+        },
+        {
+          text: 'Cancelar',
+          icon: 'close-outline',
+          role: 'cancel'
+        }
+      ]
+    });
+    await actionSheet.present();
+  }
+
+  async confirmDeleteRecord() {
+    const alert = await this.alertController.create({
+      header: '¿Eliminar registro?',
+      message: 'Esta acción no se puede deshacer.',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        { 
+          text: 'Eliminar', 
+          role: 'destructive',
+          handler: () => {
+            this.deleteCurrentRecord();
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  deleteCurrentRecord() {
+    if (!this.activePlant || !this.selectedEvent) return;
+    
+    // Remove from activePlant timeline
+    if (this.activePlant.timeline) {
+      this.activePlant.timeline = this.activePlant.timeline.filter(e => e.registeredAt !== this.selectedEvent!.registeredAt);
+    }
+    
+    // Update local storage for custom timeline events
+    const plantId = this.activePlant.id || localStorage.getItem('activePlantId') || 'default';
+    const key = `customTimelineEvents_${plantId}`;
+    let customEvents: any[] = JSON.parse(localStorage.getItem(key) || '[]');
+    customEvents = customEvents.filter(e => e.registeredAt !== this.selectedEvent!.registeredAt);
+    localStorage.setItem(key, JSON.stringify(customEvents));
+
+    // Also update activePlant in storage if needed
+    localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
+    const currentEmail = localStorage.getItem('currentUserEmail');
+    if (currentEmail) {
+      localStorage.setItem(`activePlant_${currentEmail}`, JSON.stringify(this.activePlant));
+    }
+
+    this.closeRecordDetail();
+  }
+
+  updateCurrentRecord() {
+    if (!this.activePlant || !this.selectedEvent) return;
+    const plantId = this.activePlant.id || localStorage.getItem('activePlantId') || 'default';
+    const key = `customTimelineEvents_${plantId}`;
+    let customEvents: any[] = JSON.parse(localStorage.getItem(key) || '[]');
+    const idx = customEvents.findIndex(e => e.registeredAt === this.selectedEvent!.registeredAt);
+    if (idx !== -1) {
+      customEvents[idx] = this.selectedEvent;
+      localStorage.setItem(key, JSON.stringify(customEvents));
+    }
+    
+    // update activePlant timeline
+    if (this.activePlant.timeline) {
+      const tlIdx = this.activePlant.timeline.findIndex(e => e.registeredAt === this.selectedEvent!.registeredAt);
+      if (tlIdx !== -1) {
+        this.activePlant.timeline[tlIdx] = this.selectedEvent;
+      }
+    }
+    
+    localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
+    const currentEmail = localStorage.getItem('currentUserEmail');
+    if (currentEmail) {
+      localStorage.setItem(`activePlant_${currentEmail}`, JSON.stringify(this.activePlant));
+    }
+  }
+
   async openEditNote() {
     const alert = await this.alertController.create({
       header: 'Editar observación',
@@ -333,6 +426,7 @@ export class PlantPage implements OnInit {
             if (this.selectedEvent) {
               this.selectedEventNote = data.note;
               this.selectedEvent.description = data.note;
+              this.updateCurrentRecord(); // Persist changes
             }
           },
         },

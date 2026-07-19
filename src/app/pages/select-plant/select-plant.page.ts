@@ -62,7 +62,7 @@ export class SelectPlantPage implements OnInit {
   activatingPlantId: string | null = null;
   selectionMessage = '';
   isAddModalOpen = false;
-  newPlant = { name: '', type: 'Hierba Aromática', tempMax: 25, humMax: 70 };
+  newPlant = { name: '', type: 'medicinal', tempMin: 15, tempMax: 28, humMin: 50, humMax: 70, lightHours: 8, minWaterLevel: 50, wateringFrequency: 3 };
   newPlantImage: string | null = null;
   nameError = '';
   imageError = '';
@@ -104,18 +104,7 @@ export class SelectPlantPage implements OnInit {
   private loadCategoryFilter() {
     const category = localStorage.getItem('selectedCategoryFilter');
     if (category) {
-      let filterToApply = 'all';
-      if (category === 'medicinal') {
-        filterToApply = 'Hierba Aromatica';
-      } else if (category === 'frutal') {
-        filterToApply = 'Fruto';
-      } else if (category === 'vegetal') {
-        filterToApply = 'Hoja Verde';
-      } else if (category === 'hortaliza') {
-        // En los perfiles de planta, cebollín/zanahoria/rábano son 'Raíz' o 'Hierba Aromática'
-        filterToApply = 'Raíz';
-      }
-      this.applyFilter(filterToApply);
+      this.applyFilter(category);
       localStorage.removeItem('selectedCategoryFilter'); // Consumimos el filtro de un solo uso
     } else {
       this.applyFilter('all');
@@ -176,8 +165,15 @@ export class SelectPlantPage implements OnInit {
     if (type === 'all') {
       this.filteredPlants = this.plantProfiles;
     } else {
+      const typeMap: { [key: string]: string[] } = {
+        'medicinal': ['Hierba Aromática', 'medicinal'],
+        'frutal': ['Fruto', 'frutal'],
+        'vegetal': ['Hoja Verde', 'Suculenta', 'vegetal'],
+        'hortaliza': ['Raíz', 'hortaliza']
+      };
+      const allowedTypes = typeMap[type] || [type];
       this.filteredPlants = this.plantProfiles.filter(
-        p => this.normalizeText(p.type) === this.normalizeText(type)
+        p => allowedTypes.some(allowed => this.normalizeText(p.type) === this.normalizeText(allowed))
       );
     }
   }
@@ -283,10 +279,10 @@ export class SelectPlantPage implements OnInit {
   }
 
   getCategoryLabel(): string {
-    if (this.filterType === 'Hierba Aromatica') return 'Medicinales';
-    if (this.filterType === 'Fruto') return 'Frutales';
-    if (this.filterType === 'Hoja Verde') return 'Vegetales';
-    if (this.filterType === 'Raíz') return 'Hortalizas';
+    if (this.filterType === 'medicinal') return 'Medicinales';
+    if (this.filterType === 'frutal') return 'Frutales';
+    if (this.filterType === 'vegetal') return 'Vegetales';
+    if (this.filterType === 'hortaliza') return 'Hortalizas';
     return 'Todas las plantas';
   }
 
@@ -303,20 +299,25 @@ export class SelectPlantPage implements OnInit {
   }
 
   // Valores recomendados por categoría
-  private readonly categoryDefaults: { [key: string]: { tempMax: number; humMax: number } } = {
-    'Hierba Aromática': { tempMax: 28, humMax: 70 },
-    'Fruto':            { tempMax: 30, humMax: 80 },
-    'Hoja Verde':       { tempMax: 25, humMax: 75 },
-    'Raíz':             { tempMax: 22, humMax: 65 },
+  private readonly categoryDefaults: { [key: string]: { tempMin: number; tempMax: number; humMin: number; humMax: number; lightHours: number; minWaterLevel: number; wateringFrequency: number; } } = {
+    'medicinal': { tempMin: 15, tempMax: 28, humMin: 50, humMax: 70, lightHours: 8, minWaterLevel: 50, wateringFrequency: 3 },
+    'frutal': { tempMin: 18, tempMax: 30, humMin: 60, humMax: 80, lightHours: 10, minWaterLevel: 60, wateringFrequency: 2 },
+    'vegetal': { tempMin: 15, tempMax: 25, humMin: 60, humMax: 75, lightHours: 8, minWaterLevel: 60, wateringFrequency: 2 },
+    'hortaliza': { tempMin: 12, tempMax: 22, humMin: 50, humMax: 65, lightHours: 6, minWaterLevel: 50, wateringFrequency: 4 },
   };
 
   openAddPlantModal() {
-    const defaults = this.categoryDefaults['Hierba Aromática'];
+    const defaults = this.categoryDefaults['medicinal'];
     this.newPlant = {
       name: '',
-      type: 'Hierba Aromática',
+      type: 'medicinal',
+      tempMin: defaults.tempMin,
       tempMax: defaults.tempMax,
-      humMax: defaults.humMax
+      humMin: defaults.humMin,
+      humMax: defaults.humMax,
+      lightHours: defaults.lightHours,
+      minWaterLevel: defaults.minWaterLevel,
+      wateringFrequency: defaults.wateringFrequency
     };
     this.newPlantImage = null;
     this.nameError = '';
@@ -343,8 +344,13 @@ export class SelectPlantPage implements OnInit {
   onCategoryChange() {
     const defaults = this.categoryDefaults[this.newPlant.type];
     if (defaults) {
+      this.newPlant.tempMin = defaults.tempMin;
       this.newPlant.tempMax = defaults.tempMax;
-      this.newPlant.humMax  = defaults.humMax;
+      this.newPlant.humMin = defaults.humMin;
+      this.newPlant.humMax = defaults.humMax;
+      this.newPlant.lightHours = defaults.lightHours;
+      this.newPlant.minWaterLevel = defaults.minWaterLevel;
+      this.newPlant.wateringFrequency = defaults.wateringFrequency;
       this.cdr.detectChanges();
     }
   }
@@ -420,27 +426,20 @@ export class SelectPlantPage implements OnInit {
     this.savePlantError = '';
     this.cdr.detectChanges();
 
-    // Mapeo de tipo del form a categoría del backend
-    const categoryMap: { [key: string]: string } = {
-      'Hierba Aromática': 'interior',
-      'Fruto': 'comestible',
-      'Hoja Verde': 'comestible',
-      'Raíz': 'comestible',
-    };
-    const category = categoryMap[this.newPlant.type] || 'interior';
+    // Datos para el backend, usamos la categoria tal cual
+    const category = this.newPlant.type;
 
-    // Datos para el backend
     const plantPayload = {
       name: this.newPlant.name.trim(),
       category,
       imageUrl: undefined as string | undefined,
-      minTemperature: 15,
+      minTemperature: this.newPlant.tempMin || 15,
       maxTemperature: this.newPlant.tempMax || 25,
-      minHumidity: 45,
+      minHumidity: this.newPlant.humMin || 45,
       maxHumidity: this.newPlant.humMax || 70,
-      lightHours: 8,
-      minWaterLevel: 50,
-      wateringFrequency: 3,
+      lightHours: this.newPlant.lightHours || 8,
+      minWaterLevel: this.newPlant.minWaterLevel || 50,
+      wateringFrequency: this.newPlant.wateringFrequency || 3,
     };
 
     let backendId: string = 'custom_' + Date.now();
@@ -459,10 +458,10 @@ export class SelectPlantPage implements OnInit {
     }
 
     // Construir el perfil de planta para el frontend
-    const icon = this.newPlant.type === 'Fruto' ? '🍓'
-      : this.newPlant.type === 'Hoja Verde' ? '🥬'
-      : this.newPlant.type === 'Raíz' ? '🥕'
-      : '🌿';
+    const icon = this.newPlant.type === 'frutal' ? '🍓'
+      : this.newPlant.type === 'vegetal' ? '🥬'
+        : this.newPlant.type === 'hortaliza' ? '🥕'
+          : '🌿';
 
     const createdPlant: any = {
       id: backendId,
@@ -472,9 +471,9 @@ export class SelectPlantPage implements OnInit {
       imageUrl: this.newPlantImage
         || 'https://images.unsplash.com/photo-1530652101053-8c0db4fbb5de?q=80&w=500&auto=format&fit=crop',
       optimalConditions: {
-        tempMin: 15,
+        tempMin: this.newPlant.tempMin || 15,
         tempMax: this.newPlant.tempMax || 25,
-        humMin: 45,
+        humMin: this.newPlant.humMin || 45,
         humMax: this.newPlant.humMax || 70,
         lightMin: 50,
         lightMax: 80,
@@ -497,7 +496,7 @@ export class SelectPlantPage implements OnInit {
     let customPlants: any[] = [];
     try {
       customPlants = customPlantsRaw ? JSON.parse(customPlantsRaw) : [];
-    } catch (e) {}
+    } catch (e) { }
     customPlants.push(createdPlant);
     localStorage.setItem('customPlants', JSON.stringify(customPlants));
 

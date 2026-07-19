@@ -11,9 +11,7 @@
         <ion-icon name="chevron-back-outline"></ion-icon>
       </button>
       <h1 class="page-title">Progreso</h1>
-      <button class="header-btn edit-btn" (click)="editPlantDetails()">
-        <ion-icon name="create-outline"></ion-icon>
-      </button>
+      <div class="header-spacer" style="width: 40px; height: 40px;"></div>
     </div>
 
     <div class="plant-progress-shell">
@@ -25,7 +23,6 @@
           <div class="plant-hero-name-row">
             <h2>{{ activePlant.name }}</h2>
             <div class="plant-verified-dot">
-              <ion-icon name="checkmark-circle" class="verified-icon"></ion-icon>
             </div>
           </div>
           <p class="plant-hero-subtitle">{{ activePlant.type }} · {{ activePlant.growthTime }}</p>
@@ -101,7 +98,6 @@
         <button class="new-record-fab" (click)="openCamera()">
           <ion-icon name="add-outline"></ion-icon>
         </button>
-        <span class="new-record-label">Nuevo registro</span>
       </div>
 
     </div>
@@ -118,9 +114,7 @@
         <ion-icon name="chevron-back-outline"></ion-icon>
       </button>
       <h1 class="page-title">Registro</h1>
-      <button class="header-btn">
-        <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
-      </button>
+      <div class="header-spacer" style="width: 40px; height: 40px;"></div>
     </div>
 
     <div class="record-detail-body">
@@ -150,9 +144,6 @@
         </div>
         <div class="observations-card">
           <p class="observations-text">{{ selectedEventNote }}</p>
-          <button class="edit-note-btn" (click)="openEditNote()">
-            <ion-icon name="create-outline"></ion-icon>
-          </button>
         </div>
       </div>
 

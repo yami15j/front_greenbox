@@ -12,7 +12,7 @@
 .my-plant-container {
   padding: 20px 18px;
   padding-top: calc(16px + env(safe-area-inset-top));
-  padding-bottom: calc(90px + env(safe-area-inset-bottom));
+  padding-bottom: 20px;
 
   .my-plant-header {
     display: flex;
@@ -44,8 +44,6 @@
         height: 40px;
         box-shadow: 0 2px 8px rgba(95, 166, 140, 0.1);
 
-        ion-icon { font-size: 20px; color: #3d7a63; }
-        &:active { background: #d4ece1; }
       }
     }
 
@@ -195,7 +193,7 @@
   .timeline-vertical-list {
     display: flex;
     flex-direction: column;
-    padding-bottom: 80px;
+    padding-bottom: 20px;
   }
 
   .timeline-vertical-item {
@@ -475,6 +473,49 @@
       line-height: 1.65;
       margin: 0;
       font-weight: 500;
+    }
+  }
+
+  /* ── Floating new record button ── */
+  .new-record-fab-area {
+    position: fixed;
+    bottom: 90px; /* Above the footer tabs */
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    z-index: 100;
+    
+    .new-record-fab {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #4caf82;
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 6px 20px rgba(76, 175, 130, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s ease;
+      
+      ion-icon {
+        font-size: 32px;
+      }
+      
+      &:active {
+        transform: scale(0.9);
+        background: #3e9a6e;
+      }
+    }
+    
+    .new-record-label {
+      font-size: 11px;
+      font-weight: 800;
+      color: #1a2e26;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
     }
   }
 }

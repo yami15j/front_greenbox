@@ -44,10 +44,6 @@
       <div class="plant-card-header">
         <div class="plant-info">
           <h2 class="plant-name">{{ activePlant.name }}</h2>
-          <!-- Peach quick action camera button -->
-          <button class="quick-camera-btn" (click)="goCamera()">
-            <ion-icon name="camera"></ion-icon>
-          </button>
         </div>
       </div>
 
@@ -117,7 +113,7 @@
     <!-- Sensores -->
     <div class="sensors-grid-compact">
 
-      <div class="sensor-card-compact">
+      <div class="sensor-card-compact card-temp">
         <div class="sensor-header-compact">
           <img src="assets/icon/temperatura.png" class="sensor-icon-compact">
           <span class="sensor-title-compact">Temperatura</span>
@@ -128,7 +124,7 @@
         </div>
       </div>
 
-      <div class="sensor-card-compact">
+      <div class="sensor-card-compact card-hum">
         <div class="sensor-header-compact">
           <img src="assets/icon/humedad.png" class="sensor-icon-compact">
           <span class="sensor-title-compact">Humedad</span>
@@ -139,7 +135,7 @@
         </div>
       </div>
 
-      <div class="sensor-card-compact">
+      <div class="sensor-card-compact card-light">
         <div class="sensor-header-compact">
           <img src="assets/icon/luz.png" class="sensor-icon-compact">
           <span class="sensor-title-compact">Luz</span>
@@ -150,7 +146,7 @@
         </div>
       </div>
 
-      <div class="sensor-card-compact">
+      <div class="sensor-card-compact card-water">
         <div class="sensor-header-compact">
           <img src="assets/icon/agua.png" class="sensor-icon-compact">
           <span class="sensor-title-compact">Nivel de Agua</span>
