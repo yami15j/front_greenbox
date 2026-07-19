@@ -16,9 +16,10 @@ import {
 import {
   getAuth,
   signInWithEmailAndPassword,
-  signInWithPopup,
+  signInWithCredential,
   GoogleAuthProvider,
 } from 'firebase/auth';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import { ApiService } from 'src/app/api.service';
 
 @Component({
@@ -85,9 +86,15 @@ export class EmailLoginPage {
 
     try {
       const auth = getAuth();
-      const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+      const result = await FirebaseAuthentication.signInWithGoogle();
+      
+      if (!result.credential?.idToken) {
+        throw new Error('Google no devolvio un token de acceso (idToken) valido.');
+      }
+
+      const credential = GoogleAuthProvider.credential(result.credential.idToken);
+      const userCredential = await signInWithCredential(auth, credential);
+      const user = userCredential.user;
 
       if (!user.email) {
         throw new Error('Google no devolvio un correo valido para esta cuenta.');
@@ -143,9 +150,9 @@ export class EmailLoginPage {
 
       setTimeout(() => {
         if (boxId) {
-          this.router.navigateByUrl('/select');
+          this.router.navigate(['/select'], { replaceUrl: true });
         } else {
-          this.router.navigateByUrl('/login');
+          this.router.navigate(['/login'], { replaceUrl: true });
         }
       }, 800);
     } catch (err: any) {
@@ -231,9 +238,9 @@ export class EmailLoginPage {
 
       setTimeout(() => {
         if (boxId) {
-          this.router.navigateByUrl('/select');
+          this.router.navigate(['/select'], { replaceUrl: true });
         } else {
-          this.router.navigateByUrl('/login');
+          this.router.navigate(['/login'], { replaceUrl: true });
         }
       }, 800);
     } catch (err: any) {

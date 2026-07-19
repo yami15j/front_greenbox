@@ -3,7 +3,7 @@
 
   .main-container {
     padding: 20px 18px;
-    padding-top: calc(16px + env(safe-area-inset-top));
+    padding-top: calc(10px + env(safe-area-inset-top));
     padding-bottom: calc(90px + env(safe-area-inset-bottom));
   }
 
@@ -238,6 +238,7 @@
     justify-content: center;
     z-index: 250;
     padding: clamp(16px, 3vw, 24px);
+    padding-top: calc(clamp(16px, 3vw, 24px) + env(safe-area-inset-top) + 20px);
     padding-bottom: calc(clamp(16px, 3vw, 24px) + env(safe-area-inset-bottom));
   }
 

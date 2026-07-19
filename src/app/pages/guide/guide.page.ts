@@ -73,7 +73,7 @@ export class GuidePage implements OnInit {
   }
 
   goBack() { this.navCtrl.back(); }
-  goHome() { this.navCtrl.navigateBack('/home'); }
+  goHome() { this.navCtrl.navigateForward('/home'); }
 
   scrollToSection(sectionId: string) {
     const element = document.getElementById(sectionId);

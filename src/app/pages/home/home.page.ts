@@ -515,6 +515,15 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   goSelectPlant() {
+    if (this.activePlant) {
+      const type = this.activePlant.type;
+      let category = 'all';
+      if (type === 'Hierba Aromática') category = 'medicinal';
+      else if (type === 'Fruto') category = 'frutal';
+      else if (type === 'Hoja Verde') category = 'vegetal';
+      else if (type === 'Raíz') category = 'hortaliza';
+      localStorage.setItem('selectedCategoryFilter', category);
+    }
     this.router.navigate(['/select-plant']);
     this.closeMenu();
   }

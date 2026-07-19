@@ -537,7 +537,7 @@ export class NotificationPage implements OnInit {
   }
 
   goBack() { this.navCtrl.back(); }
-  goHome() { this.navCtrl.navigateBack('/home'); }
+  goHome() { this.navCtrl.navigateForward('/home'); }
   goHistory() { this.navCtrl.navigateForward('/weekly'); }
   goMyPlant() { this.navCtrl.navigateForward('/plant'); }
   goNotifications() {

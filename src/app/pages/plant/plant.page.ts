@@ -14,6 +14,7 @@ import {
   PLANT_PROFILES,
   Plantprofile,
   TimelineEvent,
+  TimelineAiAnalysis,
 } from 'src/app/models/plants.data';
 import { environment } from 'src/environments/environment';
 import { addIcons } from 'ionicons';
@@ -30,6 +31,13 @@ import {
   trashOutline,
   closeOutline,
   chevronForwardOutline,
+  sparklesOutline,
+  checkmarkCircleOutline,
+  timeOutline,
+  addOutline,
+  ellipsisHorizontalOutline,
+  calendarOutline,
+  saveOutline,
 } from 'ionicons/icons';
 
 @Component({
@@ -42,7 +50,7 @@ import {
 export class PlantPage implements OnInit {
   selectedPlant: Plantprofile | null = null;
   activePlant: Plantprofile | null = null;
-  viewMode: 'progress' | 'camera' | 'photo-detail' = 'progress';
+  viewMode: 'progress' | 'camera' | 'photo-detail' | 'record-detail' = 'progress';
   isPlantDetailsModalOpen = false;
 
   flashActive = false;
@@ -53,6 +61,13 @@ export class PlantPage implements OnInit {
 
   plantProfiles: Plantprofile[] = [];
   private readonly plantProgressEnabled = environment.plantProgressEnabled;
+
+  // ── Record detail view state ──
+  selectedEvent: TimelineEvent | null = null;
+  selectedEventNote = '';
+  isAnalyzing = false;
+  aiAnalysis: TimelineAiAnalysis | null = null;
+  showAiAnalysis = false;
 
   constructor(
     private navCtrl: NavController,
@@ -74,6 +89,13 @@ export class PlantPage implements OnInit {
       'trash-outline': trashOutline,
       'close-outline': closeOutline,
       'chevron-forward-outline': chevronForwardOutline,
+      'sparkles-outline': sparklesOutline,
+      'checkmark-circle-outline': checkmarkCircleOutline,
+      'time-outline': timeOutline,
+      'add-outline': addOutline,
+      'ellipsis-horizontal-outline': ellipsisHorizontalOutline,
+      'calendar-outline': calendarOutline,
+      'save-outline': saveOutline,
     });
   }
 
@@ -98,6 +120,24 @@ export class PlantPage implements OnInit {
   private async refreshPageState() {
     await restoreUserScopedStorageFromFirebase();
     await this.loadActivePlant();
+
+    // Inject pending event saved by camera
+    const pendingStr = localStorage.getItem('pendingTimelineEvent');
+    if (pendingStr && this.activePlant) {
+      try {
+        const pending = JSON.parse(pendingStr);
+        if (!this.activePlant.timeline) {
+          this.activePlant.timeline = [];
+        }
+        const first = this.activePlant.timeline[0];
+        if (!first || first.date !== pending.date || first.description !== pending.description) {
+          this.activePlant.timeline.unshift(pending);
+        }
+      } catch (e) {
+        console.warn('Error parsing pending timeline event', e);
+      }
+      localStorage.removeItem('pendingTimelineEvent');
+    }
   }
 
   async loadActivePlant() {
@@ -174,6 +214,8 @@ export class PlantPage implements OnInit {
           imageUrl: item.imageUrl,
           progress: item.progress,
           id: item.id,
+          registeredAt: item.createdAt || item.date,
+          aiAnalysis: item.aiAnalysis || null,
         }));
 
         if (this.activePlant) {
@@ -198,6 +240,157 @@ export class PlantPage implements OnInit {
       }
     }
   }
+
+  // ── Record detail view ──
+
+  openRecordDetail(ev: TimelineEvent) {
+    this.selectedEvent = ev;
+    this.selectedEventNote = ev.description || '';
+    this.aiAnalysis = ev.aiAnalysis || null;
+    this.showAiAnalysis = !!ev.aiAnalysis;
+    this.viewMode = 'record-detail';
+  }
+
+  closeRecordDetail() {
+    this.selectedEvent = null;
+    this.aiAnalysis = null;
+    this.showAiAnalysis = false;
+    this.viewMode = 'progress';
+  }
+
+  async openEditNote() {
+    const alert = await this.alertController.create({
+      header: 'Editar observación',
+      inputs: [
+        {
+          name: 'note',
+          type: 'textarea',
+          placeholder: 'Escribe tus observaciones...',
+          value: this.selectedEventNote,
+        },
+      ],
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Guardar',
+          handler: (data) => {
+            if (this.selectedEvent) {
+              this.selectedEventNote = data.note;
+              this.selectedEvent.description = data.note;
+            }
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  async analyzeWithAI() {
+    if (!this.selectedEvent || this.isAnalyzing) return;
+    this.isAnalyzing = true;
+
+    try {
+      const photoId = this.selectedEvent.photoId;
+      const userNote = this.selectedEventNote;
+      const plantName = this.activePlant?.name;
+
+      let result: TimelineAiAnalysis;
+
+      if (photoId) {
+        result = await this.api.analyzePhoto(photoId, userNote, plantName);
+      } else {
+        // Simulate local analysis if no photoId
+        result = await this.api.analyzePhoto(-1, userNote, plantName);
+      }
+
+      this.aiAnalysis = result;
+      this.showAiAnalysis = true;
+
+      // Update the event in the timeline
+      if (this.selectedEvent && this.activePlant?.timeline) {
+        this.selectedEvent.aiAnalysis = result;
+        const idx = this.activePlant.timeline.findIndex(
+          e => e.date === this.selectedEvent!.date && e.description === this.selectedEvent!.description
+        );
+        if (idx >= 0) {
+          this.activePlant.timeline[idx].aiAnalysis = result;
+        }
+      }
+    } catch (err) {
+      console.error('Error analyzing with AI:', err);
+      const toast = await this.toastController.create({
+        message: 'Error al analizar con IA. Inténtalo de nuevo.',
+        duration: 2000,
+        color: 'danger',
+        position: 'top',
+      });
+      await toast.present();
+    } finally {
+      this.isAnalyzing = false;
+    }
+  }
+
+  async saveAiAnalysis() {
+    if (!this.aiAnalysis || !this.selectedEvent) return;
+
+    // Persist updated timeline to localStorage
+    if (this.activePlant) {
+      localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
+      const currentEmail = localStorage.getItem('currentUserEmail');
+      if (currentEmail) {
+        localStorage.setItem(`activePlant_${currentEmail}`, JSON.stringify(this.activePlant));
+      }
+    }
+
+    const toast = await this.toastController.create({
+      message: '✅ Análisis guardado correctamente',
+      duration: 2000,
+      color: 'success',
+      position: 'top',
+    });
+    await toast.present();
+
+    this.closeRecordDetail();
+  }
+
+  getAiStatusColor(status: string): string {
+    switch (status) {
+      case 'Excelente': return '#38a872';
+      case 'Saludable': return '#38a872';
+      case 'Atención recomendada': return '#f39c12';
+      case 'Requiere cuidado urgente': return '#e74c3c';
+      default: return '#38a872';
+    }
+  }
+
+  getAnalyzedTimeStr(analyzedAt?: string): string {
+    if (!analyzedAt) return '';
+    try {
+      return new Date(analyzedAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    } catch {
+      return '';
+    }
+  }
+
+  getAnalyzedDateStr(analyzedAt?: string): string {
+    if (!analyzedAt) return '';
+    try {
+      return new Date(analyzedAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    } catch {
+      return '';
+    }
+  }
+
+  getRegisteredTimeStr(registeredAt?: string): string {
+    if (!registeredAt) return '';
+    try {
+      return new Date(registeredAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) + ' a. m.';
+    } catch {
+      return '';
+    }
+  }
+
+  // ── Plant modal ──
 
   openPlantDetailsModal() {
     this.isPlantDetailsModalOpen = true;
@@ -304,22 +497,42 @@ export class PlantPage implements OnInit {
     return [
       {
         date: 'Hoy, 20 Mayo 2026',
-        description: 'La planta se ve saludable',
+        description: 'La planta se ve saludable y firme. Las hojas están verdes y brillantes. Ha crecido desde la última semana.',
         imageUrl:
           this.activePlant?.imageUrl ||
           'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=200&auto=format&fit=crop',
+        registeredAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+        aiAnalysis: {
+          healthScore: 94,
+          confidence: 94,
+          status: 'Saludable',
+          observations: ['Follaje verde y uniforme', 'Sin signos visibles de plagas o enfermedades'],
+          recommendations: ['Continúa con el mismo riego.', 'Mantén la planta con buena luz indirecta.', 'No se observan signos de plagas.', 'El crecimiento es normal.'],
+          analyzedAt: new Date(Date.now() - 1000 * 60 * 29).toISOString(),
+        },
       },
       {
-        date: 'Hoy, 13 Enero 2026',
-        description: 'Nuevas hojas en crecimiento',
+        date: '12 Abril 2026',
+        description: 'Primeras ramas colgantes apareciendo.',
         imageUrl:
           'https://images.unsplash.com/photo-1604762524889-3e2fec45568f?q=80&w=200&auto=format&fit=crop',
+        registeredAt: new Date('2026-04-12T10:30:00').toISOString(),
+        aiAnalysis: null,
       },
       {
-        date: '15 Diciembre 2025',
-        description: 'Inicio de la Planta',
+        date: '01 Marzo 2026',
+        description: 'Inicio del cultivo del Poto.',
         imageUrl:
           'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=200&auto=format&fit=crop',
+        registeredAt: new Date('2026-03-01T08:00:00').toISOString(),
+        aiAnalysis: {
+          healthScore: 80,
+          confidence: 88,
+          status: 'Saludable',
+          observations: ['Follaje verde y uniforme'],
+          recommendations: ['Mantén el cuidado actual'],
+          analyzedAt: new Date('2026-03-01T08:31:00').toISOString(),
+        },
       },
     ];
   }
@@ -371,6 +584,8 @@ export class PlantPage implements OnInit {
         description: this.optionalNote || 'La planta se ve saludable',
         imageUrl: this.capturedImage || this.activePlant.imageUrl,
         progress: this.progressValue,
+        registeredAt: new Date().toISOString(),
+        aiAnalysis: null,
       });
 
       localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
@@ -460,7 +675,9 @@ export class PlantPage implements OnInit {
   }
 
   goBack() {
-    if (this.viewMode === 'camera' && this.activePlant) {
+    if (this.viewMode === 'record-detail') {
+      this.closeRecordDetail();
+    } else if (this.viewMode === 'camera' && this.activePlant) {
       this.viewMode = 'progress';
     } else if (this.viewMode === 'photo-detail') {
       this.viewMode = 'camera';

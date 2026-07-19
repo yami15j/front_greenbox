@@ -1,5 +1,11 @@
 <ion-content class="plants-content" [scrollEvents]="true" [fullscreen]="true">
+
+  <!-- ====================================================
+       VISTA 1: PROGRESO / LÍNEA DE TIEMPO
+       ==================================================== -->
   <div class="my-plant-container" *ngIf="viewMode === 'progress' && activePlant">
+
+    <!-- Header -->
     <div class="my-plant-header">
       <button class="header-btn" (click)="goBack()">
         <ion-icon name="chevron-back-outline"></ion-icon>
@@ -11,34 +17,34 @@
     </div>
 
     <div class="plant-progress-shell">
+
+      <!-- Plant summary card -->
       <div class="plant-summary-card" (click)="openPlantDetailsModal()">
         <div class="plant-summary-image">
-          <img [src]="activePlant.imageUrl" [alt]="activePlant.name" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
+          <img [src]="activePlant.imageUrl" [alt]="activePlant.name"
+               onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
         </div>
-
         <div class="plant-summary-copy">
           <span class="plant-summary-kicker">Mi planta</span>
           <h2>{{ activePlant.name }}</h2>
           <p>{{ activePlant.type }} · {{ activePlant.growthTime }}</p>
-
           <div class="plant-summary-badges">
             <span class="summary-badge">{{ activePlant.difficulty }}</span>
-            <span class="summary-badge">{{ activePlant.daysSincePlanting || 32 }} dias</span>
+            <span class="summary-badge">{{ activePlant.daysSincePlanting || 32 }} días</span>
           </div>
         </div>
-
         <div class="plant-summary-action">
           <span>Ver detalles</span>
           <ion-icon name="chevron-forward-outline"></ion-icon>
         </div>
       </div>
 
-      <h2 class="progress-section-title">Progreso</h2>
-
+      <!-- Resumen card -->
+      <h2 class="progress-section-title">Resumen</h2>
       <div class="progress-overview-card">
         <div class="overview-col">
-          <span class="overview-label">Dias desde la siembra</span>
-          <span class="overview-value">{{ activePlant.daysSincePlanting || 32 }} dias</span>
+          <span class="overview-label">Días desde la siembra</span>
+          <span class="overview-value green-value">{{ activePlant.daysSincePlanting || 45 }} días</span>
         </div>
         <div class="vertical-divider"></div>
         <div class="overview-col">
@@ -52,12 +58,16 @@
         </div>
       </div>
 
-      <h3 class="timeline-title">Linea de tiempo</h3>
+      <!-- Timeline -->
+      <h3 class="timeline-title">Línea de tiempo</h3>
 
       <div class="timeline-list">
-        <div class="timeline-card" *ngFor="let ev of activePlant.timeline || getDefaultTimeline()">
+        <div class="timeline-card"
+             *ngFor="let ev of activePlant.timeline || getDefaultTimeline()"
+             (click)="openRecordDetail(ev)">
           <div class="timeline-image">
-            <img [src]="resolveImageUrl(ev.imageUrl)" [alt]="ev.description" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=200&auto=format&fit=crop';">
+            <img [src]="resolveImageUrl(ev.imageUrl)" [alt]="ev.description"
+                 onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=200&auto=format&fit=crop';">
           </div>
           <div class="timeline-info">
             <div class="timeline-caption-header">
@@ -70,17 +80,181 @@
               </div>
             </div>
             <p class="timeline-desc">{{ ev.description }}</p>
+            <!-- AI badge -->
+            <div class="ai-badge analyzed" *ngIf="ev.aiAnalysis">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              <span>Analizado por IA</span>
+            </div>
+            <div class="ai-badge pending" *ngIf="!ev.aiAnalysis">
+              <ion-icon name="time-outline"></ion-icon>
+              <span>Sin analizar</span>
+            </div>
           </div>
+          <ion-icon name="chevron-forward-outline" class="timeline-arrow"></ion-icon>
         </div>
       </div>
 
-      <button class="take-photo-btn" (click)="openCamera()">
-        <ion-icon name="camera-outline"></ion-icon>
-        Tomar nueva foto
-      </button>
+      <!-- Floating new record button -->
+      <div class="new-record-fab-area">
+        <button class="new-record-fab" (click)="openCamera()">
+          <ion-icon name="add-outline"></ion-icon>
+        </button>
+        <span class="new-record-label">Nuevo registro</span>
+      </div>
+
     </div>
   </div>
 
+  <!-- ====================================================
+       VISTA 2: DETALLE DEL REGISTRO (pantalla 2 de la imagen)
+       ==================================================== -->
+  <div class="record-detail-container" *ngIf="viewMode === 'record-detail' && selectedEvent">
+
+    <!-- Header -->
+    <div class="record-detail-header">
+      <button class="header-btn" (click)="closeRecordDetail()">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <h1 class="page-title">Registro</h1>
+      <button class="header-btn">
+        <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="record-detail-body">
+
+      <!-- Big image -->
+      <div class="record-big-image">
+        <img [src]="resolveImageUrl(selectedEvent.imageUrl)" [alt]="selectedEvent.description"
+             onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
+      </div>
+
+      <!-- Date + time -->
+      <div class="record-date-block">
+        <div class="record-date-row">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <span>{{ selectedEvent.date }}</span>
+        </div>
+        <div class="record-time-row" *ngIf="selectedEvent.registeredAt">
+          <ion-icon name="time-outline"></ion-icon>
+          <span>Registrado a las {{ getRegisteredTimeStr(selectedEvent.registeredAt) }}</span>
+        </div>
+      </div>
+
+      <!-- Observations del usuario -->
+      <div class="record-section">
+        <div class="record-section-header">
+          <h3 class="record-section-title">Observaciones del usuario</h3>
+        </div>
+        <div class="observations-card">
+          <p class="observations-text">{{ selectedEventNote }}</p>
+          <button class="edit-note-btn" (click)="openEditNote()">
+            <ion-icon name="create-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Estado del análisis -->
+      <div class="record-section" *ngIf="!showAiAnalysis">
+        <h3 class="record-section-title">Estado del análisis</h3>
+        <div class="no-analysis-card">
+          <div class="no-analysis-icon">
+            <ion-icon name="sparkles-outline"></ion-icon>
+          </div>
+          <p class="no-analysis-title">Sin analizar todavía</p>
+          <p class="no-analysis-desc">Obtén recomendaciones personalizadas analizando este registro con IA.</p>
+        </div>
+
+        <!-- Analyze button -->
+        <button class="analyze-btn" (click)="analyzeWithAI()" [disabled]="isAnalyzing">
+          <div class="analyze-btn-inner" *ngIf="!isAnalyzing">
+            <ion-icon name="sparkles-outline"></ion-icon>
+            <span>Analizar con IA</span>
+          </div>
+          <div class="analyze-btn-loading" *ngIf="isAnalyzing">
+            <ion-spinner name="crescent"></ion-spinner>
+            <span>Analizando...</span>
+          </div>
+        </button>
+        <p class="analyze-help-text">
+          <ion-icon name="save-outline"></ion-icon>
+          El análisis se guardará con este registro
+        </p>
+      </div>
+
+      <!-- ====================================================
+           VISTA 3 EMBEBIDA: Resultado del análisis IA (pantalla 3)
+           ==================================================== -->
+      <div class="record-section ai-result-section" *ngIf="showAiAnalysis && aiAnalysis">
+
+        <!-- AI Analysis header with badge -->
+        <div class="ai-section-header">
+          <h3 class="record-section-title">Análisis con IA</h3>
+          <div class="ai-completed-badge">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <span>Completado del {{ getAnalyzedDateStr(aiAnalysis.analyzedAt) }} - {{ getAnalyzedTimeStr(aiAnalysis.analyzedAt) }} a. m.</span>
+          </div>
+        </div>
+
+        <!-- Health status card -->
+        <div class="health-status-card">
+          <div class="health-circle-wrapper">
+            <div class="health-circle" [style.border-color]="getAiStatusColor(aiAnalysis.status)">
+              <ion-icon name="leaf-outline" [style.color]="getAiStatusColor(aiAnalysis.status)"></ion-icon>
+            </div>
+          </div>
+          <div class="health-info">
+            <span class="health-label">Estado detectado</span>
+            <span class="health-status-text" [style.color]="getAiStatusColor(aiAnalysis.status)">
+              {{ aiAnalysis.status }}
+            </span>
+            <span class="health-confidence">Confianza {{ aiAnalysis.confidence }}%</span>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="recommendations-block">
+          <h4 class="rec-title">Recomendaciones</h4>
+          <div class="rec-list">
+            <div class="rec-item" *ngFor="let rec of aiAnalysis.recommendations">
+              <ion-icon name="checkmark-circle-outline" class="rec-check"></ion-icon>
+              <span>{{ rec }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Observations from AI -->
+        <div class="observations-block" *ngIf="aiAnalysis.observations?.length">
+          <h4 class="rec-title">Observaciones de la IA</h4>
+          <div class="rec-list">
+            <div class="rec-item obs" *ngFor="let obs of aiAnalysis.observations">
+              <ion-icon name="leaf-outline" class="rec-check obs-icon"></ion-icon>
+              <span>{{ obs }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Update analysis button -->
+        <button class="update-analysis-btn" (click)="analyzeWithAI()" [disabled]="isAnalyzing">
+          <ion-icon name="refresh-outline" *ngIf="!isAnalyzing"></ion-icon>
+          <ion-spinner name="crescent" *ngIf="isAnalyzing"></ion-spinner>
+          <span>{{ isAnalyzing ? 'Actualizando...' : 'Actualizar análisis' }}</span>
+        </button>
+
+        <!-- Save analysis button -->
+        <button class="save-analysis-btn" (click)="saveAiAnalysis()">
+          <ion-icon name="save-outline"></ion-icon>
+          <span>Guardar análisis</span>
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================
+       CAMERA / PHOTO-DETAIL VIEWS (existing)
+       ==================================================== -->
   <div class="camera-flow-container" *ngIf="viewMode === 'camera'">
     <div class="camera-header">
       <button class="header-btn" (click)="goBack()">
@@ -94,30 +268,23 @@
 
     <div class="viewfinder-box" [class.front-facing]="cameraFacing === 'user'">
       <img [src]="activePlant?.imageUrl || 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop'" class="live-preview-image">
-
       <div class="scan-line"></div>
-
       <div class="camera-grid">
         <div class="grid-line horizontal-1"></div>
         <div class="grid-line horizontal-2"></div>
         <div class="grid-line vertical-1"></div>
         <div class="grid-line vertical-2"></div>
       </div>
-
-      <div class="viewfinder-instruction">
-        Toma una foto para el progreso de tu planta
-      </div>
+      <div class="viewfinder-instruction">Toma una foto para el progreso de tu planta</div>
     </div>
 
     <div class="camera-controls-row">
       <button class="control-circle-btn" (click)="selectFromGallery()">
         <ion-icon name="image-outline"></ion-icon>
       </button>
-
       <button class="shutter-outer-ring" (click)="triggerShutter()">
         <div class="shutter-inner-solid"></div>
       </button>
-
       <button class="control-circle-btn" (click)="switchCamera()">
         <ion-icon name="refresh-outline"></ion-icon>
       </button>
@@ -138,11 +305,6 @@
     <div class="photo-detail-body">
       <div class="captured-image-frame">
         <img [src]="capturedImage" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
-      </div>
-
-      <div class="date-caption-row">
-        <h4 class="caption-date">Hoy, 18 Julio 2026</h4>
-        <p class="caption-status">La planta se ve saludable</p>
       </div>
 
       <div class="progress-slider-section">
@@ -168,6 +330,7 @@
     </div>
   </div>
 
+  <!-- Plant details modal -->
   <div
     class="plant-detail-modal-backdrop"
     *ngIf="isPlantDetailsModalOpen && activePlant"
@@ -186,7 +349,8 @@
       <div class="plant-detail-modal-scroll">
         <div class="my-plant-card modal-card">
           <div class="plant-image-frame">
-            <img [src]="activePlant.imageUrl" [alt]="activePlant.name" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
+            <img [src]="activePlant.imageUrl" [alt]="activePlant.name"
+                 onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
           </div>
 
           <div class="plant-name-badge-row">
@@ -242,9 +406,10 @@
       </div>
     </div>
   </div>
+
 </ion-content>
 
-<ion-footer class="ion-no-border stats-footer" *ngIf="viewMode !== 'camera' && viewMode !== 'photo-detail' && !isPlantDetailsModalOpen">
+<ion-footer class="ion-no-border stats-footer" *ngIf="viewMode !== 'camera' && viewMode !== 'photo-detail' && viewMode !== 'record-detail' && !isPlantDetailsModalOpen">
   <div class="custom-tabs-nav">
     <button class="nav-tab" (click)="goHome()">
       <ion-icon name="home-outline"></ion-icon>

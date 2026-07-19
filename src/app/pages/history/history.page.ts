@@ -114,7 +114,7 @@ export class HistoryPage implements OnInit {
 
   // Navegación
   goBack() { this.navCtrl.back(); }
-  goHome() { this.navCtrl.navigateBack('/home'); }
+  goHome() { this.navCtrl.navigateForward('/home'); }
   goStats() { this.navCtrl.navigateForward('/weekly'); }
   goMyPlant() { this.navCtrl.navigateForward('/plant'); }
   goNotifications() { this.navCtrl.navigateForward('/notification'); }

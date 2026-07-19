@@ -47,7 +47,9 @@ ion-content {
 /* ===============================
    FONDO GLOBAL
    =============================== */
-ion-app {
+ion-app,
+ion-router-outlet,
+body {
   background: var(--ion-background-color);
 }
 

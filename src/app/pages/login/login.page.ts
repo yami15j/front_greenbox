@@ -73,7 +73,7 @@ export class LoginPage {
     // Si ya existe una caja seleccionada en localStorage, ir a home directamente
     const savedBoxId = localStorage.getItem('selectedBoxId');
     if (savedBoxId) {
-      this.router.navigateByUrl('/select');
+      this.router.navigate(['/select'], { replaceUrl: true });
       return;
     }
 
@@ -82,7 +82,7 @@ export class LoginPage {
     try {
       const boxId = await this.api.ensureSelectedBox();
       if (boxId) {
-        this.router.navigateByUrl('/select');
+        this.router.navigate(['/select'], { replaceUrl: true });
       }
     } catch (e) {
       console.warn('Error al verificar caja activa en ionViewWillEnter:', e);
@@ -131,7 +131,7 @@ export class LoginPage {
           }
         }
 
-        setTimeout(() => this.router.navigateByUrl('/select'), 800);
+        setTimeout(() => this.router.navigate(['/select'], { replaceUrl: true }), 800);
 
       } else {
         this.mensaje = 'Código inválido, intenta de nuevo';
@@ -169,6 +169,6 @@ export class LoginPage {
     localStorage.removeItem('activePlant');
     localStorage.removeItem('activePlantId');
     localStorage.removeItem('currentUserEmail');
-    this.router.navigateByUrl('/email-login');
+    this.router.navigate(['/email-login'], { replaceUrl: true });
   }
 }

@@ -406,7 +406,7 @@ export class WeeklyPage implements OnInit {
   }
 
   goHome(): void {
-    this.navCtrl.navigateBack('/home');
+    this.navCtrl.navigateForward('/home');
   }
 
   goPlants(): void {

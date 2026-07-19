@@ -1,5 +1,13 @@
 <ion-content class="camera-content" [fullscreen]="true" [scrollEvents]="false">
 
+  <!-- Input oculto para galería nativa -->
+  <input
+    #galleryInput
+    type="file"
+    accept="image/*"
+    style="display: none;"
+    (change)="onGalleryFileSelected($event)">
+
   <!-- ====================
        VISTA 1: NUEVA FOTO (CÁMARA)
        ==================== -->
@@ -7,7 +15,7 @@
     <!-- HEADER -->
     <div class="camera-header">
       <button class="header-btn" (click)="goBack()">
-        <ion-icon name="chevron-back-outline"></ion-icon>
+        <ion-icon name="close-outline"></ion-icon>
       </button>
       <h1 class="camera-title">Nueva foto</h1>
       <button class="header-btn flash-btn" (click)="toggleFlash()" [class.active]="flashActive">
@@ -17,14 +25,30 @@
 
     <!-- VIEWFINDER PREVIEW -->
     <div class="viewfinder-box" [class.front-facing]="cameraFacing === 'user'">
-      <video #videoElement autoplay playsinline class="camera-video-stream" [style.display]="capturedImage ? 'none' : 'block'"></video>
-      <img [src]="capturedImage || (activePlant?.imageUrl || 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop')" class="live-preview-image" [style.display]="capturedImage ? 'block' : 'none'">
-      
-      <!-- SCANNING LINE EFFECT -->
-      <div class="scan-line"></div>
-      
+
+      <!-- Estado de carga mientras la cámara arranca -->
+      <div class="camera-loading-state" *ngIf="!cameraReady && !cameraError">
+        <div class="camera-spinner"></div>
+        <p class="camera-loading-text">Iniciando cámara...</p>
+      </div>
+
+      <!-- Estado de error de permisos -->
+      <div class="camera-error-state" *ngIf="cameraError">
+        <ion-icon name="image-outline" class="error-icon"></ion-icon>
+        <p class="camera-error-text">{{ cameraError }}</p>
+        <button class="retry-camera-btn" (click)="startCamera()">Reintentar</button>
+      </div>
+
+      <!-- Video stream: oculto hasta que cameraReady sea true -->
+      <video #videoElement autoplay playsinline muted class="camera-video-stream"
+        [style.opacity]="cameraReady ? '1' : '0'">
+      </video>
+
+      <!-- SCANNING LINE EFFECT (solo cuando cámara activa) -->
+      <div class="scan-line" *ngIf="cameraReady"></div>
+
       <!-- GRID LINES -->
-      <div class="camera-grid">
+      <div class="camera-grid" *ngIf="cameraReady">
         <div class="grid-line horizontal-1"></div>
         <div class="grid-line horizontal-2"></div>
         <div class="grid-line vertical-1"></div>
@@ -32,7 +56,7 @@
       </div>
 
       <!-- BOTTOM INSTRUCTION OVERLAY -->
-      <div class="viewfinder-instruction">
+      <div class="viewfinder-instruction" *ngIf="cameraReady">
         Toma una foto para el progreso de tu planta
       </div>
     </div>
@@ -43,12 +67,12 @@
       <button class="control-circle-btn" (click)="selectFromGallery()">
         <ion-icon name="image-outline"></ion-icon>
       </button>
-      
+
       <!-- Shutter Trigger Button -->
-      <button class="shutter-outer-ring" (click)="triggerShutter()">
+      <button class="shutter-outer-ring" (click)="triggerShutter()" [disabled]="!cameraReady">
         <div class="shutter-inner-solid"></div>
       </button>
-      
+
       <!-- Switch Camera Button -->
       <button class="control-circle-btn" (click)="switchCamera()">
         <ion-icon name="refresh-outline"></ion-icon>
@@ -57,7 +81,41 @@
   </div>
 
   <!-- ====================
-       VISTA 2: DETALLE DE LA FOTO
+       VISTA 2: CONFIRMAR FOTO
+       ==================== -->
+  <div class="confirm-container" *ngIf="viewMode === 'confirm'">
+    <div class="confirm-header">
+      <button class="header-btn" (click)="goBack()">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </button>
+      <h2 class="page-title">Confirmar foto</h2>
+      <button class="header-btn" (click)="retakePhoto()">
+        <ion-icon name="trash-outline"></ion-icon>
+      </button>
+    </div>
+
+    <div class="confirm-body">
+      <div class="confirm-image-wrapper">
+        <!-- Mostrar la foto que se acaba de tomar -->
+        <img [src]="capturedImage" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
+      </div>
+
+      <div class="confirm-text-area">
+        <h3 class="confirm-title">¿Te gusta esta foto?</h3>
+        <p class="confirm-subtitle">Puedes volver a tomarla si no estás satisfecho.</p>
+      </div>
+
+      <div class="confirm-actions">
+        <button class="btn-retake" (click)="retakePhoto()">
+          <ion-icon name="refresh-outline"></ion-icon> <span>Volver a tomar</span>
+        </button>
+        <button class="btn-use" (click)="usePhoto()">Usar esta foto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================
+       VISTA 3: DETALLE DE LA FOTO
        ==================== -->
   <div class="photo-detail-container" *ngIf="viewMode === 'photo-detail'">
     <!-- HEADER -->
@@ -65,51 +123,49 @@
       <button class="header-btn" (click)="goBack()">
         <ion-icon name="chevron-back-outline"></ion-icon>
       </button>
-      <h1 class="page-title">Detalle de la foto</h1>
-      <button class="header-btn delete-btn" (click)="deleteCapturedPhoto()">
-        <ion-icon name="trash-outline"></ion-icon>
-      </button>
+      <h1 class="page-title">Detalles del registro</h1>
+      <div class="header-placeholder"></div>
     </div>
 
     <!-- CONTENT BODY -->
     <div class="photo-detail-body">
-      <!-- CAPTURED IMAGE WITH ROUNDED CORNERS -->
-      <div class="captured-image-frame">
-        <img [src]="capturedImage" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
-      </div>
-
-      <!-- DATE & INITIAL CAPTION -->
-      <div class="date-caption-row">
-        <h4 class="caption-date">Hoy, 20 Mayo 2026</h4>
-        <p class="caption-status">La planta se ve saludable</p>
-      </div>
-
-      <!-- PROGRESS SLIDER -->
-      <div class="progress-slider-section">
-        <h4 class="section-subtitle">Progreso de la Planta</h4>
-        <div class="slider-wrapper-row">
-          <input type="range" min="0" max="100"
-            [(ngModel)]="progressValue"
-            class="progress-range-slider"
-            [style.background]="'linear-gradient(to right, #5fb89a ' + progressValue + '%, #eef2f0 ' + progressValue + '%)'">
-          <span class="percentage-display-text">{{ progressValue }} %</span>
+      
+      <!-- TOP INFO (THUMBNAIL + DATE) -->
+      <div class="record-info-row">
+        <div class="record-thumbnail">
+          <img [src]="capturedImage" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
+        </div>
+        <div class="record-text">
+          <h4 class="record-date">{{ currentDateStr }}</h4>
+          <p class="record-subtitle">Registro de progreso</p>
         </div>
       </div>
 
-      <!-- OPTIONAL NOTE INPUT -->
+      <hr class="divider">
+
+      <!-- OBSERVATIONS -->
       <div class="note-input-section">
-        <h4 class="section-subtitle">Nota (opcional)</h4>
-        <textarea 
-          placeholder="Escribe una nota sobre el estado de tu planta ...." 
-          [(ngModel)]="optionalNote"
-          class="custom-note-textarea">
-        </textarea>
+        <h4 class="section-subtitle">Observaciones</h4>
+        <p class="section-description">Escribe tus observaciones sobre tu planta (crecimiento, cambios, riego, etc.)</p>
+        
+        <div class="textarea-wrapper">
+          <textarea
+            placeholder="Escribe aquí tus observaciones..."
+            [(ngModel)]="optionalNote"
+            class="custom-note-textarea"
+            maxlength="300">
+          </textarea>
+          <span class="char-count">{{ optionalNote.length }}/300</span>
+        </div>
       </div>
 
       <!-- SAVE BUTTON -->
-      <button class="save-detail-btn" (click)="savePhotoDetail()">
-        Guardar
-      </button>
+      <div class="save-section">
+        <button class="save-detail-btn" (click)="savePhotoDetail()">
+          Guardar registro
+        </button>
+        <p class="save-help-text">Este registro se guardará en el historial de tu planta.</p>
+      </div>
     </div>
   </div>
 

@@ -1,9 +1,22 @@
+export interface TimelineAiAnalysis {
+  healthScore:     number;
+  confidence:      number;
+  status:          string;
+  observations:    string[];
+  recommendations: string[];
+  userNote?:       string;
+  analyzedAt:      string;
+}
+
 export interface TimelineEvent {
   date: string;
   description: string;
   imageUrl: string;
   progress?: number;
   id?: any;
+  photoId?: number;
+  registeredAt?: string;
+  aiAnalysis?: TimelineAiAnalysis | null;
 }
 
 export interface Plantprofile {
