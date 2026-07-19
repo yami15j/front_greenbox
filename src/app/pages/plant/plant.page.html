@@ -18,29 +18,21 @@
 
     <div class="plant-progress-shell">
 
-      <!-- Plant summary card -->
-      <div class="plant-summary-card" (click)="openPlantDetailsModal()">
-        <div class="plant-summary-image">
-          <img [src]="activePlant.imageUrl" [alt]="activePlant.name"
-               onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
-        </div>
-        <div class="plant-summary-copy">
-          <span class="plant-summary-kicker">Mi planta</span>
-          <h2>{{ activePlant.name }}</h2>
-          <p>{{ activePlant.type }} · {{ activePlant.growthTime }}</p>
-          <div class="plant-summary-badges">
-            <span class="summary-badge">{{ activePlant.difficulty }}</span>
-            <span class="summary-badge">{{ activePlant.daysSincePlanting || 32 }} días</span>
+      <!-- Plant info hero -->
+      <div class="plant-hero-info" (click)="openPlantDetailsModal()">
+        <div class="plant-hero-text">
+          <span class="plant-hero-kicker">Mi planta</span>
+          <div class="plant-hero-name-row">
+            <h2>{{ activePlant.name }}</h2>
+            <div class="plant-verified-dot">
+              <ion-icon name="checkmark-circle" class="verified-icon"></ion-icon>
+            </div>
           </div>
-        </div>
-        <div class="plant-summary-action">
-          <span>Ver detalles</span>
-          <ion-icon name="chevron-forward-outline"></ion-icon>
+          <p class="plant-hero-subtitle">{{ activePlant.type }} · {{ activePlant.growthTime }}</p>
         </div>
       </div>
 
       <!-- Resumen card -->
-      <h2 class="progress-section-title">Resumen</h2>
       <div class="progress-overview-card">
         <div class="overview-col">
           <span class="overview-label">Días desde la siembra</span>
@@ -58,39 +50,49 @@
         </div>
       </div>
 
-      <!-- Timeline -->
+      <!-- Timeline title -->
       <h3 class="timeline-title">Línea de tiempo</h3>
 
-      <div class="timeline-list">
-        <div class="timeline-card"
-             *ngFor="let ev of activePlant.timeline || getDefaultTimeline()"
+      <!-- Vertical timeline -->
+      <div class="timeline-vertical-list">
+        <div class="timeline-vertical-item"
+             *ngFor="let ev of (activePlant.timeline || getDefaultTimeline()); let i = index; let last = last"
              (click)="openRecordDetail(ev)">
-          <div class="timeline-image">
-            <img [src]="resolveImageUrl(ev.imageUrl)" [alt]="ev.description"
-                 onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=200&auto=format&fit=crop';">
+
+          <!-- Left: dot + line -->
+          <div class="timeline-rail">
+            <div class="timeline-dot" [class.dot-green]="ev.aiAnalysis" [class.dot-amber]="!ev.aiAnalysis && i > 0" [class.dot-first]="i === 0 && !ev.aiAnalysis"></div>
+            <div class="timeline-line" *ngIf="!last"></div>
           </div>
-          <div class="timeline-info">
-            <div class="timeline-caption-header">
-              <h4 class="timeline-date">{{ ev.date }}</h4>
-              <div class="timeline-header-right">
-                <span class="timeline-card-percent" *ngIf="ev.progress">{{ ev.progress }}%</span>
+
+          <!-- Right: card -->
+          <div class="timeline-entry-card">
+            <div class="timeline-entry-image">
+              <img [src]="resolveImageUrl(ev.imageUrl)" [alt]="ev.description"
+                   loading="lazy"
+                   onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=200&auto=format&fit=crop';">
+            </div>
+            <div class="timeline-entry-body">
+              <div class="timeline-entry-top">
+                <h4 class="timeline-entry-date">{{ ev.date }}</h4>
+                <span class="timeline-entry-pct" *ngIf="ev.progress">{{ ev.progress }}%</span>
                 <button class="delete-progress-btn" *ngIf="ev.id" (click)="deleteProgress(ev.id, $event)">
                   <ion-icon name="trash-outline"></ion-icon>
                 </button>
               </div>
+              <p class="timeline-entry-desc">{{ ev.description }}</p>
+              <div class="ai-badge analyzed" *ngIf="ev.aiAnalysis">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                <span>Analizado por IA</span>
+              </div>
+              <div class="ai-badge pending" *ngIf="!ev.aiAnalysis">
+                <ion-icon name="time-outline"></ion-icon>
+                <span>Sin analizar</span>
+              </div>
             </div>
-            <p class="timeline-desc">{{ ev.description }}</p>
-            <!-- AI badge -->
-            <div class="ai-badge analyzed" *ngIf="ev.aiAnalysis">
-              <ion-icon name="checkmark-circle-outline"></ion-icon>
-              <span>Analizado por IA</span>
-            </div>
-            <div class="ai-badge pending" *ngIf="!ev.aiAnalysis">
-              <ion-icon name="time-outline"></ion-icon>
-              <span>Sin analizar</span>
-            </div>
+            <ion-icon name="chevron-forward-outline" class="timeline-arrow"></ion-icon>
           </div>
-          <ion-icon name="chevron-forward-outline" class="timeline-arrow"></ion-icon>
+
         </div>
       </div>
 
