@@ -453,8 +453,11 @@ export class SelectPlantPage implements OnInit {
         savedToBackend = true;
       }
     } catch (err) {
-      console.warn('No se pudo guardar en el backend, se guardará solo localmente:', err);
-      this.savePlantError = 'La planta se guardó localmente (sin conexión al servidor).';
+      console.error('No se pudo guardar la planta en el backend:', err);
+      this.savePlantError = 'No se pudo registrar la planta en el servidor. Verifica tu conexión e intenta de nuevo.';
+      this.isSavingPlant = false;
+      this.cdr.detectChanges();
+      return; // Detenemos aquí: no fingimos éxito ni cerramos el modal.
     }
 
     // Construir el perfil de planta para el frontend

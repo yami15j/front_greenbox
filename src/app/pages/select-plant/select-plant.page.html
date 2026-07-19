@@ -232,6 +232,11 @@
           </div>
 
 
+          <div class="save-plant-error" *ngIf="savePlantError">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            <span>{{ savePlantError }}</span>
+          </div>
+
           <button type="button" class="submit-btn" (click)="saveNewPlant()" [disabled]="isSavingPlant">
             <ion-icon [name]="isSavingPlant ? 'time-outline' : 'add-circle-outline'" class="submit-icon"></ion-icon>
             {{ isSavingPlant ? 'Guardando...' : 'Guardar Planta' }}
