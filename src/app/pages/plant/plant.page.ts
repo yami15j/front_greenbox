@@ -115,13 +115,17 @@ export class PlantPage implements OnInit {
   private async initializePage() {
     await restoreUserScopedStorageFromFirebase();
     await this.loadActivePlant();
+    this.mergeCustomTimelineEvents();
   }
 
   private async refreshPageState() {
     await restoreUserScopedStorageFromFirebase();
     await this.loadActivePlant();
 
-    // Inject pending event saved by camera
+    // Restaurar eventos custom guardados previamente (sobreviven navegación)
+    this.mergeCustomTimelineEvents();
+
+    // Inyectar evento pendiente guardado por la cámara
     const pendingStr = localStorage.getItem('pendingTimelineEvent');
     if (pendingStr && this.activePlant) {
       try {
@@ -129,14 +133,66 @@ export class PlantPage implements OnInit {
         if (!this.activePlant.timeline) {
           this.activePlant.timeline = [];
         }
-        const first = this.activePlant.timeline[0];
-        if (!first || first.date !== pending.date || first.description !== pending.description) {
+        const isDuplicate = this.activePlant.timeline.some(
+          (e: any) => e.registeredAt === pending.registeredAt
+        );
+        if (!isDuplicate) {
           this.activePlant.timeline.unshift(pending);
+          // Persistir para que sobreviva futuras navegaciones
+          this.saveCustomTimelineEvent(pending);
         }
       } catch (e) {
         console.warn('Error parsing pending timeline event', e);
       }
       localStorage.removeItem('pendingTimelineEvent');
+    }
+  }
+
+  /** Guarda un evento custom en localStorage (clave por planta) */
+  private saveCustomTimelineEvent(event: any) {
+    try {
+      const plantId = this.activePlant?.id || localStorage.getItem('activePlantId') || 'default';
+      const key = `customTimelineEvents_${plantId}`;
+      const existing: any[] = JSON.parse(localStorage.getItem(key) || '[]');
+      const isDup = existing.some((e: any) => e.registeredAt === event.registeredAt);
+      if (!isDup) {
+        existing.unshift(event);
+        // Máximo 30 eventos custom guardados
+        localStorage.setItem(key, JSON.stringify(existing.slice(0, 30)));
+      }
+    } catch (e) {
+      console.warn('No se pudo persistir el evento custom:', e);
+    }
+  }
+
+  /** Fusiona eventos custom guardados de vuelta al timeline activo */
+  private mergeCustomTimelineEvents() {
+    if (!this.activePlant) return;
+    try {
+      const plantId = this.activePlant.id || localStorage.getItem('activePlantId') || 'default';
+      const key = `customTimelineEvents_${plantId}`;
+      const customEvents: any[] = JSON.parse(localStorage.getItem(key) || '[]');
+      if (customEvents.length === 0) return;
+
+      if (!this.activePlant.timeline) {
+        this.activePlant.timeline = [];
+      }
+
+      for (const ev of customEvents) {
+        const exists = this.activePlant.timeline.some(
+          (e: any) => e.registeredAt === ev.registeredAt
+        );
+        if (!exists) {
+          this.activePlant.timeline.unshift(ev);
+        }
+      }
+
+      // Ordenar por fecha descendente
+      this.activePlant.timeline.sort((a: any, b: any) =>
+        new Date(b.registeredAt || 0).getTime() - new Date(a.registeredAt || 0).getTime()
+      );
+    } catch (e) {
+      console.warn('No se pudieron fusionar los eventos custom:', e);
     }
   }
 
@@ -478,6 +534,16 @@ export class PlantPage implements OnInit {
   resolveImageUrl(imageUrl: string): string {
     if (!imageUrl) {
       return 'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=200&auto=format&fit=crop';
+    }
+
+    if (imageUrl.startsWith('local://')) {
+      const key = imageUrl.replace('local://', '');
+      const stored = localStorage.getItem(key);
+      return (
+        stored ||
+        this.activePlant?.imageUrl ||
+        'https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=200&auto=format&fit=crop'
+      );
     }
 
     if (imageUrl.startsWith('session://')) {

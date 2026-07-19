@@ -48,6 +48,7 @@ export class CameraPage implements OnInit {
   cameraReady = false;
   cameraError = '';
   currentDateStr = '';
+  isSaving = false;
 
   constructor(
     private navCtrl: NavController,
@@ -228,63 +229,106 @@ export class CameraPage implements OnInit {
     this.viewMode = 'photo-detail';
   }
 
-  async savePhotoDetail() {
-    const todayStr = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-    const boxId = localStorage.getItem('selectedBoxId') || '1';
-    const isDevMode = boxId === 'dev-box-id';
+  savePhotoDetail() {
+    if (this.isSaving) return;
+    this.isSaving = true;
 
-    // Store large base64 image in sessionStorage to avoid the 5 MB localStorage limit
-    let imageRef = this.activePlant?.imageUrl || '';
-    if (this.capturedImage && this.capturedImage.startsWith('data:')) {
+    try {
+      const todayStr = new Date().toLocaleDateString('es-ES', {
+        day: 'numeric', month: 'long', year: 'numeric'
+      });
+
+      // Guardar imagen en sessionStorage para mostrarse al instante
       const imgKey = `gb_photo_${Date.now()}`;
-      try {
-        sessionStorage.setItem(imgKey, this.capturedImage);
-        imageRef = `session://${imgKey}`;
-      } catch (e) {
-        console.warn('sessionStorage full, using plant fallback image');
-        imageRef = this.activePlant?.imageUrl || '';
+      let imageRef = this.activePlant?.imageUrl || '';
+      const capturedCopy = this.capturedImage;
+
+      if (capturedCopy && capturedCopy.startsWith('data:')) {
+        try {
+          sessionStorage.setItem(imgKey, capturedCopy);
+          imageRef = `session://${imgKey}`;
+        } catch (e) {
+          console.warn('sessionStorage full');
+        }
+      } else if (capturedCopy) {
+        imageRef = capturedCopy;
       }
-    } else if (this.capturedImage) {
-      imageRef = this.capturedImage;
+
+      const registeredAt = new Date().toISOString();
+      const newEvent = {
+        date: `Hoy, ${todayStr}`,
+        description: this.optionalNote || 'La planta se ve saludable',
+        imageUrl: imageRef,
+        progress: this.progressValue,
+        registeredAt,
+        aiAnalysis: null,
+      };
+
+      // Guardar para que plant.page lo tome al regresar
+      localStorage.setItem('pendingTimelineEvent', JSON.stringify(newEvent));
+
+      // Toast: fire-and-forget — sin ningún await para evitar bloqueo en Android
+      this.toastController.create({
+        message: '✅ Registro guardado correctamente',
+        duration: 2000,
+        color: 'success',
+        position: 'top'
+      }).then(t => t.present()).catch(() => {});
+
+      // Navegar de inmediato sin esperar nada
+      this.isSaving = false;
+      this.router.navigate(['/plant']);
+
+      // Subir a Cloudinary en segundo plano (capturamos todo antes de navegar)
+      const userPlantId = localStorage.getItem('activeUserPlantId');
+      const plantId = this.activePlant?.id || localStorage.getItem('activePlantId') || 'default';
+      if (userPlantId && capturedCopy && capturedCopy.startsWith('data:')) {
+        this.uploadToCloudinaryBackground(capturedCopy, registeredAt, Number(userPlantId), plantId);
+      }
+
+    } catch (err) {
+      console.error('Error al guardar:', err);
+      this.isSaving = false;
     }
+  }
 
-    // Build timeline event for the plant page
-    const newEvent = {
-      date: `Hoy, ${todayStr}`,
-      description: this.optionalNote || 'La planta se ve saludable',
-      imageUrl: imageRef,
-      progress: this.progressValue,
-      registeredAt: new Date().toISOString(),
-      aiAnalysis: null,
-    };
-
-    // Persist so plant.page picks it up when navigating back
-    localStorage.setItem('pendingTimelineEvent', JSON.stringify(newEvent));
-
-    if (!isDevMode) {
+  /** Sube la foto a Cloudinary en segundo plano sin bloquear la UI */
+  private uploadToCloudinaryBackground(
+    dataUrl: string,
+    registeredAt: string,
+    userPlantId: number,
+    plantId: string
+  ) {
+    (async () => {
       try {
-        const backendPayload = {
-          description: this.optionalNote || 'La planta se ve saludable',
-          progress: this.progressValue,
-          imageUrl: this.capturedImage || (this.activePlant?.imageUrl || '')
-        };
-        await this.api.savePlantProgress(boxId, backendPayload);
+        const [header, base64] = dataUrl.split(',');
+        const mime = header.match(/:(.*?);/)![1];
+        const binary = atob(base64);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        const blob = new Blob([bytes], { type: mime });
+
+        const formData = new FormData();
+        formData.append('file', blob, `photo_${Date.now()}.jpg`);
+
+        const result = await this.api.uploadPhoto(userPlantId, formData);
+        const cloudinaryUrl = result?.data?.imageUrl || result?.imageUrl;
+
+        if (cloudinaryUrl) {
+          // Actualizar la URL en los eventos custom persistidos
+          const key = `customTimelineEvents_${plantId}`;
+          const events: any[] = JSON.parse(localStorage.getItem(key) || '[]');
+          const idx = events.findIndex((e: any) => e.registeredAt === registeredAt);
+          if (idx >= 0) {
+            events[idx].imageUrl = cloudinaryUrl;
+            localStorage.setItem(key, JSON.stringify(events));
+          }
+          console.log('✅ Foto subida a Cloudinary:', cloudinaryUrl);
+        }
       } catch (err) {
-        console.warn('Could not save progress to backend — saved locally:', err);
+        console.warn('Background Cloudinary upload failed (no crítico):', err);
       }
-    }
-
-    const toast = await this.toastController.create({
-      message: isDevMode
-        ? '✅ Foto guardada localmente (modo desarrollo)'
-        : '✅ Foto y progreso guardados correctamente',
-      duration: 2000,
-      color: 'success',
-      position: 'top'
-    });
-    await toast.present();
-
-    this.router.navigate(['/plant']);
+    })();
   }
 
   goBack() {

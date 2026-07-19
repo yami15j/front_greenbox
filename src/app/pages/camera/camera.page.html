@@ -161,8 +161,12 @@
 
       <!-- SAVE BUTTON -->
       <div class="save-section">
-        <button class="save-detail-btn" (click)="savePhotoDetail()">
-          Guardar registro
+        <button class="save-detail-btn" (click)="savePhotoDetail()" [disabled]="isSaving" [class.saving]="isSaving">
+          <span *ngIf="!isSaving">Guardar registro</span>
+          <span *ngIf="isSaving" class="saving-content">
+            <span class="save-spinner"></span>
+            Guardando...
+          </span>
         </button>
         <p class="save-help-text">Este registro se guardará en el historial de tu planta.</p>
       </div>

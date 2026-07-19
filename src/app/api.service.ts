@@ -820,4 +820,22 @@ export class ApiService {
       throw err;
     }
   }
+
+  /** Subir foto al backend (Cloudinary) — POST /photo/:userPlantId/upload */
+  async uploadPhoto(userPlantId: number, formData: FormData): Promise<any> {
+    const requestOptions = await this.getAuthRequestOptions();
+    if (!requestOptions) {
+      throw new Error('No hay sesión autenticada para subir la foto.');
+    }
+
+    // No establecer Content-Type manualmente — el navegador lo pone con el boundary correcto
+    const headers = requestOptions.headers.delete('Content-Type');
+    return await firstValueFrom(
+      this.http.post<any>(
+        `${this.base}/photo/${userPlantId}/upload?type=report`,
+        formData,
+        { headers }
+      )
+    );
+  }
 }
