@@ -10,6 +10,7 @@ import {
   statsChartOutline,
   leafOutline,
   chevronForwardOutline,
+  chevronBackOutline,
   sparklesOutline,
   gridOutline,
 } from 'ionicons/icons';
@@ -25,6 +26,7 @@ export class SelectPage implements OnInit {
   userName = 'Zaida Jumbo';
   profileImage: string | null = null;
   unreadCount = 0;
+  hasActivePlant = false;
 
   constructor(private router: Router) {
     addIcons({
@@ -33,6 +35,7 @@ export class SelectPage implements OnInit {
       statsChartOutline,
       leafOutline,
       chevronForwardOutline,
+      chevronBackOutline,
       sparklesOutline,
       gridOutline,
     });
@@ -52,6 +55,7 @@ export class SelectPage implements OnInit {
       this.userName = this.getUserDisplayName(savedName);
     }
     this.profileImage = localStorage.getItem('profileImage') || null;
+    this.hasActivePlant = !!localStorage.getItem('activePlantId');
   }
 
   private getUserDisplayName(fullName: string): string {

@@ -199,18 +199,19 @@ export class PlantPage implements OnInit {
   }
 
   async loadActivePlant() {
-    const savedPlantId = localStorage.getItem('activePlantId');
-
-    if (savedPlantId) {
-      const savedPlant = this.plantProfiles.find((plant) => plant.id === savedPlantId);
-      if (savedPlant) {
-        this.plantProfiles.forEach((plant) => (plant.isActive = false));
-        savedPlant.isActive = true;
+    // 1. Carga inicial rápida desde caché para UX
+    const activePlantStr = localStorage.getItem('activePlant');
+    if (activePlantStr) {
+      try {
+        const savedPlant = JSON.parse(activePlantStr);
         this.selectedPlant = savedPlant;
         this.activePlant = savedPlant;
+      } catch (e) {
+        console.warn('Error parsing activePlant', e);
       }
     }
 
+    // 2. Sincronización real con el backend
     const boxId = localStorage.getItem('selectedBoxId');
     if (boxId) {
       try {
@@ -219,46 +220,40 @@ export class PlantPage implements OnInit {
           boxInfo && boxInfo.box ? boxInfo.box.plant : boxInfo ? boxInfo.plant : null;
 
         if (plantObj) {
-          const plantId =
-            plantObj.id || (boxInfo.box ? boxInfo.box.plantId : boxInfo.plantId);
+          // Usamos directamente la planta devuelta por el backend (ya mapeada)
+          // sin depender del arreglo local PLANT_PROFILES
+          this.selectedPlant = plantObj;
+          this.activePlant = plantObj;
+          localStorage.setItem('activePlantId', String(plantObj.id));
 
-          if (plantId) {
-            const matchedPlant = this.plantProfiles.find((plant) => plant.id === plantId);
-
-            if (matchedPlant) {
-              this.plantProfiles.forEach((plant) => (plant.isActive = false));
-              matchedPlant.isActive = true;
-              this.selectedPlant = matchedPlant;
-              this.activePlant = matchedPlant;
-              localStorage.setItem('activePlantId', plantId);
-
-              if (this.plantProgressEnabled) {
-                await this.loadProgressTimeline(boxId);
-              } else if (!this.activePlant.timeline || this.activePlant.timeline.length === 0) {
-                this.activePlant.timeline = this.getDefaultTimeline();
-              }
-
-              localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
-
-              const currentEmail = localStorage.getItem('currentUserEmail');
-              if (currentEmail) {
-                localStorage.setItem(`activePlantId_${currentEmail}`, plantId);
-                localStorage.setItem(
-                  `activePlant_${currentEmail}`,
-                  JSON.stringify(this.activePlant),
-                );
-              }
-              return;
-            }
+          if (this.plantProgressEnabled) {
+            await this.loadProgressTimeline(boxId);
+          } else if (!this.activePlant!.timeline || this.activePlant!.timeline.length === 0) {
+            this.activePlant!.timeline = this.getDefaultTimeline();
           }
+
+          localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
+
+          const currentEmail = localStorage.getItem('currentUserEmail');
+          if (currentEmail) {
+            localStorage.setItem(`activePlantId_${currentEmail}`, String(plantObj.id));
+            localStorage.setItem(
+              `activePlant_${currentEmail}`,
+              JSON.stringify(this.activePlant),
+            );
+          }
+          return;
         }
       } catch (err) {
         console.warn('Error loading active plant details from backend:', err);
       }
     }
 
-    this.activePlant = this.plantProfiles.find((plant) => plant.isActive) || null;
-    this.selectedPlant = this.activePlant;
+    // Fallback final
+    if (!this.activePlant) {
+      this.activePlant = null;
+      this.selectedPlant = null;
+    }
   }
 
   async loadProgressTimeline(boxId: string) {
@@ -344,8 +339,8 @@ export class PlantPage implements OnInit {
       message: 'Esta acción no se puede deshacer.',
       buttons: [
         { text: 'Cancelar', role: 'cancel' },
-        { 
-          text: 'Eliminar', 
+        {
+          text: 'Eliminar',
           role: 'destructive',
           handler: () => {
             this.deleteCurrentRecord();
@@ -358,12 +353,12 @@ export class PlantPage implements OnInit {
 
   deleteCurrentRecord() {
     if (!this.activePlant || !this.selectedEvent) return;
-    
+
     // Remove from activePlant timeline
     if (this.activePlant.timeline) {
       this.activePlant.timeline = this.activePlant.timeline.filter(e => e.registeredAt !== this.selectedEvent!.registeredAt);
     }
-    
+
     // Update local storage for custom timeline events
     const plantId = this.activePlant.id || localStorage.getItem('activePlantId') || 'default';
     const key = `customTimelineEvents_${plantId}`;
@@ -391,7 +386,7 @@ export class PlantPage implements OnInit {
       customEvents[idx] = this.selectedEvent;
       localStorage.setItem(key, JSON.stringify(customEvents));
     }
-    
+
     // update activePlant timeline
     if (this.activePlant.timeline) {
       const tlIdx = this.activePlant.timeline.findIndex(e => e.registeredAt === this.selectedEvent!.registeredAt);
@@ -399,7 +394,7 @@ export class PlantPage implements OnInit {
         this.activePlant.timeline[tlIdx] = this.selectedEvent;
       }
     }
-    
+
     localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
     const currentEmail = localStorage.getItem('currentUserEmail');
     if (currentEmail) {

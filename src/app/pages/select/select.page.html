@@ -5,12 +5,14 @@
     <div class="hero-section">
       <!-- CABECERA COMPACTA -->
       <div class="top-bar">
-
-        <div class="action-buttons">
-          <button class="header-action-btn notification-btn" (click)="goNotifications()">
-            <ion-icon name="notifications-outline"></ion-icon>
-            <span class="noti-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+        
+        <div class="left-actions">
+          <button *ngIf="hasActivePlant" class="header-action-btn back-btn" (click)="goHome()">
+            <ion-icon name="chevron-back-outline"></ion-icon>
           </button>
+        </div>
+
+        <div class="action-buttons" *ngIf="hasActivePlant">
           <button class="header-action-btn avatar-btn" (click)="goProfile()">
             <img *ngIf="profileImage" [src]="profileImage" alt="Avatar" class="avatar-image">
             <div *ngIf="!profileImage" class="avatar-fallback">

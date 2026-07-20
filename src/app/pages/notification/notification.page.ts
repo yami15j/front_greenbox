@@ -112,8 +112,8 @@ export class NotificationPage implements OnInit {
 
       this.notifications = this.processNotifications(response);
     } catch (error) {
-      console.log('Backend no disponible, usando notificaciones de ejemplo');
-      this.notifications = this.getMockNotifications();
+      console.log('Backend no disponible o sin notificaciones');
+      this.notifications = [];
     }
 
     this.filterNotifications();
@@ -131,153 +131,10 @@ export class NotificationPage implements OnInit {
     }));
   }
 
-  private getMockNotifications(): Notification[] {
-    const now = new Date();
-    const today = new Date(now);
-    const yesterday = new Date(now.setDate(now.getDate() - 1));
-    const twoDaysAgo = new Date(now.setDate(now.getDate() - 1));
 
-    return [
-      {
-        id: '1',
-        type: 'alert',
-        priority: 'high',
-        title: 'Temperatura Alta',
-        message: 'La temperatura ha superado el rango óptimo (28°C). Se recomienda revisar ventilación.',
-        plantName: 'Fresa',
-        plantId: 'strawberry',
-        timestamp: today,
-        time: this.getTimeString(today),
-        date: this.getDateString(today),
-        read: false,
-        sensorType: 'temperature',
-        sensorValue: 28,
-        actionUrl: '/home'
-      },
-      {
-        id: '2',
-        type: 'reminder',
-        priority: 'medium',
-        title: 'Hora de Regar',
-        message: 'Es momento de verificar el nivel de agua de tu planta.',
-        plantName: 'Fresa',
-        plantId: 'strawberry',
-        timestamp: today,
-        time: this.getTimeString(today),
-        date: this.getDateString(today),
-        read: false,
-        actionUrl: '/home'
-      },
-      {
-        id: '3',
-        type: 'alert',
-        priority: 'medium',
-        title: 'Humedad Baja',
-        message: 'La humedad ha bajado a 45%. Considera aumentar la humedad ambiental.',
-        plantName: 'Fresa',
-        plantId: 'strawberry',
-        timestamp: yesterday,
-        time: this.getTimeString(yesterday),
-        date: this.getDateString(yesterday),
-        read: false,
-        sensorType: 'humidity',
-        sensorValue: 45
-      },
-      {
-        id: '4',
-        type: 'system',
-        priority: 'low',
-        title: 'Sistema Actualizado',
-        message: 'GREENBOX se ha actualizado correctamente a la versión 2.1.0',
-        timestamp: yesterday,
-        time: this.getTimeString(yesterday),
-        date: this.getDateString(yesterday),
-        read: true
-      },
-      {
-        id: '5',
-        type: 'info',
-        priority: 'low',
-        title: 'Consejo del Día',
-        message: 'Las fresas necesitan al menos 6 horas de luz directa para un crecimiento óptimo.',
-        plantName: 'Fresa',
-        timestamp: twoDaysAgo,
-        time: this.getTimeString(twoDaysAgo),
-        date: this.getDateString(twoDaysAgo),
-        read: true
-      },
-      {
-        id: '6',
-        type: 'reminder',
-        priority: 'medium',
-        title: 'Fertilización Programada',
-        message: 'Según tu calendario, es momento de fertilizar tu cultivo.',
-        plantName: 'Fresa',
-        timestamp: twoDaysAgo,
-        time: this.getTimeString(twoDaysAgo),
-        date: this.getDateString(twoDaysAgo),
-        read: true,
-        actionUrl: '/mont'
-      }
-    ];
-  }
-
-  onFilterChange(event: any) {
-    this.selectedFilter = event.detail.value;
-    this.filterNotifications();
-    this.categorizeByDate();
-  }
 
   filterNotifications() {
-    // Obtener preferencias guardadas
-    const settingsStr = localStorage.getItem('notificationSettings');
-    let enabledTypes: string[] = [];
-
-    if (settingsStr) {
-      try {
-        // Parsear el string JSON y extraer los valores de los checkboxes marcados
-        const parsedSettings = JSON.parse(settingsStr);
-        enabledTypes = Object.keys(parsedSettings).filter(key => parsedSettings[key] === true);
-      } catch {
-        // Si hay error, mostrar todas
-        enabledTypes = ['temperature', 'humidity', 'light', 'water', 'reminders'];
-      }
-    } else {
-      // Por defecto, todas habilitadas
-      enabledTypes = ['temperature', 'humidity', 'light', 'water', 'reminders'];
-    }
-
-    // Filtrar por tipo de sensor/alerta
-    let filtered = this.notifications.filter(n => {
-      // Si es una alerta de sensor, verificar si está habilitada
-      if (n.sensorType) {
-        return enabledTypes.includes(n.sensorType);
-      }
-      // Si es recordatorio, verificar si está habilitado
-      if (n.type === 'reminder') {
-        return enabledTypes.includes('reminders');
-      }
-      // Otros tipos (system, info) siempre se muestran
-      return true;
-    });
-
-    // Aplicar filtro de categoría (all, alerts, reminders, system)
-    if (this.selectedFilter !== 'all') {
-      filtered = filtered.filter(n => {
-        switch (this.selectedFilter) {
-          case 'alerts':
-            return n.type === 'alert';
-          case 'reminders':
-            return n.type === 'reminder';
-          case 'system':
-            return n.type === 'system' || n.type === 'info'; // 'info' se considera parte de 'system' para el filtro
-          default:
-            return true;
-        }
-      });
-    }
-
-    this.filteredNotifications = filtered;
+    this.filteredNotifications = this.notifications;
   }
 
   categorizeByDate() {
@@ -537,9 +394,9 @@ export class NotificationPage implements OnInit {
   }
 
   goBack() { this.navCtrl.back(); }
-  goHome() { this.navCtrl.navigateForward('/home'); }
-  goHistory() { this.navCtrl.navigateForward('/weekly'); }
-  goMyPlant() { this.navCtrl.navigateForward('/plant'); }
+  goHome() { this.navCtrl.navigateBack('/home'); }
+  goHistory() { this.navCtrl.navigateBack('/weekly'); }
+  goMyPlant() { this.navCtrl.navigateBack('/plant'); }
   goNotifications() {
     const content = document.querySelector('ion-content') as any;
     content?.scrollToTop(300);

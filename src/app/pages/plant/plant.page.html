@@ -25,7 +25,7 @@
             <div class="plant-verified-dot">
             </div>
           </div>
-          <p class="plant-hero-subtitle">{{ activePlant.type }} · {{ activePlant.growthTime }}</p>
+          <p class="plant-hero-subtitle">{{ activePlant.type || 'Tipo desconocido' }}<span *ngIf="activePlant.growthTime"> · {{ activePlant.growthTime }}</span></p>
         </div>
       </div>
 

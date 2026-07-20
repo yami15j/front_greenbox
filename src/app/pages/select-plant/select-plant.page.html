@@ -4,7 +4,7 @@
     [style.background-image]="(selectedPlant && selectedPlant.imageUrl) ? 'url(\'' + selectedPlant.imageUrl + '\')' : null">
     <div class="hero-overlay"></div>
 
-    <button class="back-button" (click)="goHome()">
+    <button class="back-button" (click)="goBack()">
       <ion-icon name="chevron-back-outline"></ion-icon>
     </button>
 
@@ -159,7 +159,7 @@
               <ng-container *ngIf="!newPlantImage; else hasImage">
                 <div class="upload-placeholder">
                   <ion-icon name="camera-outline" class="upload-icon"></ion-icon>
-                  <span>Toma una foto o sube una imagen</span>
+                  <span>Sube una imagen</span>
                 </div>
               </ng-container>
               <ng-template #hasImage>

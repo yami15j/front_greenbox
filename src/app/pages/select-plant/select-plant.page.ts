@@ -10,7 +10,8 @@ import {
   IonToolbar,
   IonButtons,
   IonTitle,
-  IonFooter
+  IonFooter,
+  NavController
 } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { ApiService, mapBackendPlantToProfile } from 'src/app/api.service';
@@ -69,6 +70,7 @@ export class SelectPlantPage implements OnInit {
 
   constructor(
     private router: Router,
+    private navCtrl: NavController,
     private api: ApiService,
     private socketService: SocketService,
     private cdr: ChangeDetectorRef
@@ -259,11 +261,7 @@ export class SelectPlantPage implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['/select']);
-  }
-
-  goHome() {
-    this.router.navigate(['/home']);
+    this.navCtrl.back();
   }
 
   goStats() {
@@ -432,7 +430,7 @@ export class SelectPlantPage implements OnInit {
     const plantPayload = {
       name: this.newPlant.name.trim(),
       category,
-      imageUrl: undefined as string | undefined,
+      imageUrl: this.newPlantImage || 'https://images.unsplash.com/photo-1530652101053-8c0db4fbb5de?q=80&w=500&auto=format&fit=crop',
       minTemperature: this.newPlant.tempMin || 15,
       maxTemperature: this.newPlant.tempMax || 25,
       minHumidity: this.newPlant.humMin || 45,

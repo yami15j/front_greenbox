@@ -492,25 +492,25 @@ export class HomePage implements OnInit, OnDestroy {
   goMyPlant() {
     // Si no hay planta activa, ir directo a selección
     if (!this.activePlant) {
-      this.router.navigate(['/select']);
+      this.navCtrl.navigateForward('/select');
     } else {
-      this.router.navigate(['/plant']);
+      this.navCtrl.navigateForward('/plant');
     }
     this.closeMenu();
   }
 
   goNotifications() {
-    this.router.navigate(['/notification']);
+    this.navCtrl.navigateForward('/notification');
     this.closeMenu();
   }
 
   goHistory() {
-    this.router.navigate(['/history']);
+    this.navCtrl.navigateForward('/history');
     this.closeMenu();
   }
 
   goPlants() {
-    this.router.navigate(['/select']);
+    this.navCtrl.navigateForward('/select');
     this.closeMenu();
   }
 

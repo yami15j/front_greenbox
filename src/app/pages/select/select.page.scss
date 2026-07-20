@@ -52,7 +52,7 @@
     position: relative;
     z-index: 1;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     gap: 12px;
     padding: 6px 10px 0 10px;
@@ -158,8 +158,8 @@
     padding-right: 0;
 
     .hero-title {
-      margin: -42px 0 0 0; /* Pull only the title higher up */
-      font-size: 25px;
+      margin: 15px 0 0 0; /* Add positive margin to push it well below the top bar */
+      font-size: 22px;
       font-weight: 850;
       color: #17452f;
       display: flex;
@@ -172,7 +172,7 @@
     }
 
     .hero-question {
-      margin: 28px 0 0 0; /* Raised the question and caption text */
+      margin: 15px 0 0 0; /* Adjust spacing since title was lowered */
       font-size: 15.5px;
       font-weight: 600;
       color: #2b543b;
