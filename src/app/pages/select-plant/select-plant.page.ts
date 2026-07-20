@@ -93,9 +93,25 @@ export class SelectPlantPage implements OnInit {
   }
 
   async ngOnInit() {
-    this.plantProfiles = JSON.parse(JSON.stringify(PLANT_PROFILES));
+    // Catálogo base: viene del backend (tabla `plants`), NO se queda quemado en el front.
+    await this.loadCatalogFromBackend();
     this.loadCustomPlants();
     await this.initializePage();
+  }
+
+  private async loadCatalogFromBackend() {
+    try {
+      const backendPlants = await this.api.getPlantCatalog();
+      const mapped = backendPlants
+        .map(p => mapBackendPlantToProfile(p))
+        .filter((p): p is Plantprofile => !!p);
+      this.plantProfiles = mapped.length ? mapped : JSON.parse(JSON.stringify(PLANT_PROFILES));
+    } catch (err) {
+      console.error('No se pudo cargar el catálogo de plantas desde el backend:', err);
+      this.plantProfiles = JSON.parse(JSON.stringify(PLANT_PROFILES));
+    }
+    this.applyFilter(this.filterType);
+    this.cdr.detectChanges();
   }
 
   async ionViewWillEnter() {
@@ -507,4 +523,3 @@ export class SelectPlantPage implements OnInit {
     this.cdr.detectChanges();
   }
 }
-

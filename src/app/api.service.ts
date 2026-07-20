@@ -188,9 +188,9 @@ export function mapBackendPlantToProfile(dbPlant: any): any {
   const baseProfile = PLANT_PROFILES_MAP[key] || {
     id: String(dbPlant.id),
     name: dbPlant.name,
-    type: 'Otros',
+    type: dbPlant.category || 'Otros',
     icon: '🌱',
-    imageUrl: 'assets/plant/default-plant.jpg',
+    imageUrl: dbPlant.imageUrl || 'assets/plant/default-plant.jpg',
     growthTime: 'Desconocido',
     difficulty: 'Fácil',
     benefits: []
@@ -515,6 +515,24 @@ export class ApiService {
   /* ========== PLANT OPERATIONS ========== */
 
   /** Crear una planta personalizada en el backend */
+  /**
+   * Trae el catálogo COMPLETO de plantas desde el backend (tabla `plants`).
+   * GET /plant devuelve { data: [{ category, plants: [...] }, ...] } agrupado
+   * por categoría, así que aquí lo aplanamos a un solo arreglo.
+   */
+  async getPlantCatalog(): Promise<any[]> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get(`${this.base}/plant`)
+      );
+      const grouped = this.unwrapData<{ category: string; plants: any[] }[]>(response) ?? [];
+      return grouped.flatMap(group => group.plants ?? []);
+    } catch (err) {
+      console.error('Error obteniendo el catálogo de plantas del backend:', err);
+      return [];
+    }
+  }
+
   async createPlant(plantData: {
     name: string;
     category: string;
