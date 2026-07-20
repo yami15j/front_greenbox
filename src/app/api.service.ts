@@ -527,7 +527,7 @@ export class ApiService {
         this.http.get(`${this.base}/plant`, requestOptions ?? {})
       );
       const grouped = this.unwrapData<{ category: string; plants: any[] }[]>(response) ?? [];
-      return grouped.flatMap(group => group.plants ?? []);
+      return grouped.reduce((acc: any[], group: { category: string; plants: any[] }) => acc.concat(group.plants ?? []), []);
     } catch (err) {
       console.error('Error obteniendo el catálogo de plantas del backend:', err);
       return [];

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "502680482164",
+    "project_id": "greenbox1",
+    "storage_bucket": "greenbox1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:502680482164:android:9b22bd38796bd26bcefc21",
+        "android_client_info": {
+          "package_name": "io.ionic.starter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "502680482164-r6tg037mmj76cphqhgsc32g620rfkito.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.ionic.starter",
+            "certificate_hash": "0323bc9343f1e2e703f8228df822d1c3ce193bbf"
+          }
+        },
+        {
+          "client_id": "502680482164-vn51so9bkjrte5lph3b30rv1r2sduvp6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcaAtq6Z6XiE7ycGlWJ-bioTvyyXbmBRk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "502680482164-vn51so9bkjrte5lph3b30rv1r2sduvp6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
