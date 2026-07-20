@@ -522,8 +522,9 @@ export class ApiService {
    */
   async getPlantCatalog(): Promise<any[]> {
     try {
+      const requestOptions = await this.getAuthRequestOptions();
       const response = await firstValueFrom(
-        this.http.get(`${this.base}/plant`)
+        this.http.get(`${this.base}/plant`, requestOptions ?? {})
       );
       const grouped = this.unwrapData<{ category: string; plants: any[] }[]>(response) ?? [];
       return grouped.flatMap(group => group.plants ?? []);
