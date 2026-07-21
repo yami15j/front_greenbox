@@ -57,7 +57,7 @@ export class NotificationPage implements OnInit {
   unreadCount = 0;
 
   private apiUrl = environment.apiUrl;
-  private activePlantId: string | null = null;
+  private activeBoxId: string | null = null;
 
   constructor(
     private navCtrl: NavController,
@@ -87,27 +87,20 @@ export class NotificationPage implements OnInit {
   }
 
   loadActivePlant() {
-    const plant = localStorage.getItem('activePlant');
-    if (plant) {
-      try {
-        this.activePlantId = JSON.parse(plant).id;
-      } catch {
-        this.activePlantId = null;
-      }
-    }
+    this.activeBoxId = localStorage.getItem('selectedBoxId');
   }
 
   async loadNotifications() {
     this.isLoading = true;
 
     try {
-      if (!this.activePlantId) {
-        throw new Error('No active plant');
+      if (!this.activeBoxId) {
+        throw new Error('No active box');
       }
 
-      // Usar endpoint correcto de notificaciones
+      // Usar endpoint correcto de notificaciones usando el boxId
       const response = await firstValueFrom(
-        this.http.get<any[]>(`${this.apiUrl}/notifications/${this.activePlantId}`)
+        this.http.get<any[]>(`${this.apiUrl}/notifications/${this.activeBoxId}`)
       );
 
       this.notifications = this.processNotifications(response);
@@ -256,7 +249,7 @@ export class NotificationPage implements OnInit {
     try {
       await firstValueFrom(
         this.http.patch(`${this.apiUrl} / notifications / mark - all - read`, {
-          plantId: this.activePlantId
+          plantId: this.activeBoxId
         })
       );
     } catch (error) {

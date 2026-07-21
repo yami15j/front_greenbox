@@ -57,7 +57,11 @@ export async function getFirebaseIdToken(timeoutMs: number = 4000): Promise<stri
   }
 
   try {
-    return await user.getIdToken();
+    const tokenPromise = user.getIdToken();
+    const timeoutPromise = new Promise<null>((_, reject) => {
+      setTimeout(() => reject(new Error('getIdToken timeout')), timeoutMs);
+    });
+    return await Promise.race([tokenPromise, timeoutPromise]);
   } catch {
     return null;
   }

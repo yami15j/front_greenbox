@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -77,6 +77,7 @@ export class PlantPage implements OnInit {
     private toastController: ToastController,
     private actionSheetCtrl: ActionSheetController,
     private api: ApiService,
+    private cdr: ChangeDetectorRef,
   ) {
     addIcons({
       'chevron-back-outline': chevronBackOutline,
@@ -308,6 +309,7 @@ export class PlantPage implements OnInit {
     this.selectedEvent = null;
     this.aiAnalysis = null;
     this.showAiAnalysis = false;
+    this.isAnalyzing = false;
     this.viewMode = 'progress';
   }
 
@@ -433,22 +435,27 @@ export class PlantPage implements OnInit {
   async analyzeWithAI() {
     if (!this.selectedEvent || this.isAnalyzing) return;
     this.isAnalyzing = true;
+    const currentEvent = this.selectedEvent;
 
     try {
-      const photoId = await this.ensureSelectedEventPhotoUploaded();
-      const userNote = this.selectedEventNote;
+      const photoId = await this.ensureSelectedEventPhotoUploaded(currentEvent);
+      const userNote = currentEvent.description || '';
       const plantName = this.activePlant?.name;
 
       const result: TimelineAiAnalysis = await this.api.analyzePhoto(photoId, userNote, plantName);
 
-      this.aiAnalysis = result;
-      this.showAiAnalysis = true;
+      // Only update UI if the user hasn't navigated away or selected a different record
+      if (this.selectedEvent === currentEvent) {
+        this.aiAnalysis = result;
+        this.showAiAnalysis = true;
+        this.cdr.detectChanges();
+      }
 
       // Update the event in the timeline
-      if (this.selectedEvent && this.activePlant?.timeline) {
-        this.selectedEvent.aiAnalysis = result;
+      if (this.activePlant?.timeline) {
+        currentEvent.aiAnalysis = result;
         const idx = this.activePlant.timeline.findIndex(
-          e => e.date === this.selectedEvent!.date && e.description === this.selectedEvent!.description
+          e => e.date === currentEvent.date && e.description === currentEvent.description
         );
         if (idx >= 0) {
           this.activePlant.timeline[idx].aiAnalysis = result;
@@ -456,15 +463,22 @@ export class PlantPage implements OnInit {
       }
     } catch (err) {
       console.error('Error analyzing with AI:', err);
-      const toast = await this.toastController.create({
-        message: 'Error al analizar con IA. Inténtalo de nuevo.',
-        duration: 2000,
-        color: 'danger',
-        position: 'top',
-      });
-      await toast.present();
+      // Only show error if still on the same screen
+      if (this.selectedEvent === currentEvent) {
+        const errorMessage = err instanceof Error ? err.message : 'Error al analizar con IA. Inténtalo de nuevo.';
+        const toast = await this.toastController.create({
+          message: errorMessage,
+          duration: 3000,
+          color: 'danger',
+          position: 'top',
+        });
+        await toast.present();
+      }
     } finally {
-      this.isAnalyzing = false;
+      if (this.selectedEvent === currentEvent) {
+        this.isAnalyzing = false;
+        this.cdr.detectChanges();
+      }
     }
   }
 
@@ -494,16 +508,16 @@ export class PlantPage implements OnInit {
     this.closeRecordDetail();
   }
 
-  private async ensureSelectedEventPhotoUploaded(): Promise<number> {
-    if (!this.selectedEvent) {
+  private async ensureSelectedEventPhotoUploaded(eventObj: TimelineEvent): Promise<number> {
+    if (!eventObj) {
       throw new Error('No hay registro seleccionado.');
     }
 
-    if (this.selectedEvent.photoId) {
-      return this.selectedEvent.photoId;
+    if (eventObj.photoId) {
+      return eventObj.photoId;
     }
 
-    const resolvedUrl = this.resolveImageUrl(this.selectedEvent.imageUrl);
+    const resolvedUrl = this.resolveImageUrl(eventObj.imageUrl);
 
     if (!resolvedUrl?.startsWith('data:')) {
       throw new Error('La foto todavía no tiene un identificador para analizarse. Espera a que termine la subida.');
@@ -522,9 +536,9 @@ export class PlantPage implements OnInit {
       throw new Error('No se pudo obtener la foto subida para analizarla.');
     }
 
-    this.selectedEvent.photoId = uploadedPhoto.id;
-    this.selectedEvent.imageUrl = uploadedPhoto.imageUrl;
-    this.updateCurrentRecord();
+    eventObj.photoId = uploadedPhoto.id;
+    eventObj.imageUrl = uploadedPhoto.imageUrl;
+    this.updateCurrentRecord(); // This might update the currently selected one, but that's ok
 
     return uploadedPhoto.id;
   }

@@ -148,8 +148,23 @@ export class EmailLoginPage {
         }
       }
 
-      setTimeout(() => {
+      setTimeout(async () => {
         if (boxId) {
+          try {
+            const info = await this.api.getBoxInfo(boxId);
+            if (info?.box?.plant) {
+              localStorage.setItem('activePlant', JSON.stringify(info.box.plant));
+              localStorage.setItem('activePlantId', String(info.box.plant.id));
+              localStorage.setItem('activePlant_' + email, JSON.stringify(info.box.plant));
+              if (info.box.userPlantId) {
+                localStorage.setItem('activeUserPlantId', String(info.box.userPlantId));
+              }
+              this.router.navigate(['/home'], { replaceUrl: true });
+              return;
+            }
+          } catch (e) {
+            console.warn('No se pudo obtener info de la caja en login', e);
+          }
           this.router.navigate(['/select'], { replaceUrl: true });
         } else {
           this.router.navigate(['/login'], { replaceUrl: true });
@@ -236,8 +251,23 @@ export class EmailLoginPage {
       this.mensaje = 'Sesion iniciada correctamente';
       this.isError = false;
 
-      setTimeout(() => {
+      setTimeout(async () => {
         if (boxId) {
+          try {
+            const info = await this.api.getBoxInfo(boxId);
+            if (info?.box?.plant) {
+              localStorage.setItem('activePlant', JSON.stringify(info.box.plant));
+              localStorage.setItem('activePlantId', String(info.box.plant.id));
+              localStorage.setItem('activePlant_' + email, JSON.stringify(info.box.plant));
+              if (info.box.userPlantId) {
+                localStorage.setItem('activeUserPlantId', String(info.box.userPlantId));
+              }
+              this.router.navigate(['/home'], { replaceUrl: true });
+              return;
+            }
+          } catch (e) {
+            console.warn('No se pudo obtener info de la caja en login', e);
+          }
           this.router.navigate(['/select'], { replaceUrl: true });
         } else {
           this.router.navigate(['/login'], { replaceUrl: true });
