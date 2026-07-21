@@ -503,7 +503,9 @@ export class PlantPage implements OnInit {
       return this.selectedEvent.photoId;
     }
 
-    if (!this.selectedEvent.imageUrl?.startsWith('data:')) {
+    const resolvedUrl = this.resolveImageUrl(this.selectedEvent.imageUrl);
+
+    if (!resolvedUrl?.startsWith('data:')) {
       throw new Error('La foto todavía no tiene un identificador para analizarse. Espera a que termine la subida.');
     }
 
@@ -512,7 +514,7 @@ export class PlantPage implements OnInit {
       throw new Error('No se encontró la planta activa para subir la foto.');
     }
 
-    const formData = this.dataUrlToFormData(this.selectedEvent.imageUrl);
+    const formData = this.dataUrlToFormData(resolvedUrl);
     const uploadResult = await this.api.uploadPhoto(userPlantId, formData);
     const uploadedPhoto = uploadResult?.data || uploadResult;
 
