@@ -53,7 +53,7 @@
       <!-- Vertical timeline -->
       <div class="timeline-vertical-list">
         <div class="timeline-vertical-item"
-             *ngFor="let ev of (activePlant.timeline || getDefaultTimeline()); let i = index; let last = last"
+             *ngFor="let ev of activePlant?.timeline; let i = index; let last = last"
              (click)="openRecordDetail(ev)">
 
           <!-- Left: dot + line -->
