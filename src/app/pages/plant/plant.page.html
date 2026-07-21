@@ -67,7 +67,7 @@
             <div class="timeline-entry-image">
               <img [src]="resolveImageUrl(ev.imageUrl)" [alt]="ev.description"
                    loading="lazy"
-                   onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=200&auto=format&fit=crop';">
+                   onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=200&auto=format&fit=crop';">
             </div>
             <div class="timeline-entry-body">
               <div class="timeline-entry-top">
@@ -122,7 +122,7 @@
       <!-- Big image -->
       <div class="record-big-image">
         <img [src]="resolveImageUrl(selectedEvent.imageUrl)" [alt]="selectedEvent.description"
-             onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
+             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
       </div>
 
       <!-- Date + time -->
@@ -297,7 +297,7 @@
 
     <div class="photo-detail-body">
       <div class="captured-image-frame">
-        <img [src]="capturedImage" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
+        <img [src]="capturedImage" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
       </div>
 
       <div class="progress-slider-section">
@@ -343,7 +343,7 @@
         <div class="my-plant-card modal-card">
           <div class="plant-image-frame">
             <img [src]="activePlant.imageUrl" [alt]="activePlant.name"
-                 onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
+                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
           </div>
 
           <div class="plant-name-badge-row">

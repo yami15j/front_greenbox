@@ -97,7 +97,7 @@
     <div class="confirm-body">
       <div class="confirm-image-wrapper">
         <!-- Mostrar la foto que se acaba de tomar -->
-        <img [src]="capturedImage" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
+        <img [src]="capturedImage" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
       </div>
 
       <div class="confirm-text-area">
@@ -133,7 +133,7 @@
       <!-- TOP INFO (THUMBNAIL + DATE) -->
       <div class="record-info-row">
         <div class="record-thumbnail">
-          <img [src]="capturedImage" onerror="this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
+          <img [src]="capturedImage" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1614594975525-e45190c55d0b?q=80&w=500&auto=format&fit=crop';">
         </div>
         <div class="record-text">
           <h4 class="record-date">{{ currentDateStr }}</h4>

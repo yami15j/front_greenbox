@@ -190,7 +190,7 @@ export function mapBackendPlantToProfile(dbPlant: any): any {
     name: dbPlant.name,
     type: dbPlant.category || 'Otros',
     icon: '🌱',
-    imageUrl: dbPlant.imageUrl || 'assets/plant/default-plant.jpg',
+    imageUrl: dbPlant.imageUrl || 'assets/icon/plan.png',
     growthTime: 'Desconocido',
     difficulty: 'Fácil',
     benefits: []
