@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { IonicModule, NavController } from '@ionic/angular';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 interface GuideStep {
   id: number;
@@ -32,7 +33,7 @@ export class GuidePage implements OnInit {
   plants: PlantGuides[] = [];
   activePlantId: number | null = null;
 
-  private backendUrl = 'http://localhost:3000'; // Ajusta según tu backend
+  private backendUrl = environment.apiUrl;
 
   constructor(
     private navCtrl: NavController,
@@ -73,7 +74,7 @@ export class GuidePage implements OnInit {
   }
 
   goBack() { this.navCtrl.back(); }
-  goHome() { this.navCtrl.navigateForward('/home'); }
+  goHome() { this.navCtrl.navigateRoot('/home'); }
 
   scrollToSection(sectionId: string) {
     const element = document.getElementById(sectionId);

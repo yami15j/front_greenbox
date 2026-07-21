@@ -47,7 +47,7 @@
       <div class="chart-title">Temperatura</div>
       <div class="chart-box gradient-green">
         <div class="bars-container">
-          <div class="bar-wrapper" *ngFor="let item of temperatureData">
+          <div class="bar-wrapper" *ngFor="let item of temperatureData; trackBy: trackByIndex">
             <div class="bar" [style.height.%]="item.percentage"></div>
             <div class="bar-label">{{item.value}}°</div>
           </div>
@@ -60,7 +60,7 @@
       <div class="chart-title">Humedad</div>
       <div class="chart-box gradient-blue">
         <div class="bars-container">
-          <div class="bar-wrapper" *ngFor="let item of humidityData">
+          <div class="bar-wrapper" *ngFor="let item of humidityData; trackBy: trackByIndex">
             <div class="bar" [style.height.%]="item.percentage"></div>
             <div class="bar-label">{{item.value}}%</div>
           </div>
@@ -73,7 +73,7 @@
       <div class="chart-title">Luz</div>
       <div class="chart-box gradient-yellow">
         <div class="bars-container">
-          <div class="bar-wrapper" *ngFor="let item of lightData">
+          <div class="bar-wrapper" *ngFor="let item of lightData; trackBy: trackByIndex">
             <div class="bar" [style.height.%]="item.percentage"></div>
             <div class="bar-label">{{item.value}}%</div>
           </div>
@@ -86,7 +86,7 @@
       <div class="chart-title">Nivel de Agua</div>
       <div class="chart-box gradient-blue">
         <div class="bars-container">
-          <div class="bar-wrapper" *ngFor="let item of waterData">
+          <div class="bar-wrapper" *ngFor="let item of waterData; trackBy: trackByIndex">
             <div class="bar" [style.height.%]="item.percentage"></div>
             <div class="bar-label">{{item.value}}%</div>
           </div>

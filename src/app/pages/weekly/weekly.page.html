@@ -34,7 +34,7 @@
     <div class="charts-body" *ngIf="!isLoading">
       <div
         class="chart-card chart-card-clickable"
-        *ngFor="let chart of charts"
+        *ngFor="let chart of charts; trackBy: trackByIndex"
         (click)="openChartDetail(chart)">
         <div class="chart-card-header">
           <div class="header-left">
@@ -59,7 +59,7 @@
               stroke-linecap="round"
               stroke-linejoin="round"></polyline>
 
-            <g *ngFor="let pt of chart.points">
+            <g *ngFor="let pt of chart.points; trackBy: trackByIndex">
               <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="4" [attr.fill]="chart.color" stroke="#ffffff" stroke-width="1.5"></circle>
               <text [attr.x]="pt.x" [attr.y]="pt.y - 8" text-anchor="middle" class="chart-value-text">{{ pt.val }}{{ chart.key === 'temperature' ? '°' : '' }}{{ chart.unit }}</text>
               <text [attr.x]="pt.x" [attr.y]="92" text-anchor="middle" class="chart-coordinate-label">{{ pt.label }}</text>
@@ -104,7 +104,7 @@
       </div>
 
       <div class="detail-list">
-        <div class="detail-reading-card" *ngFor="let item of selectedChartDetail.entries">
+        <div class="detail-reading-card" *ngFor="let item of selectedChartDetail.entries; trackBy: trackByIndex">
           <div class="reading-card-top">
             <span class="sensor-value-chip" [style.background]="selectedChartDetail.color">{{ item.valueLabel }}</span>
             <span class="reading-day">{{ item.dayLabel }}</span>

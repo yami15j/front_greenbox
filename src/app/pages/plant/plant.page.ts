@@ -435,18 +435,11 @@ export class PlantPage implements OnInit {
     this.isAnalyzing = true;
 
     try {
-      const photoId = this.selectedEvent.photoId;
+      const photoId = await this.ensureSelectedEventPhotoUploaded();
       const userNote = this.selectedEventNote;
       const plantName = this.activePlant?.name;
 
-      let result: TimelineAiAnalysis;
-
-      if (photoId) {
-        result = await this.api.analyzePhoto(photoId, userNote, plantName);
-      } else {
-        // Simulate local analysis if no photoId
-        result = await this.api.analyzePhoto(-1, userNote, plantName);
-      }
+      const result: TimelineAiAnalysis = await this.api.analyzePhoto(photoId, userNote, plantName);
 
       this.aiAnalysis = result;
       this.showAiAnalysis = true;
@@ -478,6 +471,9 @@ export class PlantPage implements OnInit {
   async saveAiAnalysis() {
     if (!this.aiAnalysis || !this.selectedEvent) return;
 
+    this.selectedEvent.aiAnalysis = this.aiAnalysis;
+    this.updateCurrentRecord();
+
     // Persist updated timeline to localStorage
     if (this.activePlant) {
       localStorage.setItem('activePlant', JSON.stringify(this.activePlant));
@@ -496,6 +492,54 @@ export class PlantPage implements OnInit {
     await toast.present();
 
     this.closeRecordDetail();
+  }
+
+  private async ensureSelectedEventPhotoUploaded(): Promise<number> {
+    if (!this.selectedEvent) {
+      throw new Error('No hay registro seleccionado.');
+    }
+
+    if (this.selectedEvent.photoId) {
+      return this.selectedEvent.photoId;
+    }
+
+    if (!this.selectedEvent.imageUrl?.startsWith('data:')) {
+      throw new Error('La foto todavía no tiene un identificador para analizarse. Espera a que termine la subida.');
+    }
+
+    const userPlantId = Number(localStorage.getItem('activeUserPlantId'));
+    if (!userPlantId) {
+      throw new Error('No se encontró la planta activa para subir la foto.');
+    }
+
+    const formData = this.dataUrlToFormData(this.selectedEvent.imageUrl);
+    const uploadResult = await this.api.uploadPhoto(userPlantId, formData);
+    const uploadedPhoto = uploadResult?.data || uploadResult;
+
+    if (!uploadedPhoto?.id || !uploadedPhoto?.imageUrl) {
+      throw new Error('No se pudo obtener la foto subida para analizarla.');
+    }
+
+    this.selectedEvent.photoId = uploadedPhoto.id;
+    this.selectedEvent.imageUrl = uploadedPhoto.imageUrl;
+    this.updateCurrentRecord();
+
+    return uploadedPhoto.id;
+  }
+
+  private dataUrlToFormData(dataUrl: string): FormData {
+    const [header, base64] = dataUrl.split(',');
+    const mime = header.match(/:(.*?);/)?.[1] || 'image/jpeg';
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+
+    const formData = new FormData();
+    formData.append('file', new Blob([bytes], { type: mime }), `photo_${Date.now()}.jpg`);
+    return formData;
   }
 
   getAiStatusColor(status: string): string {

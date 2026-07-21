@@ -293,6 +293,7 @@ export class WeeklyPage implements OnInit {
         (a, b) =>
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
       )
+      .slice(0, 100)
       .map((entry) => {
         const date = new Date(entry.timestamp);
         const value = Number(entry[chart.key] ?? 0);
@@ -406,11 +407,11 @@ export class WeeklyPage implements OnInit {
   }
 
   goHome(): void {
-    this.navCtrl.navigateForward('/home');
+    this.navCtrl.navigateRoot('/home');
   }
 
   goPlants(): void {
-    this.navCtrl.navigateForward('/plant');
+    this.navCtrl.navigateRoot('/plant');
   }
 
   goNotifications(): void {
@@ -418,11 +419,15 @@ export class WeeklyPage implements OnInit {
   }
 
   goHistory(): void {
-    this.navCtrl.navigateForward('/history');
+    this.navCtrl.navigateRoot('/history');
   }
 
   refreshData(event: any): void {
     this.loadAllChartsData();
     event?.target?.complete();
+  }
+
+  trackByIndex(index: number): number {
+    return index;
   }
 }

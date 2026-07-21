@@ -78,16 +78,39 @@ export class HistoryPage implements OnInit {
           break;
       }
 
-      this.temperatureData = data.map(d => ({ value: d.temperature, percentage: d.temperature }));
-      this.humidityData = data.map(d => ({ value: d.humidity, percentage: d.humidity }));
-      this.lightData = data.map(d => ({ value: d.light, percentage: d.light }));
-      this.waterData = data.map(d => ({ value: d.water, percentage: d.water }));
+      const chartData = this.sampleReadings(data, 24);
+
+      this.temperatureData = chartData.map(d => ({ value: d.temperature, percentage: this.clampPercentage(d.temperature) }));
+      this.humidityData = chartData.map(d => ({ value: d.humidity, percentage: this.clampPercentage(d.humidity) }));
+      this.lightData = chartData.map(d => ({ value: d.light, percentage: this.clampPercentage(d.light) }));
+      this.waterData = chartData.map(d => ({ value: d.water, percentage: this.clampPercentage(d.water) }));
 
     } catch (err) {
       console.error('Error cargando datos históricos:', err);
     } finally {
       this.isLoading = false;
     }
+  }
+
+  private sampleReadings<T>(data: T[], maxItems: number): T[] {
+    if (data.length <= maxItems) {
+      return data;
+    }
+
+    const sampled: T[] = [];
+    const step = (data.length - 1) / (maxItems - 1);
+    for (let i = 0; i < maxItems; i++) {
+      sampled.push(data[Math.round(i * step)]);
+    }
+    return sampled;
+  }
+
+  private clampPercentage(value: number): number {
+    return Math.max(0, Math.min(100, Number(value) || 0));
+  }
+
+  trackByIndex(index: number): number {
+    return index;
   }
 
   /** Pull to refresh */
@@ -114,9 +137,9 @@ export class HistoryPage implements OnInit {
 
   // Navegación
   goBack() { this.navCtrl.back(); }
-  goHome() { this.navCtrl.navigateForward('/home'); }
-  goStats() { this.navCtrl.navigateForward('/weekly'); }
-  goMyPlant() { this.navCtrl.navigateForward('/plant'); }
+  goHome() { this.navCtrl.navigateRoot('/home'); }
+  goStats() { this.navCtrl.navigateRoot('/weekly'); }
+  goMyPlant() { this.navCtrl.navigateRoot('/plant'); }
   goNotifications() { this.navCtrl.navigateForward('/notification'); }
   goHistory() { document.querySelector('ion-content')?.scrollToTop(300); }
 }

@@ -117,15 +117,26 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   ionViewWillEnter() {
+    this.setupWebSocket();
     void this.refreshPageState();
   }
 
+  ionViewDidLeave() {
+    this.cleanupWebSocket();
+  }
+
   ngOnDestroy() {
+    this.cleanupWebSocket();
+  }
+
+  private cleanupWebSocket() {
     if (this.socketSub) {
       this.socketSub.unsubscribe();
+      this.socketSub = undefined;
     }
     if (this.commandSub) {
       this.commandSub.unsubscribe();
+      this.commandSub = undefined;
     }
     this.socketService.disconnect();
   }
@@ -137,7 +148,6 @@ export class HomePage implements OnInit, OnDestroy {
     this.loadActuatorStatus();
     this.loadUnreadCount();
     this.loadUserName();
-    this.setupWebSocket();
     this.loadWeather();
   }
 
@@ -151,6 +161,8 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   setupWebSocket() {
+    this.cleanupWebSocket();
+    
     try {
       const wsUrl = environment.apiUrl.replace(/^http/, 'ws');
       console.log('🔌 Conectando WebSocket a:', wsUrl);
@@ -485,7 +497,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   goStats() {
-    this.router.navigate(['/weekly']);
+    this.navCtrl.navigateRoot('/weekly');
     this.closeMenu();
   }
 
@@ -494,7 +506,7 @@ export class HomePage implements OnInit, OnDestroy {
     if (!this.activePlant) {
       this.navCtrl.navigateForward('/select');
     } else {
-      this.navCtrl.navigateForward('/plant');
+      this.navCtrl.navigateRoot('/plant');
     }
     this.closeMenu();
   }
@@ -505,7 +517,7 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   goHistory() {
-    this.navCtrl.navigateForward('/history');
+    this.navCtrl.navigateRoot('/history');
     this.closeMenu();
   }
 

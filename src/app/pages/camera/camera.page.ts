@@ -312,7 +312,9 @@ export class CameraPage implements OnInit {
         formData.append('file', blob, `photo_${Date.now()}.jpg`);
 
         const result = await this.api.uploadPhoto(userPlantId, formData);
-        const cloudinaryUrl = result?.data?.imageUrl || result?.imageUrl;
+        const uploadedPhoto = result?.data || result;
+        const cloudinaryUrl = uploadedPhoto?.imageUrl;
+        const photoId = uploadedPhoto?.id;
 
         if (cloudinaryUrl) {
           // Actualizar la URL en los eventos custom persistidos
@@ -321,7 +323,30 @@ export class CameraPage implements OnInit {
           const idx = events.findIndex((e: any) => e.registeredAt === registeredAt);
           if (idx >= 0) {
             events[idx].imageUrl = cloudinaryUrl;
+            if (photoId) events[idx].photoId = photoId;
             localStorage.setItem(key, JSON.stringify(events));
+          }
+
+          const pending = JSON.parse(localStorage.getItem('pendingTimelineEvent') || 'null');
+          if (pending?.registeredAt === registeredAt) {
+            pending.imageUrl = cloudinaryUrl;
+            if (photoId) pending.photoId = photoId;
+            localStorage.setItem('pendingTimelineEvent', JSON.stringify(pending));
+          }
+
+          const activePlant = JSON.parse(localStorage.getItem('activePlant') || 'null');
+          if (activePlant?.timeline) {
+            const activeIdx = activePlant.timeline.findIndex((e: any) => e.registeredAt === registeredAt);
+            if (activeIdx >= 0) {
+              activePlant.timeline[activeIdx].imageUrl = cloudinaryUrl;
+              if (photoId) activePlant.timeline[activeIdx].photoId = photoId;
+              localStorage.setItem('activePlant', JSON.stringify(activePlant));
+
+              const currentEmail = localStorage.getItem('currentUserEmail');
+              if (currentEmail) {
+                localStorage.setItem(`activePlant_${currentEmail}`, JSON.stringify(activePlant));
+              }
+            }
           }
           console.log('✅ Foto subida a Cloudinary:', cloudinaryUrl);
         }
